@@ -1,0 +1,780 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "host.arch",
+            "value": {
+              "stringValue": "amd64"
+            }
+          },
+          {
+            "key": "host.name",
+            "value": {
+              "stringValue": "sung-PC"
+            }
+          },
+          {
+            "key": "os.description",
+            "value": {
+              "stringValue": "Windows 10 10.0"
+            }
+          },
+          {
+            "key": "os.type",
+            "value": {
+              "stringValue": "windows"
+            }
+          },
+          {
+            "key": "process.command_line",
+            "value": {
+              "stringValue": "C:\\Program Files\\Java\\jdk-17.0.2\\bin\\java.exe -javaagent:..\\..\\opentelemetry-javaagent.jar -jar board-system-0.0.1-SNAPSHOT.jar"
+            }
+          },
+          {
+            "key": "process.executable.path",
+            "value": {
+              "stringValue": "C:\\Program Files\\Java\\jdk-17.0.2\\bin\\java.exe"
+            }
+          },
+          {
+            "key": "process.pid",
+            "value": {
+              "intValue": "31840"
+            }
+          },
+          {
+            "key": "process.runtime.description",
+            "value": {
+              "stringValue": "Oracle Corporation OpenJDK 64-Bit Server VM 17.0.2+8-86"
+            }
+          },
+          {
+            "key": "process.runtime.name",
+            "value": {
+              "stringValue": "OpenJDK Runtime Environment"
+            }
+          },
+          {
+            "key": "process.runtime.version",
+            "value": {
+              "stringValue": "17.0.2+8-86"
+            }
+          },
+          {
+            "key": "service.instance.id",
+            "value": {
+              "stringValue": "98f71e91-c074-44a5-b07c-ebe8d82e4426"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "board-system"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "0.0.1-SNAPSHOT"
+            }
+          },
+          {
+            "key": "telemetry.distro.name",
+            "value": {
+              "stringValue": "opentelemetry-java-instrumentation"
+            }
+          },
+          {
+            "key": "telemetry.distro.version",
+            "value": {
+              "stringValue": "2.3.0"
+            }
+          },
+          {
+            "key": "telemetry.sdk.language",
+            "value": {
+              "stringValue": "java"
+            }
+          },
+          {
+            "key": "telemetry.sdk.name",
+            "value": {
+              "stringValue": "opentelemetry"
+            }
+          },
+          {
+            "key": "telemetry.sdk.version",
+            "value": {
+              "stringValue": "1.37.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "io.opentelemetry.jdbc",
+            "version": "2.3.0-alpha"
+          },
+          "spans": [
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "a7aa014d413952d8",
+              "parentSpanId": "0d8e6b0e1c3e5919",
+              "flags": 1,
+              "name": "INSERT log_api",
+              "kind": 3,
+              "startTimeUnixNano": "1723044494705686000",
+              "endTimeUnixNano": "1723044494716524400",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "db.operation",
+                  "value": {
+                    "stringValue": "INSERT"
+                  }
+                },
+                {
+                  "key": "db.sql.table",
+                  "value": {
+                    "stringValue": "log_api"
+                  }
+                },
+                {
+                  "key": "db.system",
+                  "value": {
+                    "stringValue": "h2"
+                  }
+                },
+                {
+                  "key": "db.statement",
+                  "value": {
+                    "stringValue": "insert into log_api (call_url,call_url_parameter,end_time,start_time,user_id,user_ip,seq) values (?,?,?,?,?,?,default)"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                },
+                {
+                  "key": "db.user",
+                  "value": {
+                    "stringValue": "sa"
+                  }
+                },
+                {
+                  "key": "db.connection_string",
+                  "value": {
+                    "stringValue": "h2:tcp:"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "a339565c32001935",
+              "parentSpanId": "8a33b521f360efcf",
+              "flags": 1,
+              "name": "SELECT board",
+              "kind": 3,
+              "startTimeUnixNano": "1723044494963806500",
+              "endTimeUnixNano": "1723044494964803200",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "db.operation",
+                  "value": {
+                    "stringValue": "SELECT"
+                  }
+                },
+                {
+                  "key": "db.sql.table",
+                  "value": {
+                    "stringValue": "board"
+                  }
+                },
+                {
+                  "key": "db.system",
+                  "value": {
+                    "stringValue": "h2"
+                  }
+                },
+                {
+                  "key": "db.statement",
+                  "value": {
+                    "stringValue": "select b1_0.seq,b1_0.content,b1_0.create_date,b1_0.title,b1_0.update_date from board b1_0 offset ? rows fetch first ? rows only"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                },
+                {
+                  "key": "db.user",
+                  "value": {
+                    "stringValue": "sa"
+                  }
+                },
+                {
+                  "key": "db.connection_string",
+                  "value": {
+                    "stringValue": "h2:tcp:"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "90c325b501d1c298",
+              "parentSpanId": "c2d26d7da82f25c5",
+              "flags": 1,
+              "name": "SELECT board",
+              "kind": 3,
+              "startTimeUnixNano": "1723044494988592700",
+              "endTimeUnixNano": "1723044494989095100",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "db.operation",
+                  "value": {
+                    "stringValue": "SELECT"
+                  }
+                },
+                {
+                  "key": "db.sql.table",
+                  "value": {
+                    "stringValue": "board"
+                  }
+                },
+                {
+                  "key": "db.system",
+                  "value": {
+                    "stringValue": "h2"
+                  }
+                },
+                {
+                  "key": "db.statement",
+                  "value": {
+                    "stringValue": "select count(b1_0.seq) from board b1_0"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                },
+                {
+                  "key": "db.user",
+                  "value": {
+                    "stringValue": "sa"
+                  }
+                },
+                {
+                  "key": "db.connection_string",
+                  "value": {
+                    "stringValue": "h2:tcp:"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "d56582063cd7fdf1",
+              "parentSpanId": "130c9d6e0179f9d8",
+              "flags": 1,
+              "name": "UPDATE log_api",
+              "kind": 3,
+              "startTimeUnixNano": "1723044495007246900",
+              "endTimeUnixNano": "1723044495007803100",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "db.operation",
+                  "value": {
+                    "stringValue": "UPDATE"
+                  }
+                },
+                {
+                  "key": "db.sql.table",
+                  "value": {
+                    "stringValue": "log_api"
+                  }
+                },
+                {
+                  "key": "db.system",
+                  "value": {
+                    "stringValue": "h2"
+                  }
+                },
+                {
+                  "key": "db.statement",
+                  "value": {
+                    "stringValue": "update log_api set call_url=?,call_url_parameter=?,end_time=?,start_time=?,user_id=?,user_ip=? where seq=?"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                },
+                {
+                  "key": "db.user",
+                  "value": {
+                    "stringValue": "sa"
+                  }
+                },
+                {
+                  "key": "db.connection_string",
+                  "value": {
+                    "stringValue": "h2:tcp:"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        },
+        {
+          "scope": {
+            "name": "io.opentelemetry.tomcat-10.0",
+            "version": "2.3.0-alpha"
+          },
+          "spans": [
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "ce728d9dc853c050",
+              "parentSpanId": "",
+              "flags": 1,
+              "name": "GET /board/{pageSize}",
+              "kind": 2,
+              "startTimeUnixNano": "1723044494606391700",
+              "endTimeUnixNano": "1723044495092838400",
+              "attributes": [
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/board/{pageSize}"
+                  }
+                },
+                {
+                  "key": "network.peer.port",
+                  "value": {
+                    "intValue": "54763"
+                  }
+                },
+                {
+                  "key": "http.request.method",
+                  "value": {
+                    "stringValue": "GET"
+                  }
+                },
+                {
+                  "key": "url.path",
+                  "value": {
+                    "stringValue": "/board/10"
+                  }
+                },
+                {
+                  "key": "network.peer.address",
+                  "value": {
+                    "stringValue": "0:0:0:0:0:0:0:1"
+                  }
+                },
+                {
+                  "key": "server.address",
+                  "value": {
+                    "stringValue": "localhost"
+                  }
+                },
+                {
+                  "key": "client.address",
+                  "value": {
+                    "stringValue": "0:0:0:0:0:0:0:1"
+                  }
+                },
+                {
+                  "key": "url.scheme",
+                  "value": {
+                    "stringValue": "http"
+                  }
+                },
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "network.protocol.version",
+                  "value": {
+                    "stringValue": "1.1"
+                  }
+                },
+                {
+                  "key": "server.port",
+                  "value": {
+                    "intValue": "5050"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                },
+                {
+                  "key": "user_agent.original",
+                  "value": {
+                    "stringValue": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+                  }
+                },
+                {
+                  "key": "http.response.status_code",
+                  "value": {
+                    "intValue": "200"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        },
+        {
+          "scope": {
+            "name": "io.opentelemetry.spring-data-1.8",
+            "version": "2.3.0-alpha"
+          },
+          "spans": [
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "4a00de9f0053f5c9",
+              "parentSpanId": "ce728d9dc853c050",
+              "flags": 1,
+              "name": "LogRepository.save",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494620222800",
+              "endTimeUnixNano": "1723044494784052800",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "code.function",
+                  "value": {
+                    "stringValue": "save"
+                  }
+                },
+                {
+                  "key": "code.namespace",
+                  "value": {
+                    "stringValue": "com.kt.board.repository.LogRepository"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "20eb1b63f000bd4b",
+              "parentSpanId": "ce728d9dc853c050",
+              "flags": 1,
+              "name": "BoardRepository.findAll",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494784177700",
+              "endTimeUnixNano": "1723044494991845400",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "code.function",
+                  "value": {
+                    "stringValue": "findAll"
+                  }
+                },
+                {
+                  "key": "code.namespace",
+                  "value": {
+                    "stringValue": "com.kt.board.repository.BoardRepository"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "ac43588633af5293",
+              "parentSpanId": "ce728d9dc853c050",
+              "flags": 1,
+              "name": "LogRepository.save",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494991975300",
+              "endTimeUnixNano": "1723044495010526200",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "code.function",
+                  "value": {
+                    "stringValue": "save"
+                  }
+                },
+                {
+                  "key": "code.namespace",
+                  "value": {
+                    "stringValue": "com.kt.board.repository.LogRepository"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        },
+        {
+          "scope": {
+            "name": "io.opentelemetry.hibernate-6.0",
+            "version": "2.3.0-alpha"
+          },
+          "spans": [
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "0d8e6b0e1c3e5919",
+              "parentSpanId": "4a00de9f0053f5c9",
+              "flags": 1,
+              "name": "Session.persist com.kt.board.domain.LogApi",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494642657100",
+              "endTimeUnixNano": "1723044494770136900",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "e45625d6b6a0d0a0",
+              "parentSpanId": "4a00de9f0053f5c9",
+              "flags": 1,
+              "name": "Transaction.commit",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494774946100",
+              "endTimeUnixNano": "1723044494783552600",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "8a33b521f360efcf",
+              "parentSpanId": "20eb1b63f000bd4b",
+              "flags": 1,
+              "name": "SELECT com.kt.board.domain.Board",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494893814900",
+              "endTimeUnixNano": "1723044494972028000",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "c2d26d7da82f25c5",
+              "parentSpanId": "20eb1b63f000bd4b",
+              "flags": 1,
+              "name": "SELECT com.kt.board.domain.Board",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494980004700",
+              "endTimeUnixNano": "1723044494989189000",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "11395e400664c187",
+              "parentSpanId": "20eb1b63f000bd4b",
+              "flags": 1,
+              "name": "Transaction.commit",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494990695900",
+              "endTimeUnixNano": "1723044494991769300",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "953d643ce3ff2971",
+              "parentSpanId": "ac43588633af5293",
+              "flags": 1,
+              "name": "Session.merge com.kt.board.domain.LogApi",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494992352500",
+              "endTimeUnixNano": "1723044494994679600",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            },
+            {
+              "traceId": "27d72ce5ade01ba7d1d951d1a2133a75",
+              "spanId": "130c9d6e0179f9d8",
+              "parentSpanId": "ac43588633af5293",
+              "flags": 1,
+              "name": "Transaction.commit",
+              "kind": 1,
+              "startTimeUnixNano": "1723044494994895800",
+              "endTimeUnixNano": "1723044495010461600",
+              "attributes": [
+                {
+                  "key": "thread.name",
+                  "value": {
+                    "stringValue": "http-nio-5050-exec-2"
+                  }
+                },
+                {
+                  "key": "thread.id",
+                  "value": {
+                    "intValue": "32"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.24.0"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+※ github 프로젝트에 포함시켜 올릴려고 했으나, 파일자체가 너무 많아서 아래의 순서로 설치 및 실행
+
+1. URL 접속
+	https://www.h2database.com
+
+2. 	All Platforms 다운로드
+	URL : https://github.com/h2database/h2database/releases/download/version-2.3.230/h2-2024-07-15.zip
+
+3. 압축 풀기
+
+4. 아래의 경로로 이동
+	h2-2024-07-15\h2\bin
+	※ h2-2024-07-15는 버전정보이며, 다른 버전을 받을 시 디렉토리 명이 다를 수 있음
+
+5. 아래의 파일 실행
+	windows : h2.bat
+	mac : h2.sh
+
+	※ 실행이 안될경우
+	windows : 관리자 권한으로 실행
+	mac : chomd 755 h2.sh
+	
+
+6. 접속
+	127.0.0.1:8082
+	또는
+	본인아이피:8082
+
+
+7. 웹 콘솔창에서 아래의 정보 확인
+	Saved Settings(저장한 설정): Generic H2 (Server)
+	Setting Name(설정 이름): Generic H2 (Server)
+	Driver Class(드라이버 클래스):org.h2.Driver
+	JDBC URL: jdbc:h2:~/user-db
+	User Name(사용자명): sa
+	Password(비밀번호):
+	
+	- JDBC URL 은 내가 사용할 데이터베이스의 이름이며, 없을 경우 자동으로 생성됨
+	- User Name 과 passowrd 는 신규 생성 DB일 경우 입력한 값으로 자동 생성됨
+	- Password는 입력하지 않고 생성
+
+8. connect(접속) 클릭
+
+
+9. Database 파일 생성 경로
+	Windows : C:\Users\현재접속한 사용자 디렉토리\데이터베이스명.mv.db
+	mac : home 디렉토리 or Root 밑
+
+	ex) windows의 경우
+		C:\Users\sung\user-db.mv.db
+	ex) mac의 경우 (이부분은 직접 확인)
+		Root\user-db.mv.db
+		home\user-db.mv.db
+
+10. Password 생성
+	Database에 접속할때 Password 를 사용하여 접속 하고 싶은 경우 미리 database 파일을 생성해야 함
+	
+	windows 
+		1. C:\Users\현재접속한 사용자 디렉토리\ 경로 이동
+		2. 생성할 Database 명으로 파일 생성 
+			ex) test-db.mv.db
+		3. h2 콘솔 접속 
+			http://127.0.0.1:8082/
+	mac
+		1. Database 생성 경로로 이동
+		2. 파일 생성 touch test-db.mv.db
+		3. 권한 변경 chmod 755 test-db.mv.db
+
+	공통
+		4. 2번항목에서 생성한 데이터베이스 이름을 JDBC URL에 입력
+			test-db
+		5. User Name 과 Password 입력 (초기 설정이므로 지금 입력한 값으로 설정됨)
