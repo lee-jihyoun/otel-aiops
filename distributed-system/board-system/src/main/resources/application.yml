@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: board-system
+  datasource :
+    url:  jdbc:h2:tcp:localhost/~/board-db
+    username : sa
+    password : sa1234
+    driver-class-name : org.h2.Driver
+  jpa :
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+
+  h2:
+    console:
+      enabled: false
+
+server:
+  port: 5050

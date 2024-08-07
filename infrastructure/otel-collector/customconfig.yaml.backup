@@ -1,0 +1,32 @@
+receivers:
+  otlp: # the OTLP receiver the app is sending logs to
+    protocols:
+      grpc:
+        endpoint: 127.0.0.1:4317
+      http:
+        endpoint: 127.0.0.1:4318
+
+processors:
+  batch:
+
+exporters:
+  logging :
+    verbosity: detailed 
+  file: # the File Exporter, to ingest logs to local file
+    path: example.log
+    rotation:
+
+service:
+  pipelines:
+    logs/dev:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [file]
+    traces:
+      receivers: [otlp]
+      exporters: [file]
+      processors: [batch]
+    metrics:
+      receivers: [otlp]
+      exporters: [file]
+      processors: [batch]
