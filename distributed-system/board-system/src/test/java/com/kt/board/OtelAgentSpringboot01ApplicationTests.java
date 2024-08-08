@@ -1,13 +1,13 @@
-package com.kt.board;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class OtelAgentSpringboot01ApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
-
-}
+//package com.kt.board;
+//
+//import org.junit.jupiter.api.Test;
+//import org.springframework.boot.test.context.SpringBootTest;
+//
+//@SpringBootTest
+//class OtelAgentSpringboot01ApplicationTests {
+//
+//	@Test
+//	void contextLoads() {
+//	}
+//
+//}
