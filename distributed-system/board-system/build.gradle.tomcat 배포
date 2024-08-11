@@ -2,10 +2,14 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.0'
 	id 'io.spring.dependency-management' version '1.1.5'
+	id 'war'  // war 플러그인 추가
 }
 
 group = 'com.kt'
 version = '0.0.1-SNAPSHOT'
+bootWar.enabled = false
+war.enabled = true
+apply plugin: 'war'
 
 java {
 	toolchain {
@@ -23,6 +27,8 @@ repositories {
 	mavenCentral()
 }
 
+
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -32,11 +38,12 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	// https://mvnrepository.com/artifact/com.github.ulisesbocchio/jasypt-spring-boot-starter
-	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+
+	// 톰캣의 내장 서버를 제거하고 제공되는 servlet api 사용
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    // https://mvnrepository.com/artifact/com.github.ulisesbocchio/jasypt-spring-boot-starter
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 }
 
 tasks.named('test') {
