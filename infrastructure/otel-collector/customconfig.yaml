@@ -26,7 +26,12 @@ processors:
   filter/logs:
     logs:
       log_record:
-        - 'severity_number > 10'
+        - 'severity_number < 10'
+
+  filter/spans:
+    traces:
+      spanevent:
+        - 'attributes["exception.message"] == nil'
 
   attributes/spans:
     actions:
@@ -56,7 +61,7 @@ service:
 
     traces:
       receivers: [otlp]
-      processors: [attributes/spans]
+      processors: [filter/spans]
       exporters: [file]
 
     metrics:

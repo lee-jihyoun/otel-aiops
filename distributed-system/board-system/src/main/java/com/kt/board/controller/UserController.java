@@ -24,6 +24,12 @@ public class UserController {
 
     private static final Logger logger = LogManager.getLogger(UserController.class.getName());
 
+    @GetMapping("/pass")
+    public String getPass() {
+        logger.info("### getUser log start");
+        String a = "pass";
+        return a;
+    }
 
     @GetMapping("/null")
     public String getUser() {
@@ -51,7 +57,7 @@ public class UserController {
         try {
             // 비동기 호출 및 타임아웃 설정
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> testB());
-            return future.get(5, TimeUnit.SECONDS);
+            return future.get(1, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             throw new RuntimeException("Request timeout");
         } catch (InterruptedException | ExecutionException e) {
