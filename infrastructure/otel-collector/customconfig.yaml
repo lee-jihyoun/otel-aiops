@@ -24,6 +24,9 @@ exporters:
   prometheus:
     endpoint: 127.0.0.1:9464 # 프로메테우스에서 수집에 사용하는 IP
 
+  file/metrics:
+    path: data/metrics.json
+
   otlp/jaeger:
     endpoint: 127.0.0.1:4317
     tls :
@@ -107,4 +110,4 @@ service:
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [prometheus]
+      exporters: [file/metrics,prometheus]
