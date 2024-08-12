@@ -11,7 +11,6 @@ exporters:
     verbosity: detailed
   file: # the File Exporter, to ingest logs to local file
     path: example.json
-    rotation:
   prometheus:
     endpoint: 127.0.0.1:9464 # 프로메테우스에서 수집에 사용하는 IP
   
@@ -24,18 +23,24 @@ exporters:
 
 processors:
   batch:
+  filter/severity:
+    logs:
+      log_record:
+        - 'severity_number > 10'
 
 service:
   pipelines:
     logs:
       receivers: [otlp]
+      processors: [filter/severity]
       exporters: [file]
-      processors: [batch]
+
     traces:
       receivers: [otlp]
+      processors: [filter/severity]
       exporters: [file]
-      processors: [batch]
+
     metrics:
       receivers: [otlp]
+      processors: [filter/severity]
       exporters: [file]
-      processors: [batch]

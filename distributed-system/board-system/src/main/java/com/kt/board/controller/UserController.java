@@ -48,6 +48,7 @@ public class UserController {
 
     @GetMapping("/server")
     public String getUserServerTimeout() {
+        logger.info("### getUser server start");
         try {
             // 비동기 호출 및 타임아웃 설정
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> testB());
