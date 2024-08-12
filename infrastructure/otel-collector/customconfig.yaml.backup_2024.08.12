@@ -9,21 +9,11 @@ receivers:
 exporters:
   logging :
     verbosity: detailed
-  file/original_logs:
-    path: data/original_logs.json
-  file/filtered_logs:
-    path: data/filtered_logs.json
-  file/original_span:
-    path: data/original_span.json
-  file/filtered_span:
-    path: data/filtered_span.json
-
-  file/test:
-    path: data/test.json
-
+  file: # the File Exporter, to ingest logs to local file
+    path: example.json
   prometheus:
     endpoint: 127.0.0.1:9464 # 프로메테우스에서 수집에 사용하는 IP
-
+  
   otlp/jaeger:
     endpoint: 127.0.0.1:4317
     tls :
@@ -33,29 +23,14 @@ exporters:
 
 processors:
   batch:
-
   filter/logs:
     logs:
       log_record:
         - 'severity_number < 10'
 
-  #  filter/error_spans:
-  #    traces:
-  #      span:
-  #        - 'status.code == ERROR'
-  filter/error_spans:
+  filter/spans:
     traces:
-      span:
-        - 'status.code != 2'
-
-#  filter/spans:
-#    traces:
-#      span:
-#        - 'attributes["exception.message"] == nil'
-
-  filter/test:
-    traces:
-      span:
+      spanevent:
         - 'attributes["exception.message"] == nil'
 
   attributes/spans:
@@ -79,32 +54,17 @@ processors:
 
 service:
   pipelines:
-    logs/original:
+    logs:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [file/original_logs]
-
-    logs/filtered:
-      receivers: [otlp]
-      processors: [batch, filter/logs]
-      exporters: [file/filtered_logs]
+      processors: [filter/logs]
+      exporters: [file]
 
     traces:
       receivers: [otlp]
-      processors: [attributes/spans]
-      exporters: [file/original_span]
-
-    traces/error:
-      receivers: [otlp]
-      processors: [filter/error_spans, attributes/spans]
-      exporters: [file/filtered_span]
-
-    traces/test:
-      receivers: [otlp]
-      processors: [filter/error_spans, attributes/spans]
-      exporters: [file/test]
+      processors: [filter/spans]
+      exporters: [file]
 
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [prometheus]
+      exporters: [file]
