@@ -27,28 +27,27 @@ public class UserController {
 
     @GetMapping("/null")
     public String getUser() {
-		testA();
+        testA();
         logger.info("### getUser log start");
         String a = null;
         a.charAt(10);
-		testB();
+        testB();
         return a;
     }
 
 
-	public String testA(){
-		try{
-			Thread.sleep(5000);
-		}catch(Exception e){
+    public String testA(){
+        try{
+            Thread.sleep(5000);
+        }catch(Exception e){
 
-		}
+        }
 
-		return "testA success";
-	}
+        return "testA success";
+    }
 
     @GetMapping("/server")
     public String getUserServerTimeout() {
-        logger.info("### getUser server start");
         try {
             // 비동기 호출 및 타임아웃 설정
             CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> testB());
@@ -61,12 +60,12 @@ public class UserController {
     }
 
     @Async
-	public String testB(){
-		try{
-			Thread.sleep(5000);
-		}catch(Exception e){
+    public String testB(){
+        try{
+            Thread.sleep(5000);
+        }catch(Exception e){
 
-		}
-		return "testB success";
-	}
+        }
+        return "testB success";
+    }
 }
