@@ -3,8 +3,8 @@ spring:
     name: board-system
   datasource :
     url:  jdbc:h2:tcp:localhost/~/board-db
-    username : ENC(arxVItng1k3ZMqFwkKrzv7uPiqj7Onf1x6Qc7F/v/WxDXA0zdnFBfIusN7IsuY29)
-    password : ENC(+rn2lW7IwRW3EjEF500vPOEBYSmZzrX7IQUfxf7uUNpVtC/whiWE2koDwFir3EpH)
+    username : sa
+    password : sa1234
     driver-class-name : org.h2.Driver
   jpa :
     hibernate:
@@ -24,10 +24,3 @@ spring:
 
 server:
   port: 5050
-jasypt:
-  encryptor:
-    bean: jasyptEncryptorAES
-
-encrypt :
-  key-file :
-    path : C:\IntelliJProject\encrypt-key
