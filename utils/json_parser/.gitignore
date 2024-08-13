@@ -42,3 +42,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### PyCharm ###
+__pycache__/
+.idea/
+envs/
+venv/
