@@ -34,13 +34,6 @@ exporters:
   otlphttp:
     endpoint: http://127.0.0.1:3100/otlp
 
-  otlphttp/traces:
-    endpoint: http://127.0.0.1:13030/otlp
-  otlphttp/metrics:
-    endpoint: http://127.0.0.1:13030/otlp
-  otlphttp/logs:
-    endpoint: http://127.0.0.1:13030/otlp
-
 processors:
   batch:
 
@@ -92,7 +85,7 @@ service:
     logs/original:
       receivers: [otlp]
       processors: [batch]
-      exporters: [file/original_logs,otlphttp/logs]
+      exporters: [file/original_logs]
 
     logs/filtered:
       receivers: [otlp]
@@ -102,7 +95,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [attributes/spans]
-      exporters: [file/original_span,otlphttp/traces]
+      exporters: [file/original_span]
 
     traces/error:
       receivers: [otlp]
@@ -117,4 +110,4 @@ service:
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [file/metrics,prometheus,otlphttp/metrics]
+      exporters: [file/metrics,prometheus]
