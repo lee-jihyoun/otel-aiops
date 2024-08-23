@@ -1,0 +1,46 @@
+graph TD
+subgraph Service Diagram
+accountingservice(Accounting Service):::dotnet
+adservice(Ad Service):::java
+cache[(Cache<br/>&#40redis&#41)]
+cartservice(Cart Service):::dotnet
+checkoutservice(Checkout Service):::golang
+currencyservice(Currency Service):::cpp
+emailservice(Email Service):::ruby
+frauddetectionservice(Fraud Detection Service):::kotlin
+frontend(Frontend):::typescript
+frontendproxy(Frontend Proxy <br/>&#40Envoy&#41):::cpp
+imageprovider(Image Provider <br/>&#40nginx&#41):::cpp
+loadgenerator([Load Generator]):::python
+paymentservice(Payment Service):::javascript
+productcatalogservice(Product Catalog Service):::golang
+quoteservice(Quote Service):::php
+recommendationservice(Recommendation Service):::python
+shippingservice(Shipping Service):::rust
+queue[(queue<br/>&#40Kafka&#41)]
+
+Internet -->|HTTP| frontendproxy
+frontendproxy -->|HTTP| frontend
+loadgenerator -->|HTTP| frontendproxy
+frontendproxy -->|HTTP| imageprovider
+
+queue -->|TCP| accountingservice
+queue -->|TCP| frauddetectionservice
+
+frontend -->|gRPC| cartservice
+frontend -->|gRPC| currencyservice
+
+checkoutservice -->|gRPC| cartservice --> cache
+checkoutservice -->|gRPC| productcatalogservice
+checkoutservice -->|gRPC| currencyservice
+checkoutservice -->|HTTP| emailservice
+checkoutservice -->|gRPC| paymentservice
+checkoutservice -->|gRPC| shippingservice
+checkoutservice -->|TCP| queue
+
+frontend -->|gRPC| adservice
+frontend -->|gRPC| productcatalogservice
+frontend --->|gRPC| checkoutservice
+frontend ---->|gRPC| recommendationservice -->|gRPC| productcatalogservice
+
+shippingservice -->|HTTP| quoteservice
