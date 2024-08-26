@@ -43,8 +43,7 @@ public class DataParsingService {
         try{
             byte[] decompressedBody = decompressGzip(compressed);
             parsingData = new String(decompressedBody, StandardCharsets.UTF_8);
-            System.out.println(parsingData);
-            fileUtil.metricsSaveToFile(parsingData);
+            fileUtil.tracesSaveToFile(parsingData);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -57,7 +56,6 @@ public class DataParsingService {
         try{
             byte[] decompressedBody = decompressGzip(compressed);
             parsingData = new String(decompressedBody, StandardCharsets.UTF_8);
-            System.out.println(parsingData);
             fileUtil.metricsSaveToFile(parsingData);
         }catch (Exception e){
             e.printStackTrace();
@@ -71,8 +69,7 @@ public class DataParsingService {
         try{
             byte[] decompressedBody = decompressGzip(compressed);
             parsingData = new String(decompressedBody, StandardCharsets.UTF_8);
-            System.out.println(parsingData);
-            fileUtil.metricsSaveToFile(parsingData);
+            fileUtil.logsSaveToFile(parsingData);
         }catch (Exception e){
             e.printStackTrace();
         }

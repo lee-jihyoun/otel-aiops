@@ -28,7 +28,6 @@ public class OtlpHttpJsonController {
         return new ResponseEntity<>("OTLP Data received successfully", HttpStatus.OK);
     }
 
-    //애로 다 다시개발해야함
     @PostMapping("/v1/metrics")
     public ResponseEntity<String> receiveMetrics(@RequestBody byte[] body) {
         dataParsingService.jsonMetricsDataParsing(body);
