@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 import pytz
 
 # 경로 설정
-json_file_path = "./data/adServiceHighCpu/filtered_span.json"
-output_file_path = './data/adServiceHighCpu/output/filtered_span.json'
+json_file_path = "./data/adServiceFailure/filtered_logs.json"
+output_file_path = './data/adServiceFailure/output/filtered_logs.json'
 
 # JSON 파일을 읽어오기
 # 원 데이터는 json이 여러개 있는 구조여서 하나씩 라인을 읽어와서 리스트에 넣어줌
