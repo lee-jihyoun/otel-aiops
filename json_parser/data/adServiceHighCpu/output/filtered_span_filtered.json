@@ -1,0 +1,35 @@
+[
+    {
+        "service.name": "paymentservice",
+        "traceId": "8d4a4f96ca5c67ef7f253070e178d0a8",
+        "spanId": "e9abc757fdd65dd4",
+        "name": "dns.lookup",
+        "http.status_code": null,
+        "rpc.grpc.status_code": null,
+        "exception.message": null,
+        "http.url": null,
+        "rpc.method": null
+    },
+    {
+        "service.name": "paymentservice",
+        "traceId": "8d4a4f96ca5c67ef7f253070e178d0a8",
+        "spanId": "bc26e044fe28cb46",
+        "name": "tcp.connect",
+        "http.status_code": null,
+        "rpc.grpc.status_code": null,
+        "exception.message": null,
+        "http.url": null,
+        "rpc.method": null
+    },
+    {
+        "service.name": "paymentservice",
+        "traceId": "8d4a4f96ca5c67ef7f253070e178d0a8",
+        "spanId": "f690dd42b0bb7994",
+        "name": "GET",
+        "http.status_code": null,
+        "rpc.grpc.status_code": null,
+        "exception.message": null,
+        "http.url": "http://metadata.google.internal./computeMetadata/v1/instance",
+        "rpc.method": null
+    }
+]
