@@ -1,31 +1,22 @@
 import json
+import time
 from datetime import datetime, timezone
 import pytz
 
 # 경로 설정
-json_file_path = "./data/adServiceFailure/filtered_span.json"
-output_file_path = './data/adServiceFailure/output/filtered_span.json'
+log_file_path = "./data/adServiceFailure/filtered_logs.json"
+span_file_path = "./data/adServiceFailure/filtered_span.json"
 
-# JSON 파일을 읽어오기
-json_data = []
-with open(json_file_path, "r") as json_file:
-    for line in json_file:
-        try:
-            data = json.loads(line.strip())
-            json_data.append(data)
-        except json.JSONDecodeError as e:
-            print(f"Error parsing line: {e}")
+output_path = './data/adServiceFailure/output/'
+log_output_path = './data/adServiceFailure/output/filtered_logs.json'
+span_output_path = './data/adServiceFailure/output/filtered_span.json'
 
 # 나노초를 datetime으로 변환하는 함수
 def convert_nano_to_datetime(nano_time):
-    # 나노초를 초로 변환
     seconds = nano_time // 1000000000
-    # 초를 UTC 시간대로 변환
     utc_dt = datetime.fromtimestamp(seconds, tz=timezone.utc)
-    # UTC 시간대를 한국 시간대로 변환
     kst_tz = pytz.timezone('Asia/Seoul')
     kst_dt = utc_dt.astimezone(kst_tz)
-    # 원하는 형식으로 포맷 맞추기
     return kst_dt.strftime('%Y-%m-%d %H:%M:%S')
 
 # json의 timenano 키의 값을 datetime으로 변환하는 함수. 재귀적으로 key를 찾음
@@ -43,79 +34,140 @@ def change_timenano_format(first_json):
     else:
         return
 
-# trace_id가 특정 값일 때만 작업 수행
-trace_id_to_check = "a3068c5690d7e955872ea04eb2f2859b"
-filtered_json_data = []
+# 로그 데이터 파싱 및 필요한 key 값 추출
+filtered_logs = []
 
-# JSON 데이터 파싱 및 필요한 key 값 추출
-for item in json_data:
-    change_timenano_format(item)  # 시간 전처리 적용
-    for resourceSpan in item.get('resourceSpans', []):
-        service_name = None
-        os_type = None
-        # service.name 및 os.type 추출
-        if "resource" in resourceSpan and "attributes" in resourceSpan["resource"]:
-            for attribute in resourceSpan["resource"]["attributes"]:
-                if attribute["key"] == "service.name":
-                    service_name = attribute["value"]["stringValue"]
-                if attribute["key"] == "os.type":
-                    os_type = attribute["value"]["stringValue"]
+# traceId 값을 중복없이 저장하기 위해 빈 집합 초기화
+trace_ids = set()
 
-        # scopeSpans 추출 및 필터링
-        for scopeSpan in resourceSpan.get("scopeSpans", []):
-            for span in scopeSpan.get("spans", []):
-                if span.get("traceId") == trace_id_to_check:
-                    parsed_info = {
-                        "service.name": service_name,
-                        "os.type": os_type,
-                        "traceId": span.get("traceId"),
-                        "spanId": span.get("spanId"),
-                        "name": span.get("name"),
-                        "http.status_code": None,
-                        "rpc.grpc.status_code": None,
-                        "exception.message": None,
-                        "exception.stacktrace": None,
-                        "http.url": None,
-                        "rpc.method": None,
-                        "startTimeUnixNano": span.get("startTimeUnixNano"),
-                        "endTimeUnixNano": span.get("endTimeUnixNano")
-                    }
+with open(log_file_path, "r") as log_file:
+    for line in log_file:
+        try:
+            log_data = json.loads(line.strip())
+            change_timenano_format(log_data)  # 시간 전처리 적용
 
-                    # span의 attributes를 추출
-                    for attribute in span.get("attributes", []):
-                        if attribute["key"] == "http.status_code":
-                            parsed_info["http.status_code"] = attribute["value"]["intValue"]
-                        elif attribute["key"] == "rpc.grpc.status_code":
-                            parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
-                        elif attribute["key"] == "http.url":
-                            parsed_info["http.url"] = attribute["value"]["stringValue"]
-                        elif attribute["key"] == "rpc.method":
-                            parsed_info["rpc.method"] = attribute["value"]["stringValue"]
+            for resource_log in log_data.get('resourceLogs', []):
+                parsed_log = {
+                    "container.id": None,
+                    "os.description": None,
+                    "process.command_line": None,
+                    "service.name": None,
+                    "telemetry.sdk.language": None,
+                    "logRecords_severityText": None,
+                    "logRecords_body_stringValue": None,
+                    "traceId": None,
+                    "logRecords_timeUnixNano": None,  # 새로운 시간 필드 추가
+                    "logRecords_observedTimeUnixNano": None  # 새로운 시간 필드 추가
+                }
 
-                    # events의 attributes에서 exception.message와 exception.stacktrace 추출
-                    for event in span.get("events", []):
-                        for attribute in event.get("attributes", []):
-                            if attribute["key"] == "exception.message":
-                                parsed_info["exception.message"] = attribute["value"]["stringValue"]
-                            elif attribute["key"] == "exception.stacktrace":
-                                parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
+                # resource 부분에서 필요한 정보 추출
+                if "resource" in resource_log and "attributes" in resource_log["resource"]:
+                    for attribute in resource_log["resource"]["attributes"]:
+                        if attribute["key"] == "container.id":
+                            parsed_log["container.id"] = attribute["value"]["stringValue"]
+                        elif attribute["key"] == "os.description":
+                            parsed_log["os.description"] = attribute["value"]["stringValue"]
+                        elif attribute["key"] == "process.command_line":
+                            parsed_log["process.command_line"] = attribute["value"]["stringValue"]
+                        elif attribute["key"] == "service.name":
+                            parsed_log["service.name"] = attribute["value"]["stringValue"]
+                        elif attribute["key"] == "telemetry.sdk.language":
+                            parsed_log["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 
-                    filtered_json_data.append(parsed_info)
+                # scopeLogs와 logRecords에서 필요한 정보 추출
+                for scope_log in resource_log.get("scopeLogs", []):
+                    for log_record in scope_log.get("logRecords", []):
+                        if "severityText" in log_record:
+                            parsed_log["logRecords_severityText"] = log_record["severityText"]
+                        if "body" in log_record and "stringValue" in log_record["body"]:
+                            parsed_log["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
+                        if "traceId" in log_record:
+                            parsed_log["traceId"] = log_record["traceId"]
+                            trace_ids.add(log_record["traceId"])
+
+                        # 하나의 logRecord가 처리될 때마다 결과에 추가
+                        filtered_logs.append(parsed_log)
+
+        except json.JSONDecodeError as e:
+            print(f"Error parsing line: {e}")
+
+# 로그 데이터를 파일에 저장
+with open(log_output_path, 'w') as log_output_file:
+    json.dump(filtered_logs, log_output_file, indent=4)
+
+# 로그 파싱 후 1초 딜레이
+time.sleep(1)
+
+# 스팬 데이터 파싱 및 필요한 key 값 추출
+filtered_spans = []
+
+with open(span_file_path, "r") as span_file:
+    for line in span_file:
+        try:
+            span_data = json.loads(line.strip())
+            change_timenano_format(span_data)  # 시간 전처리 적용
+
+            for resourceSpan in span_data.get('resourceSpans', []):
+                service_name = None
+                os_type = None
+
+                if "resource" in resourceSpan and "attributes" in resourceSpan["resource"]:
+                    for attribute in resourceSpan["resource"]["attributes"]:
+                        if attribute["key"] == "service.name":
+                            service_name = attribute["value"]["stringValue"]
+                        if attribute["key"] == "os.type":
+                            os_type = attribute["value"]["stringValue"]
+
+                for scopeSpan in resourceSpan.get("scopeSpans", []):
+                    for span in scopeSpan.get("spans", []):
+                        if span.get("traceId") in trace_ids:
+                            parsed_info = {
+                                "service.name": service_name,
+                                "os.type": os_type,
+                                "traceId": span.get("traceId"),
+                                "spanId": span.get("spanId"),
+                                "name": span.get("name"),
+                                "http.status_code": None,
+                                "rpc.grpc.status_code": None,
+                                "exception.message": None,
+                                "exception.stacktrace": None,
+                                "http.url": None,
+                                "rpc.method": None,
+                                "startTimeUnixNano": span.get("startTimeUnixNano"),
+                                "endTimeUnixNano": span.get("endTimeUnixNano")
+                            }
+
+                            for attribute in span.get("attributes", []):
+                                if attribute["key"] == "http.status_code":
+                                    parsed_info["http.status_code"] = attribute["value"]["intValue"]
+                                elif attribute["key"] == "rpc.grpc.status_code":
+                                    parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
+                                elif attribute["key"] == "http.url":
+                                    parsed_info["http.url"] = attribute["value"]["stringValue"]
+                                elif attribute["key"] == "rpc.method":
+                                    parsed_info["rpc.method"] = attribute["value"]["stringValue"]
+
+                            for event in span.get("events", []):
+                                for attribute in event.get("attributes", []):
+                                    if attribute["key"] == "exception.message":
+                                        parsed_info["exception.message"] = attribute["value"]["stringValue"]
+                                    elif attribute["key"] == "exception.stacktrace":
+                                        parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
+
+                            filtered_spans.append(parsed_info)
+
+        except json.JSONDecodeError as e:
+            print(f"Error parsing line: {e}")
+
+
+# 스팬 데이터를 파일에 저장 (한 줄)
+with open(output_path + 'filtered_span.json', 'w') as span_output_file:
+    json.dump(filtered_spans, span_output_file, separators=(',', ':'))
+
+# 스팬 데이터를 파일에 저장 (여러 줄)
+with open(output_path + 'pretty_filtered_span.json', 'w') as span_output_file:
+    json.dump(filtered_spans, span_output_file, indent=4)
 
 # 결과 출력 (확인용)
-for result in filtered_json_data:
-    print(json.dumps(result, indent=4))
+print(json.dumps(filtered_spans, indent=4))
 
-# 결과를 한 줄로 출력
-json_output = json.dumps(filtered_json_data, separators=(',', ':'))
-
-# 결과 출력 (확인용)
-print(json_output)
-
-# 필요한 key 값만 포함된 데이터를 저장
-with open(output_file_path, 'w') as f:
-    f.write(json_output)
-
-# # 필요한 key 값만 포함된 데이터를 저장
-# with open(output_file_path, 'w') as f:
-#     json.dump(filtered_json_data, f, indent=4)  # indent=4는 읽기 쉽게 들여쓰기를 추가합니다.
