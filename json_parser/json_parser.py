@@ -4,12 +4,12 @@ from datetime import datetime, timezone
 import pytz
 
 # 경로 설정
-log_file_path = "./data/adServiceFailure/filtered_logs.json"
-span_file_path = "./data/adServiceFailure/filtered_span.json"
+log_file_path = "./data/paymentServiceFailure/original_logs.json"
+span_file_path = "./data/paymentServiceFailure/filtered_span.json"
 
-output_path = './data/adServiceFailure/output/'
-log_output_path = './data/adServiceFailure/output/filtered_logs.json'
-span_output_path = './data/adServiceFailure/output/filtered_span.json'
+output_path = './data/paymentServiceFailure/output/'
+log_output_path = './data/paymentServiceFailure/output/original_logs.json'
+span_output_path = './data/paymentServiceFailure/output/filtered_span.json'
 
 # 나노초를 datetime으로 변환하는 함수
 def convert_nano_to_datetime(nano_time):
