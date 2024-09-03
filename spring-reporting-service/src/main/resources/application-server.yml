@@ -1,0 +1,32 @@
+server:
+  port: 14040
+
+spring:
+  config:
+    activate:
+      on-profile: server
+  application:
+    name: board-system
+  datasource:
+    url: jdbc:postgresql://192.168.0.40:5532/rnp
+    username: test_admin
+    password: new1234!
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+
+#  mail:
+#    properties:
+#      debug: false # default true
+#      mail.smtp.auth: true
+#      mail.smtp.starttls.enable: true
+
