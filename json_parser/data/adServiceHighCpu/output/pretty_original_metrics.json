@@ -1,0 +1,212 @@
+[
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "rss",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:23:23",
+        "value": "65277952"
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "vms",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:23:23",
+        "value": "1881128960"
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "user",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:23:23",
+        "value": 2.04
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "system",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:23:23",
+        "value": 0.14
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu.utilization",
+        "type": null,
+        "startTimeUnixNano": null,
+        "timeUnixNano": "2024-08-21 22:23:23",
+        "value": 0
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "rss",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:23:38",
+        "value": "101064704"
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "vms",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:23:38",
+        "value": "1515302912"
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "user",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:23:38",
+        "value": 15.69
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "system",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:23:38",
+        "value": 0.96
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu.utilization",
+        "type": null,
+        "startTimeUnixNano": null,
+        "timeUnixNano": "2024-08-21 22:23:38",
+        "value": 0
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "rss",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:24:23",
+        "value": "67215360"
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "vms",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:24:23",
+        "value": "1957695488"
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "user",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:24:23",
+        "value": 3.56
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "system",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:24:23",
+        "value": 0.33
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu.utilization",
+        "type": null,
+        "startTimeUnixNano": null,
+        "timeUnixNano": "2024-08-21 22:24:23",
+        "value": 2.8
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "rss",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:24:38",
+        "value": "101441536"
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "vms",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:24:38",
+        "value": "1516519424"
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "user",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:24:38",
+        "value": 30.49
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "system",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:24:38",
+        "value": 1.8
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu.utilization",
+        "type": null,
+        "startTimeUnixNano": null,
+        "timeUnixNano": "2024-08-21 22:24:38",
+        "value": 26
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "rss",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:25:23",
+        "value": "67477504"
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "vms",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:25:23",
+        "value": "1957695488"
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "user",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:25:23",
+        "value": 5.05
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "system",
+        "startTimeUnixNano": "2024-08-21 22:23:23",
+        "timeUnixNano": "2024-08-21 22:25:23",
+        "value": 0.47
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu.utilization",
+        "type": null,
+        "startTimeUnixNano": null,
+        "timeUnixNano": "2024-08-21 22:25:23",
+        "value": 2.7
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "rss",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:25:38",
+        "value": "98103296"
+    },
+    {
+        "metric_name": "process.runtime.cpython.memory",
+        "type": "vms",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:25:38",
+        "value": "1518616576"
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "user",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:25:38",
+        "value": 45.29
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu_time",
+        "type": "system",
+        "startTimeUnixNano": "2024-08-21 22:23:38",
+        "timeUnixNano": "2024-08-21 22:25:38",
+        "value": 2.7
+    },
+    {
+        "metric_name": "process.runtime.cpython.cpu.utilization",
+        "type": null,
+        "startTimeUnixNano": null,
+        "timeUnixNano": "2024-08-21 22:25:38",
+        "value": 26.1
+    }
+]
