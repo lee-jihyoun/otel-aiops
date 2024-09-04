@@ -1,7 +1,6 @@
 import json
-from datetime import datetime, timezone, timedelta
-import pytz
-
+from datetime import timedelta
+from datetime_util import change_timenano_format, convert_string_to_datetime
 # JSON 파일 경로 설정
 json_file_path = "./data/adServiceHighCpu/original_metrics.json"
 output_path = "./data/adServiceHighCpu/output/"
@@ -10,40 +9,6 @@ metric_file_name_multi_row = 'pretty_original_metrics.json'
 
 # 기준 시간 설정 (예: 현재 시간)
 log_start_time = "2024-08-21 22:25:38"
-
-def convert_string_to_datetime(str_time):
-    date_format = '%Y-%m-%d %H:%M:%S'
-    datetime_time = datetime.strptime(str_time, date_format)
-
-    return datetime_time
-
-# 나노초를 datetime으로 변환하는 함수
-def convert_nano_to_datetime(nano_time):
-    # 이미 datetime 객체인 경우 예외 처리
-    if isinstance(nano_time, datetime):
-        return nano_time.strftime('%Y-%m-%d %H:%M:%S')
-
-    seconds = nano_time // 1000000000
-    utc_dt = datetime.fromtimestamp(seconds, tz=timezone.utc)
-    kst_tz = pytz.timezone('Asia/Seoul')
-    kst_dt = utc_dt.astimezone(kst_tz)
-    return kst_dt.strftime('%Y-%m-%d %H:%M:%S')
-
-# json의 timenano 키의 값을 datetime으로 변환하는 함수. 재귀적으로 key를 찾음
-def change_timenano_format(first_json):
-    if isinstance(first_json, dict):
-        for k, v in first_json.items():
-            if k in ["timeUnixNano", "startTimeUnixNano", "observedTimeUnixNano", "endTimeUnixNano"]:
-                if isinstance(v, (int, str)) and v.isdigit():  # Check if v is a digit and not already formatted
-                    formatted_time = convert_nano_to_datetime(int(v))
-                    first_json[k] = formatted_time
-            else:
-                change_timenano_format(v)
-    elif isinstance(first_json, list):
-        for item in first_json:
-            change_timenano_format(item)
-    else:
-        return
 
 # 메트릭 파싱 함수 정의
 def parse_metrics(file_path, metric_names, reference_time, minus_time_value):

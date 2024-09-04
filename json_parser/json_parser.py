@@ -1,38 +1,17 @@
 import json
 import time
-from datetime import datetime, timezone
-import pytz
+from datetime_util import change_timenano_format
 
 # 경로 설정
 log_file_path = "./data/paymentServiceFailure/original_logs.json"
 span_file_path = "./data/paymentServiceFailure/filtered_span.json"
 
 output_path = './data/paymentServiceFailure/output/'
-log_output_path = './data/paymentServiceFailure/output/original_logs.json'
-span_output_path = './data/paymentServiceFailure/output/filtered_span.json'
+log_file_name_one_row = 'original_logs.json'
+log_file_name_multi_row = 'pretty_original_logs.json'
 
-# 나노초를 datetime으로 변환하는 함수
-def convert_nano_to_datetime(nano_time):
-    seconds = nano_time // 1000000000
-    utc_dt = datetime.fromtimestamp(seconds, tz=timezone.utc)
-    kst_tz = pytz.timezone('Asia/Seoul')
-    kst_dt = utc_dt.astimezone(kst_tz)
-    return kst_dt.strftime('%Y-%m-%d %H:%M:%S')
-
-# json의 timenano 키의 값을 datetime으로 변환하는 함수. 재귀적으로 key를 찾음
-def change_timenano_format(first_json):
-    if isinstance(first_json, dict):
-        for k, v in first_json.items():
-            if k in ["timeUnixNano", "startTimeUnixNano", "observedTimeUnixNano", "endTimeUnixNano"]:
-                formatted_time = convert_nano_to_datetime(int(v))
-                first_json[k] = formatted_time
-            else:
-                change_timenano_format(v)
-    elif isinstance(first_json, list):
-        for item in first_json:
-            change_timenano_format(item)
-    else:
-        return
+span_file_name_one_row = 'original_spans.json'
+span_file_name_multi_row = 'pretty_original_spans.json'
 
 # 로그 데이터 파싱 및 필요한 key 값 추출
 filtered_logs = []
@@ -92,11 +71,11 @@ with open(log_file_path, "r") as log_file:
             print(f"Error parsing line: {e}")
 
 # 로그 데이터를 파일에 저장 (한 줄)
-with open(output_path + 'filtered_logs.json', 'w') as log_output_file:
+with open(output_path + log_file_name_one_row, 'w') as log_output_file:
     json.dump(filtered_logs, log_output_file, separators=(',', ':'))
 
 # 스팬 데이터를 파일에 저장 (여러 줄)
-with open(output_path + 'pretty_filtered_logs.json', 'w') as log_output_file:
+with open(output_path + log_file_name_multi_row, 'w') as log_output_file:
     json.dump(filtered_logs, log_output_file, indent=4)
 
 # 결과 출력 (확인용)
@@ -169,11 +148,11 @@ with open(span_file_path, "r") as span_file:
 
 
 # 스팬 데이터를 파일에 저장 (한 줄)
-with open(output_path + 'filtered_span.json', 'w') as span_output_file:
+with open(output_path + span_file_name_one_row, 'w') as span_output_file:
     json.dump(filtered_spans, span_output_file, separators=(',', ':'))
 
 # 스팬 데이터를 파일에 저장 (여러 줄)
-with open(output_path + 'pretty_filtered_span.json', 'w') as span_output_file:
+with open(output_path + span_file_name_multi_row, 'w') as span_output_file:
     json.dump(filtered_spans, span_output_file, indent=4)
 
 # 결과 출력 (확인용)
