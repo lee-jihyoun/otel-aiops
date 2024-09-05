@@ -9,7 +9,21 @@ input_path = './data/testfolder/'
 output_path = './data/testfolder/output/'
 file_name = 'test_logs.json'
 
+# log_batch:
 
+## key가 있는지 없는지만 확인
+
+#  log(filtered) -> (key, False)
+#    span(filtered) -> (key, False) | (key, True)
+#      span(original) -> (key, True)
+
+# span_batch:
+#  span(filtered) -> (key, False)
+#   log(filtered) -> (key, False) | (key, True)
+#    log(original) -> (key, True)
+
+# global 변수로 수정
+# trace_id_dict.json -> value True/False 추가하기
 with open(input_path + "trace_id_dict.json", "r", encoding='utf-8') as json_file:
     trace_ids_dict = json.load(json_file)
 # 읽어온 데이터를 출력해 보기
@@ -20,6 +34,10 @@ log_parsing = log_parser.LogParsing(input_path=input_path,
                                     file_name=file_name,
                                     trace_ids_dict=trace_ids_dict)
 
+l = log_parsing.logparser()
+print(l[0])  # trace_ids
+print(l[1])  # filtered_log[]
+
 last_modified_time = os.path.getmtime(input_path + file_name)
 print(last_modified_time)
 
@@ -29,8 +47,8 @@ while True:
 
     if is_modified:
         l = log_parsing.logparser()
-        print(l[0])
-        print(l[1])
+        print(l[0]) # trace_ids
+        print(l[1]) # filtered_log[]
 
     time.sleep(1)
 

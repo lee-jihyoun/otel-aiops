@@ -1,4 +1,4 @@
-import json
+import json, itertools
 from util.datetime_util import change_timenano_format
 
 # 로그 데이터 파싱 및 필요한 key 값 추출
@@ -24,10 +24,13 @@ class LogParsing:
         file_name = self.file_name
         trace_ids_dict = self.trace_ids_dict
 
+        # global 변수로 수정하기
         existing_trace_ids_dict = trace_ids_dict.copy()
 
         with open(input_path + file_name, "r") as log_file:
-            for line in log_file:
+            for line in itertools.islice(log_file, 4, None):  # 4번째 라인 이후부터 읽기
+            #     print(line.strip())
+            # for line in log_file:
                 try:
                     log_data = json.loads(line.strip())
                     change_timenano_format(log_data)  # 시간 전처리 적용
@@ -70,8 +73,11 @@ class LogParsing:
                                     parsed_log["logRecords_severityText"] = log_record["severityText"]
                                 if "body" in log_record and "stringValue" in log_record["body"]:
                                     parsed_log["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
+
+                                # id 비교하는거
                                 if "traceId" in log_record and log_record["traceId"] != "" and log_record["traceId"] not in trace_ids_dict:
                                     parsed_log["traceId"] = log_record["traceId"]
+
                                     trace_ids_dict[log_record["traceId"]] = ""
 
                                     # traceId가 유효한 경우에만 logRecord 추가
