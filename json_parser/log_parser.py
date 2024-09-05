@@ -1,32 +1,31 @@
 import json
-import time
-from datetime_util import change_timenano_format
-
-# 경로 설정
-input_path = './data/paymentServiceFailure/'
-output_path = './data/paymentServiceFailure/output/'
-
-input_file_name = 'original_logs.json'
-output_file_name_one_row = 'parsed_original_logs.json'
-output_file_name_multi_row = 'parsed_pretty_original_logs.json'
+from json_parser.datetime_util import change_timenano_format
 
 # 로그 데이터 파싱 및 필요한 key 값 추출
 filtered_logs = []
-# traceId 값을 중복없이 저장하기 위해 빈 집합 초기화
-trace_ids = set('f7d3a0def428ecd662f6e721e56865ba')
+
+# JSON 파일을 읽어오기
+# 2개는 trace_id_dict.json에 있고 2개는 trace_id_dict.json에 존재하지 않음
+# 존재하지 않을 경우 trace_id_dict.json에 추가하기
+
+# 파일이 변경되었을 때 해당하는 인덱스로부터 읽어들어오기
 
 class LogParsing:
 
-    def __init__(self, input_path, output_path):
+    def __init__(self, input_path, output_path, file_name, trace_ids_dict):
         self.input_path = input_path
         self.output_path = output_path
+        self.file_name = file_name
+        self.trace_ids_dict = trace_ids_dict
 
-    def logfilter_spanfilter_spanoriginal(self):
+    def logparser(self):
 
         input_path = self.input_path
         output_path = self.output_path
+        file_name = self.file_name
+        trace_ids_dict = self.trace_ids_dict
 
-        with open(input_path + input_file_name, "r") as log_file:
+        with open(input_path + file_name, "r") as log_file:
             for line in log_file:
                 try:
                     log_data = json.loads(line.strip())
@@ -60,6 +59,8 @@ class LogParsing:
                                     parsed_log["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 
                         # scopeLogs와 logRecords에서 필요한 정보 추출
+                        # observedTimeUnixNano, severityText, body, traceId
+                        # traceId가 유효한 경우에만 logRecord 추가
                         for scope_log in resource_log.get("scopeLogs", []):
                             for log_record in scope_log.get("logRecords", []):
                                 if "observedTimeUnixNano" in log_record:
@@ -68,29 +69,30 @@ class LogParsing:
                                     parsed_log["logRecords_severityText"] = log_record["severityText"]
                                 if "body" in log_record and "stringValue" in log_record["body"]:
                                     parsed_log["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
-                                if "traceId" in log_record and log_record["traceId"] != "":
+                                if "traceId" in log_record and log_record["traceId"] != "" and log_record["traceId"] not in trace_ids_dict:
                                     parsed_log["traceId"] = log_record["traceId"]
+                                    trace_ids_dict[log_record["traceId"]] = ""
 
-
-                                    trace_ids.add(log_record["traceId"])
                                     # traceId가 유효한 경우에만 logRecord 추가
                                     filtered_logs.append(parsed_log)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
+        # 새로운 trace_id 저장
+        with open(input_path + 'trace_id_dict.json', "w") as trace_id_file:
+            json.dump(trace_ids_dict, trace_id_file, indent=4)
+
         # 로그 데이터를 파일에 저장 (한 줄)
-        with open(output_path + output_file_name_one_row, 'w') as log_output_file:
+        with open(output_path + 'one_row_' + file_name, 'w') as log_output_file:
             json.dump(filtered_logs, log_output_file, separators=(',', ':'))
 
         # 스팬 데이터를 파일에 저장 (여러 줄)
-        with open(output_path + output_file_name_multi_row, 'w') as log_output_file:
+        with open(output_path + 'multi_row_' + file_name, 'w') as log_output_file:
             json.dump(filtered_logs, log_output_file, indent=4)
+
+        return trace_ids_dict, log_output_file
 
         # 결과 출력 (확인용)
         # print("에러가 발생한 로그입니다.")
         # print(json.dumps(filtered_logs, indent=4))
-
-log_parsing = LogParsing(input_path=input_path, output_path=output_path)
-log_parsing.logfilter_spanfilter_spanoriginal()
-print(trace_ids)
