@@ -3,7 +3,6 @@ from json_parser.datetime_util import change_timenano_format
 
 # 로그 데이터 파싱 및 필요한 key 값 추출
 filtered_logs = []
-
 # JSON 파일을 읽어오기
 # 2개는 trace_id_dict.json에 있고 2개는 trace_id_dict.json에 존재하지 않음
 # 존재하지 않을 경우 trace_id_dict.json에 추가하기
@@ -24,6 +23,8 @@ class LogParsing:
         output_path = self.output_path
         file_name = self.file_name
         trace_ids_dict = self.trace_ids_dict
+
+        existing_trace_ids_dict = trace_ids_dict.copy()
 
         with open(input_path + file_name, "r") as log_file:
             for line in log_file:
@@ -79,9 +80,11 @@ class LogParsing:
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
-        # 새로운 trace_id 저장
-        with open(input_path + 'trace_id_dict.json', "w") as trace_id_file:
-            json.dump(trace_ids_dict, trace_id_file, indent=4)
+        trace_ids = {key: value for key, value in trace_ids_dict.items()
+                     if key not in existing_trace_ids_dict or existing_trace_ids_dict[key] != value}
+        # # 새로운 trace_id 저장
+        # with open(input_path + 'trace_id_dict.json', "w") as trace_id_file:
+        #     json.dump(trace_ids_dict, trace_id_file, indent=4)
 
         # 로그 데이터를 파일에 저장 (한 줄)
         with open(output_path + 'one_row_' + file_name, 'w') as log_output_file:
@@ -91,7 +94,7 @@ class LogParsing:
         with open(output_path + 'multi_row_' + file_name, 'w') as log_output_file:
             json.dump(filtered_logs, log_output_file, indent=4)
 
-        return trace_ids_dict, log_output_file
+        return trace_ids, filtered_logs
 
         # 결과 출력 (확인용)
         # print("에러가 발생한 로그입니다.")
