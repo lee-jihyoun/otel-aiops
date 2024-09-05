@@ -38,9 +38,6 @@ public class ErrorReportScheduler {
     @Scheduled(fixedRate = 60000) // 1분마다 실행
     public void checkErrorReports() {
 
-
-
-
         logger.info("### ErrorReportScheduler started");
         List<ErrorReport> errorReports = errorReportRepository.findByErrorReportSendYn("N"); // 'N'인 데이터만 조회
 
@@ -48,13 +45,12 @@ public class ErrorReportScheduler {
             for (ErrorReport errorReport : errorReports) {
                 ServiceInfo serviceInfo = errorReport.getServiceInfo(); // ServiceInfo 객체를 가져옴
                 String serviceCode = serviceInfo.getServiceCode(); // ServiceInfo에서 serviceCode 가져옴
-
                 // user_info 테이블에서 service_code로 사용자 목록 조회
                 List<UserInfo> users = userInfoRepository.findByServiceInfo(serviceInfo);
-
+                Map<String,String> mailForm =  mailService.createMailForm(errorReport);
                 for (UserInfo user : users) {
                     //메일발송
-                    mailService.sendEmail(user.getEmail(), errorReport.getErrorName(), errorReport.getErrorContent());
+                    mailService.sendEmail(user.getEmail(), mailForm.get("mailTitle"), mailForm.get("mailContent"));
                     
                     MailSendInfo mailSendInfo = new MailSendInfo();
                     mailSendInfo.setReceiverEmail(user.getEmail());

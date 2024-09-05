@@ -1,8 +1,11 @@
 package com.kt.springreportingservice.report.service;
 
 import com.kt.springreportingservice.report.domain.ApiAuthToken;
+import com.kt.springreportingservice.report.domain.ErrorReport;
 import com.kt.springreportingservice.report.repository.ApiAuthTokenRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
@@ -11,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -30,6 +36,7 @@ public class MailService {
 
     @Autowired
     private ApiAuthTokenRepository apiAuthTokenRepository;
+
 
 
     private String gmailUserName;
@@ -67,14 +74,78 @@ public class MailService {
     }
 
     public void sendEmail(String to, String subject, String text) {
-        logger.info("### mail send start");
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(gmailUserName);
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        mailSender.send(message);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper=null;
+        try{
+            helper = new MimeMessageHelper(message, true, "UTF-8");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        try{
+            helper.setFrom(gmailUserName); //발신자 설정
+            helper.setTo(to); // 수신자 설정
+            helper.setSubject(subject); // 이메일 제목 설정
+            helper.setText(text, true); // 본문 설정 (true: HTML 형식 사용)
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        mailSender.send(message); // 이메일 전송
         logger.info("### mail send end, to : {} , subject : {} , text : {} ", to, subject, text);
+    }
+
+
+
+    public Map<String,String> createMailForm(ErrorReport errorReport){
+
+        /*
+        오류명 : error_name
+        오류 내용 :  error_content
+        오류 발생 시간 : created_time
+        오류 발생 위치 : error_location
+        오류 근본 원인 : error_cause
+        오류 해결 방법 : error_solution
+        */
+        Map<String,String> mailForm = new HashMap<>();
+        String mailContent = "";
+        String mailTitle ="오류 리포트";
+
+
+        mailContent = "<html>";
+        mailContent += "<head>";
+        mailContent += "<style>";
+        mailContent += "body { font-family: Arial, sans-serif; }";
+        mailContent += "h2 { color: #2C3E50; }";
+        mailContent += "p { font-size: 14px; }";
+        mailContent += "pre { background-color: #F4F4F4; padding: 10px; border-radius: 5px; }";
+        mailContent += "</style>";
+        mailContent += "</head>";
+        mailContent += "<body>";
+
+        mailContent += "<h2>오류명</h2>";
+        mailContent += "<p>" + errorReport.getErrorName() + "</p>";
+
+        mailContent += "<h2>오류 내용</h2>";
+        mailContent += "<pre>" + errorReport.getErrorContent() + "</pre>";
+
+        mailContent += "<h2>오류 발생 시간</h2>";
+        mailContent += "<p>" + errorReport.getCreatedTime() + "</p>";
+
+        mailContent += "<h2>오류 발생 위치</h2>";
+        mailContent += "<pre>" + errorReport.getErrorLocation() + "</pre>";
+
+        mailContent += "<h2>오류 근본 원인</h2>";
+        mailContent += "<pre>" + errorReport.getErrorCause() + "</pre>";
+
+        mailContent += "<h2>오류 해결 방법</h2>";
+        mailContent += "<pre>" + errorReport.getErrorSolution() + "</pre>";
+
+        mailContent += "</body>";
+        mailContent += "</html>";
+
+        mailForm.put("mailTitle" , mailTitle);
+        mailForm.put("mailContent" , mailContent);
+        return mailForm;
     }
 }
 
