@@ -163,11 +163,11 @@ def extract_span_by_trace_id(trace_ids, path, file_name):
                 print(f"Error parsing line: {e}")
 
     # 스팬 데이터를 파일에 저장 (한 줄)
-    with open(path + 'extracted_span_by_trace_id.json', 'w') as span_output_file:
+    with open(path + 'extracted_span_by_trace_id.json', 'w', encoding='utf-8') as span_output_file:
         json.dump(extracted_spans, span_output_file, separators=(',', ':'))
 
     # 스팬 데이터를 pretty 파일에 저장 (여러 줄)
-    with open(path + 'pretty_' + 'extracted_span_by_trace_id.json', 'w') as span_output_file:
+    with open(path + 'pretty_' + 'extracted_span_by_trace_id.json', 'w', encoding='utf-8') as span_output_file:
         json.dump(extracted_spans, span_output_file, indent=4)
 
 

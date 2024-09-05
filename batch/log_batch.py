@@ -10,7 +10,7 @@ output_path = './data/testfolder/output/'
 file_name = 'test_logs.json'
 
 
-with open(input_path + "trace_id_dict.json", "r") as json_file:
+with open(input_path + "trace_id_dict.json", "r", encoding='utf-8') as json_file:
     trace_ids_dict = json.load(json_file)
 # 읽어온 데이터를 출력해 보기
 print(trace_ids_dict)
