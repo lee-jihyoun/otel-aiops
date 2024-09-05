@@ -1,12 +1,12 @@
 import json
 import time
-from datetime_util import change_timenano_format
-
+from util.datetime_util import change_timenano_format
+import os
 # 경로 설정
-log_file_path = "./data/paymentServiceFailure/original_logs.json"
-span_file_path = "./data/paymentServiceFailure/filtered_span.json"
+log_file_path = "../data/paymentServiceFailure/original_logs.json"
+span_file_path = "../data/paymentServiceFailure/filtered_span.json"
+output_path = '../data/paymentServiceFailure/output/'
 
-output_path = './data/paymentServiceFailure/output/'
 log_file_name_one_row = 'original_logs.json'
 log_file_name_multi_row = 'pretty_original_logs.json'
 

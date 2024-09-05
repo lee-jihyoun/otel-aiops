@@ -1,9 +1,9 @@
 import json
 from datetime import timedelta
-from datetime_util import change_timenano_format, convert_string_to_datetime
+from util.datetime_util import change_timenano_format, convert_string_to_datetime
 # JSON 파일 경로 설정
-json_file_path = "./data/adServiceHighCpu/original_metrics.json"
-output_path = "./data/adServiceHighCpu/output/"
+json_file_path = "../data/adServiceHighCpu/original_metrics.json"
+output_path = "../data/adServiceHighCpu/output/"
 metric_file_name_one_row = 'original_metrics.json'
 metric_file_name_multi_row = 'pretty_original_metrics.json'
 

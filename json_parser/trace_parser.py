@@ -1,6 +1,6 @@
 import json
 import time
-from datetime_util import change_timenano_format
+from util.datetime_util import change_timenano_format
 
 # Trace_parser에서 할 일
 # - filtered_span & original_span parsing
@@ -16,7 +16,7 @@ from datetime_util import change_timenano_format
 # 4. make_parsed_info() / parsed_info를 만드는 함수. 디테일한 파싱 작업 수행
 
 # 경로 설정
-path = './data/paymentServiceFailure/'
+path = '../data/paymentServiceFailure/'
 output_path = path + 'output/'
 file_name = 'filtered_span.json'
 extraced_file_name = 'extracted_span_by_trace_id.json'

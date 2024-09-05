@@ -1,5 +1,5 @@
 import json
-from json_parser.datetime_util import change_timenano_format
+from util.datetime_util import change_timenano_format
 
 # 로그 데이터 파싱 및 필요한 key 값 추출
 filtered_logs = []
@@ -82,9 +82,10 @@ class LogParsing:
 
         trace_ids = {key: value for key, value in trace_ids_dict.items()
                      if key not in existing_trace_ids_dict or existing_trace_ids_dict[key] != value}
-        # # 새로운 trace_id 저장
-        # with open(input_path + 'trace_id_dict.json', "w") as trace_id_file:
-        #     json.dump(trace_ids_dict, trace_id_file, indent=4)
+
+        # 새로운 trace_id 저장
+        with open(input_path + 'trace_id_dict.json', "w") as trace_id_file:
+            json.dump(trace_ids_dict, trace_id_file, indent=4)
 
         # 로그 데이터를 파일에 저장 (한 줄)
         with open(output_path + 'one_row_' + file_name, 'w') as log_output_file:
