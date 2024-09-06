@@ -10,11 +10,13 @@ from util.datetime_util import change_timenano_format
 
 class LogParsing:
 
-    def __init__(self, input_path, output_path, file_name, trace_ids_dict):
+    global trace_ids_dict
+
+    def __init__(self, input_path, output_path, file_name, idx):
         self.input_path = input_path
         self.output_path = output_path
         self.file_name = file_name
-        self.trace_ids_dict = trace_ids_dict
+        self.idx = idx
 
     def logparser(self):
         filtered_logs = []
@@ -22,13 +24,13 @@ class LogParsing:
         input_path = self.input_path
         output_path = self.output_path
         file_name = self.file_name
-        trace_ids_dict = self.trace_ids_dict
+        idx = self.idx
 
         # global 변수로 수정하기
         existing_trace_ids_dict = trace_ids_dict.copy()
 
         with open(input_path + file_name, "r") as log_file:
-            for line in itertools.islice(log_file, 4, None):  # 4번째 라인 이후부터 읽기
+            for line in itertools.islice(log_file, idx, None):  # 4번째 라인 이후부터 읽기
             #     print(line.strip())
             # for line in log_file:
                 try:
@@ -101,7 +103,7 @@ class LogParsing:
         with open(output_path + 'multi_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
             json.dump(filtered_logs, log_output_file, indent=4)
 
-        return trace_ids, filtered_logs
+        return idx, trace_ids, filtered_logs
 
         # 결과 출력 (확인용)
         # print("에러가 발생한 로그입니다.")
