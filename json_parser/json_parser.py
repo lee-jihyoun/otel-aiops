@@ -2,22 +2,36 @@ import json
 import time
 from util.datetime_util import change_timenano_format
 import os
+
 # 경로 설정
-log_file_path = "../data/paymentServiceFailure/original_logs.json"
-span_file_path = "../data/paymentServiceFailure/filtered_span.json"
-output_path = '../data/paymentServiceFailure/output/'
+log_file_name = "filtered_logs.json"
+span_file_name = "filtered_span.json"
 
-log_file_name_one_row = 'original_logs.json'
-log_file_name_multi_row = 'pretty_original_logs.json'
+# log_file_name = "original_logs.json"
+# span_file_name = "original_span.json"
 
-span_file_name_one_row = 'original_spans.json'
-span_file_name_multi_row = 'pretty_original_spans.json'
+folder_name = "recommendationServiceCacheFailure"
+
+
+log_file_path = "../data" +"/"+ folder_name+"/" + log_file_name
+span_file_path = "../data" +"/"+ folder_name+"/" + span_file_name
+output_path = "../data" +"/"+ folder_name+"/" + 'output/'
+
+log_file_name_one_row = 'one_row_' + log_file_name
+log_file_name_multi_row = 'multi_row_' + log_file_name
+
+span_file_name_one_row = 'one_row_' + span_file_name
+span_file_name_multi_row = 'multi_row_' + span_file_name
+
+# 경로에 폴더가 없으면 생성
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
 
 # 로그 데이터 파싱 및 필요한 key 값 추출
 filtered_logs = []
 
-# traceId 값을 중복없이 저장하기 위해 빈 집합 초기화
-trace_ids = set()
+# # traceId 값을 중복없이 저장하기 위해 빈 집합 초기화
+# trace_ids = set()
 
 with open(log_file_path, "r") as log_file:
     for line in log_file:
@@ -63,7 +77,7 @@ with open(log_file_path, "r") as log_file:
                             parsed_log["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
                         if "traceId" in log_record and log_record["traceId"] != "":
                             parsed_log["traceId"] = log_record["traceId"]
-                            trace_ids.add(log_record["traceId"])
+                            # trace_ids.add(log_record["traceId"])
                             # traceId가 유효한 경우에만 logRecord 추가
                             filtered_logs.append(parsed_log)
 
@@ -107,7 +121,7 @@ with open(span_file_path, "r") as span_file:
 
                 for scopeSpan in resourceSpan.get("scopeSpans", []):
                     for span in scopeSpan.get("spans", []):
-                        if span.get("traceId") in trace_ids:
+                        # if span.get("traceId") in trace_ids:
                             parsed_info = {
                                 "service.name": service_name,
                                 "os.type": os_type,
@@ -125,7 +139,7 @@ with open(span_file_path, "r") as span_file:
                             }
 
                             for attribute in span.get("attributes", []):
-                                if attribute["key"] == "http.status_code":
+                                if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
                                     parsed_info["http.status_code"] = attribute["value"]["intValue"]
                                 elif attribute["key"] == "rpc.grpc.status_code":
                                     parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
