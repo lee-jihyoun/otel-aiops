@@ -1,0 +1,11 @@
+{
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "GetAds Failed with status Status{code=UNAVAILABLE, description=null, cause=null}",
+        "traceId": "a3068c5690d7e955872ea04eb2f2859b",
+        "observedTimeUnixNano": "2024-08-21 22:47:46"
+    }

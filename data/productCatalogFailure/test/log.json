@@ -1,0 +1,33 @@
+	{
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
+        "observedTimeUnixNano": "2024-09-09 11:01:37"
+    },
+    {
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
+        "observedTimeUnixNano": "2024-09-09 11:01:37"
+    },
+    {
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
+        "observedTimeUnixNano": "2024-09-09 11:01:37"
+    }

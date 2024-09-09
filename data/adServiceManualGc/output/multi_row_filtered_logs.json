@@ -1,0 +1,167 @@
+[
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "c71f51c7c23a38b42035f3ae4501d345",
+        "observedTimeUnixNano": "2024-09-09 11:11:02"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "233c4e91db28e355275d6611b9c3bdbc",
+        "observedTimeUnixNano": "2024-09-09 11:11:13"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "4ac8df657c47fa10332f60c34212c5c7",
+        "observedTimeUnixNano": "2024-09-09 11:11:25"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "137080ca3b96be2c2710abcb980213d4",
+        "observedTimeUnixNano": "2024-09-09 11:11:29"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "ededda7793a32a1bfcfe7dfa84ac6759",
+        "observedTimeUnixNano": "2024-09-09 11:11:34"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "91ebc0ef87c1d8643f40e2749a249383",
+        "observedTimeUnixNano": "2024-09-09 11:11:44"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "ccb02de822193eaf85a6c26c3c1f5320",
+        "observedTimeUnixNano": "2024-09-09 11:11:56"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "f83e00bf7f65e8cd3f7f8b3456bc39e2",
+        "observedTimeUnixNano": "2024-09-09 11:12:01"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "ac087a51489ae6e995df0afe80d53061",
+        "observedTimeUnixNano": "2024-09-09 11:12:20"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "b305af961d905bede878b0145a304318",
+        "observedTimeUnixNano": "2024-09-09 11:12:28"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "04a6d3cf76d6d0473cca25fdc96a48a7",
+        "observedTimeUnixNano": "2024-09-09 11:12:36"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "911ad74f53008e81509653003d8fe66a",
+        "observedTimeUnixNano": "2024-09-09 11:12:41"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "c9ed219c7573c9139171ab3a3ad9f95f",
+        "observedTimeUnixNano": "2024-09-09 11:12:44"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "8990a88cd0237a2924ab8d4e16ff047e",
+        "observedTimeUnixNano": "2024-09-09 11:12:54"
+    },
+    {
+        "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+        "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+        "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+        "service.name": "adservice",
+        "telemetry.sdk.language": "java",
+        "logRecords_severityText": "WARN",
+        "logRecords_body_stringValue": "Feature Flag adServiceManualGc enabled, performing a manual gc now",
+        "traceId": "3db1e8fc9d1d285d6f8c243f4f5f59fc",
+        "observedTimeUnixNano": "2024-09-09 11:12:56"
+    }
+]

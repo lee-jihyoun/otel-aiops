@@ -1,0 +1,55 @@
+{
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "8d9f0b267c57e91d182ff9cf0804da7d",
+        "observedTimeUnixNano": "2024-09-09 11:43:33"
+    },
+    {
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "8d9f0b267c57e91d182ff9cf0804da7d",
+        "observedTimeUnixNano": "2024-09-09 11:43:33"
+    },
+    {
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "8d9f0b267c57e91d182ff9cf0804da7d",
+        "observedTimeUnixNano": "2024-09-09 11:43:33"
+    },
+    {
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "8d9f0b267c57e91d182ff9cf0804da7d",
+        "observedTimeUnixNano": "2024-09-09 11:43:33"
+    },
+    {
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "8d9f0b267c57e91d182ff9cf0804da7d",
+        "observedTimeUnixNano": "2024-09-09 11:43:33"
+    }
