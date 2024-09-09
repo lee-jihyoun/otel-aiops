@@ -1,6 +1,6 @@
 import threading
 from batch import trace_batch, log_batch
-import psycopg2
+# import psycopg2
 import re
 
 trace_ids_dict = {}
@@ -84,16 +84,16 @@ def make_db_data():
         print(f"Error parsing line: {e}")
 
 
-def db_connection():
-    connection = psycopg2.connect(
-        host='100.83.227.59',
-        port=5532,
-        user='test_admin',
-        password='new1234!',
-        database='rnp'
-    )
-    cursor = connection.cursor()
-    return connection, cursor
+# def db_connection():
+#     connection = psycopg2.connect(
+#         host='100.83.227.59',
+#         port=5532,
+#         user='test_admin',
+#         password='new1234!',
+#         database='rnp'
+#     )
+#     cursor = connection.cursor()
+#     return connection, cursor
 
 
 def select_data(connection, cursor):

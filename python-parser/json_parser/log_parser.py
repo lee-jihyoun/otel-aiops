@@ -10,17 +10,16 @@ from util.datetime_util import change_timenano_format
 
 class LogParsing:
 
+    def __init__(self, input_path, output_path, file_name, idx, trace_ids_dict):
 
-    def __init__(self, input_path, output_path, file_name, idx):
         self.input_path = input_path
         self.output_path = output_path
         self.file_name = file_name
         self.idx = idx
+        self.trace_ids_dict = trace_ids_dict
 
     def logparser(self):
-
-        global trace_ids_dict
-
+        trace_ids_dict = self.trace_ids_dict
         filtered_logs = []
 
         input_path = self.input_path
@@ -32,9 +31,9 @@ class LogParsing:
         existing_trace_ids_dict = trace_ids_dict.copy()
 
         with open(input_path + file_name, "r") as log_file:
-            # for line in itertools.islice(log_file, idx, None):  # 4번째 라인 이후부터 읽기
+            for line in itertools.islice(log_file, idx, None):  # 4번째 라인 이후부터 읽기
             #     print(line.strip())
-            for line in log_file:
+            # for line in log_file:
                 try:
                     log_data = json.loads(line.strip())
                     change_timenano_format(log_data)  # 시간 전처리 적용
