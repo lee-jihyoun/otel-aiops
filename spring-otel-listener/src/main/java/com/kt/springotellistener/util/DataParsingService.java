@@ -38,6 +38,19 @@ public class DataParsingService {
         }
     }
 
+    public void commonDataParsing(byte[] compressed, String fileName){
+        String parsingData = "";
+        try{
+            byte[] decompressedBody = decompressGzip(compressed);
+            parsingData = new String(decompressedBody, StandardCharsets.UTF_8);
+            fileUtil.saveToFile(fileName, parsingData);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+
     public String jsonTracesDataParsing(byte[] compressed ){
         String parsingData = "";
         try{

@@ -22,6 +22,9 @@ public class ErrorReport {
     @JoinColumn(name = "service_code", referencedColumnName = "service_code")
     private ServiceInfo serviceInfo;
 
+    @Column(name = "trace_id", length = 150)
+    private String traceId;
+
     @Column(name = "error_name")
     private String errorName;
 
@@ -30,6 +33,9 @@ public class ErrorReport {
 
     @Column(name = "created_time")
     private LocalDateTime createdTime;
+
+    @Column(name = "error_created_time")
+    private LocalDateTime errorCreatedTime;
 
     @Column(name = "error_location", length = 500)
     private String errorLocation;
