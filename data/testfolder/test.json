@@ -1,0 +1,22 @@
+{
+  "scopeLogs": [
+    {
+      "scope": {
+        "name": "oteldemo.AdService"
+      },
+      "logRecords": [
+        {
+          "timeUnixNano": "1724248066957634427",
+          "observedTimeUnixNano": "1724248066957644527",
+          "severityNumber": 13,
+          "severityText": "WARN",
+          "body": {},
+          "flags": 1,
+          "traceId": "a3068c5690d7e955872ea04eb2f2859b",
+          "spanId": "510b715ab6375846"
+        }
+      ]
+    }
+  ],
+  "scope": ""
+}
