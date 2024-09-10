@@ -1,7 +1,6 @@
 import json, itertools
 from util.datetime_util import change_timenano_format
-import trace_id
-
+import traceID.trace_id as trace_id
 
 # 로그 데이터 파싱 및 필요한 key 값 추출
 # JSON 파일을 읽어오기
@@ -9,6 +8,7 @@ import trace_id
 # 존재하지 않을 경우 trace_id_dict.json에 추가하기
 
 # 파일이 변경되었을 때 해당하는 인덱스로부터 읽어들어오기
+trace_id.trace_id_dict["log_parser"] = ""
 
 
 class LogParsing:
@@ -28,16 +28,13 @@ class LogParsing:
         file_name = self.file_name
         idx = self.idx
 
-        trace_id.trace_id_dict["lll"] = ""
-        # print(trace_id.trace_id_dict)
-        print("log_parser: ", trace_id.trace_id_dict)
-        # global 변수로 수정하기
-        existing_trace_ids_dict = trace_id.trace_ids_dict.deepcopy()
+        existing_trace_ids_dict = trace_id.trace_id_dict
+        print("existing_trace_ids_dict: ", existing_trace_ids_dict) # Trace_id_dict 불러와서 저장
 
         with open(input_path + file_name, "r") as log_file:
-            for line in itertools.islice(log_file, idx, None):  # 4번째 라인 이후부터 읽기
+            # for line in itertools.islice(log_file, idx, None):  # 4번째 라인 이후부터 읽기
             #     print(line.strip())
-            # for line in log_file:
+            for line in log_file:
                 try:
                     log_data = json.loads(line.strip())
                     change_timenano_format(log_data)  # 시간 전처리 적용
@@ -82,23 +79,20 @@ class LogParsing:
                                     parsed_log["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
 
                                 # id 비교하는거
-                                if "traceId" in log_record and log_record["traceId"] != "" and log_record["traceId"] not in trace_id.trace_ids_dict:
+                                if "traceId" in log_record and log_record["traceId"] != "" and log_record["traceId"] not in trace_id.trace_id_dict:
                                     parsed_log["traceId"] = log_record["traceId"]
 
-                                    trace_id.trace_ids_dict[log_record["traceId"]] = ""
+                                    print("11111111111111111111111111")
+                                    print(log_record["traceId"])
+                                    print(trace_id.trace_id_dict)
+
+                                    trace_id.trace_id_dict[log_record["traceId"]] = "log"
 
                                     # traceId가 유효한 경우에만 logRecord 추가
                                     filtered_logs.append(parsed_log)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
-
-        trace_ids = {key: value for key, value in trace_id.trace_ids_dict.items()
-                     if key not in existing_trace_ids_dict or existing_trace_ids_dict[key] != value}
-
-        # 새로운 trace_id 저장
-        with open(input_path + 'trace_id_dict.json', "w", encoding='utf-8') as trace_id_file:
-            json.dump(trace_id.trace_ids_dict, trace_id_file, indent=4)
 
         # 로그 데이터를 파일에 저장 (한 줄)
         with open(output_path + 'one_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
@@ -108,7 +102,7 @@ class LogParsing:
         with open(output_path + 'multi_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
             json.dump(filtered_logs, log_output_file, indent=4)
 
-        return idx, trace_ids, filtered_logs
+        return idx, filtered_logs
 
         # 결과 출력 (확인용)
         # print("에러가 발생한 로그입니다.")

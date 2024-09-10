@@ -1,5 +1,5 @@
 import time
-import trace_id
+import traceID.trace_id as trace_id
 trace_id_dict = trace_id.trace_id_dict
 
 def run_batch2():
