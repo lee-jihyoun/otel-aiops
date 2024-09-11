@@ -174,14 +174,132 @@ data = {
     "message": "안녕. 착상에 대해 알려줘.",
     "chatMemoryId": "ffd46fac-5e8d-43d6-803a-d060766e259c"
 }
-prompt_data = {"message": "{\"resourceSpans\":[{\"resource\":{\"attributes\":[{\"key\":\"service.name\",\"value\":{\"stringValue\":\"frontend\"}},{\"key\":\"telemetry.sdk.language\",\"value\":{\"stringValue\":\"nodejs\"}},{\"key\":\"telemetry.sdk.name\",\"value\":{\"stringValue\":\"opentelemetry\"}},{\"key\":\"telemetry.sdk.version\",\"value\":{\"stringValue\":\"1.25.1\"}},{\"key\":\"container.id\",\"value\":{\"stringValue\":\"f27bf1b161b28b909d52572607c84c667f42895393b06247598ceea61021aef4\"}},{\"key\":\"docker.cli.cobra.command_path\",\"value\":{\"stringValue\":\"docker compose\"}},{\"key\":\"host.name\",\"value\":{\"stringValue\":\"f27bf1b161b2\"}},{\"key\":\"host.arch\",\"value\":{\"stringValue\":\"amd64\"}},{\"key\":\"os.type\",\"value\":{\"stringValue\":\"linux\"}},{\"key\":\"os.version\",\"value\":{\"stringValue\":\"5.15.153.1-microsoft-standard-WSL2\"}},{\"key\":\"process.pid\",\"value\":{\"intValue\":\"17\"}},{\"key\":\"process.executable.name\",\"value\":{\"stringValue\":\"node\"}},{\"key\":\"process.executable.path\",\"value\":{\"stringValue\":\"/usr/local/bin/node\"}},{\"key\":\"process.command_args\",\"value\":{\"arrayValue\":{\"values\":[{\"stringValue\":\"/usr/local/bin/node\"},{\"stringValue\":\"--require\"},{\"stringValue\":\"./Instrumentation.js\"},{\"stringValue\":\"/app/server.js\"}]}}},{\"key\":\"process.runtime.version\",\"value\":{\"stringValue\":\"20.16.0\"}},{\"key\":\"process.runtime.name\",\"value\":{\"stringValue\":\"nodejs\"}},{\"key\":\"process.runtime.description\",\"value\":{\"stringValue\":\"Node.js\"}},{\"key\":\"process.command\",\"value\":{\"stringValue\":\"/app/server.js\"}},{\"key\":\"process.owner\",\"value\":{\"stringValue\":\"nextjs\"}}]},\"scopeSpans\":[{\"scope\":{\"name\":\"@opentelemetry/instrumentation-grpc\",\"version\":\"0.52.1\"},\"spans\":[{\"traceId\":\"a3068c5690d7e955872ea04eb2f2859b\",\"spanId\":\"428b07968ae20727\",\"parentSpanId\":\"d242dc005baabd8f\",\"name\":\"grpc.oteldemo.AdService/GetAds\",\"kind\":3,\"startTimeUnixNano\":\"1724248066953000000\",\"endTimeUnixNano\":\"1724248066960431536\",\"attributes\":[{\"key\":\"rpc.system\",\"value\":{\"stringValue\":\"grpc\"}},{\"key\":\"rpc.method\",\"value\":{\"stringValue\":\"GetAds\"}},{\"key\":\"rpc.service\",\"value\":{\"stringValue\":\"oteldemo.AdService\"}},{\"key\":\"net.peer.name\",\"value\":{\"stringValue\":\"adservice\"}},{\"key\":\"net.peer.port\",\"value\":{\"intValue\":\"9555\"}},{\"key\":\"rpc.grpc.status_code\",\"value\":{\"intValue\":\"14\"}},{\"key\":\"grpc.error_name\",\"value\":{\"stringValue\":\"Error\"}},{\"key\":\"grpc.error_message\",\"value\":{\"stringValue\":\"14 UNAVAILABLE: \"}}],\"status\":{\"code\":2}}]},{\"scope\":{\"name\":\"next.js\",\"version\":\"0.0.1\"},\"spans\":[{\"traceId\":\"a3068c5690d7e955872ea04eb2f2859b\",\"spanId\":\"d242dc005baabd8f\",\"parentSpanId\":\"9c1af4a84e49fa76\",\"name\":\"executing api route (pages) /api/data\",\"kind\":1,\"startTimeUnixNano\":\"1724248066953000000\",\"endTimeUnixNano\":\"1724248066960992817\",\"attributes\":[{\"key\":\"next.span_name\",\"value\":{\"stringValue\":\"executing api route (pages) /api/data\"}},{\"key\":\"next.span_type\",\"value\":{\"stringValue\":\"Node.runHandler\"}},{\"key\":\"http.status_code\",\"value\":{\"intValue\":\"500\"}}],\"events\":[{\"timeUnixNano\":\"1724248066960608243\",\"name\":\"exception\",\"attributes\":[{\"key\":\"exception.type\",\"value\":{\"stringValue\":\"14\"}},{\"key\":\"exception.message\",\"value\":{\"stringValue\":\"14 UNAVAILABLE: \"}},{\"key\":\"exception.stacktrace\",\"value\":{\"stringValue\":\"Error: 14 UNAVAILABLE: \\n    at callErrorFromStatus (/app/node_modules/@grpc/grpc-js/build/src/call.js:31:19)\\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client.js:193:76)\\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:360:141)\\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:323:181)\\n    at /app/node_modules/@grpc/grpc-js/build/src/resolving-call.js:129:78\\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)\\nfor call at\\n    at ServiceClientImpl.makeUnaryRequest (/app/node_modules/@grpc/grpc-js/build/src/client.js:161:32)\\n    at ServiceClientImpl.\\u003canonymous\\u003e (/app/node_modules/@grpc/grpc-js/build/src/make-client.js:105:19)\\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/clientUtils.js:131:31\\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:209\\n    at AsyncLocalStorage.run (node:async_hooks:346:14)\\n    at AsyncLocalStorageContextManager.with (/app/node_modules/@opentelemetry/context-async-hooks/build/src/AsyncLocalStorageContextManager.js:33:40)\\n    at ContextAPI.with (/app/node_modules/@opentelemetry/api/build/src/api/context.js:60:46)\\n    at ServiceClientImpl.clientMethodTrace [as getAds] (/app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:42)\\n    at /app/.next/server/pages/api/data.js:1:1024\\n    at new ZoneAwarePromise (/app/node_modules/zone.js/bundles/zone.umd.js:1340:33)\"}}]}],\"status\":{\"code\":2}}]},{\"scope\":{\"name\":\"@opentelemetry/instrumentation-http\",\"version\":\"0.52.1\"},\"spans\":[{\"traceId\":\"a3068c5690d7e955872ea04eb2f2859b\",\"spanId\":\"2179d960e903d030\",\"parentSpanId\":\"749576475bfd303f\",\"name\":\"GET\",\"kind\":2,\"startTimeUnixNano\":\"1724248066952000000\",\"endTimeUnixNano\":\"1724248066960664662\",\"attributes\":[{\"key\":\"http.url\",\"value\":{\"stringValue\":\"http://frontend-proxy:8080/api/data?contextKeys=assembly\"}},{\"key\":\"http.host\",\"value\":{\"stringValue\":\"frontend-proxy:8080\"}},{\"key\":\"net.host.name\",\"value\":{\"stringValue\":\"frontend-proxy\"}},{\"key\":\"http.method\",\"value\":{\"stringValue\":\"GET\"}},{\"key\":\"http.scheme\",\"value\":{\"stringValue\":\"http\"}},{\"key\":\"http.target\",\"value\":{\"stringValue\":\"/api/data?contextKeys=assembly\"}},{\"key\":\"http.user_agent\",\"value\":{\"stringValue\":\"python-requests/2.31.0\"}},{\"key\":\"http.flavor\",\"value\":{\"stringValue\":\"1.1\"}},{\"key\":\"net.transport\",\"value\":{\"stringValue\":\"ip_tcp\"}},{\"key\":\"net.host.ip\",\"value\":{\"stringValue\":\"172.18.0.23\"}},{\"key\":\"net.host.port\",\"value\":{\"intValue\":\"8080\"}},{\"key\":\"net.peer.ip\",\"value\":{\"stringValue\":\"172.18.0.25\"}},{\"key\":\"net.peer.port\",\"value\":{\"intValue\":\"60168\"}},{\"key\":\"http.status_code\",\"value\":{\"intValue\":\"500\"}},{\"key\":\"http.status_text\",\"value\":{\"stringValue\":\"INTERNAL SERVER ERROR\"}}],\"status\":{\"code\":2}}]}]}]}\n에러가 왜나는지 알려줄 수 있니?\n"}
-# agentic_workflow_data = {}
-json_data = json.dumps(prompt_data)
-headers = {
-    "X-API-KEY": api_key,
-    "content-type": "application/json"
-}
+# prompt_data = {"message": "{\"resourceSpans\":[{\"resource\":{\"attributes\":[{\"key\":\"service.name\",\"value\":{\"stringValue\":\"frontend\"}},{\"key\":\"telemetry.sdk.language\",\"value\":{\"stringValue\":\"nodejs\"}},{\"key\":\"telemetry.sdk.name\",\"value\":{\"stringValue\":\"opentelemetry\"}},{\"key\":\"telemetry.sdk.version\",\"value\":{\"stringValue\":\"1.25.1\"}},{\"key\":\"container.id\",\"value\":{\"stringValue\":\"f27bf1b161b28b909d52572607c84c667f42895393b06247598ceea61021aef4\"}},{\"key\":\"docker.cli.cobra.command_path\",\"value\":{\"stringValue\":\"docker compose\"}},{\"key\":\"host.name\",\"value\":{\"stringValue\":\"f27bf1b161b2\"}},{\"key\":\"host.arch\",\"value\":{\"stringValue\":\"amd64\"}},{\"key\":\"os.type\",\"value\":{\"stringValue\":\"linux\"}},{\"key\":\"os.version\",\"value\":{\"stringValue\":\"5.15.153.1-microsoft-standard-WSL2\"}},{\"key\":\"process.pid\",\"value\":{\"intValue\":\"17\"}},{\"key\":\"process.executable.name\",\"value\":{\"stringValue\":\"node\"}},{\"key\":\"process.executable.path\",\"value\":{\"stringValue\":\"/usr/local/bin/node\"}},{\"key\":\"process.command_args\",\"value\":{\"arrayValue\":{\"values\":[{\"stringValue\":\"/usr/local/bin/node\"},{\"stringValue\":\"--require\"},{\"stringValue\":\"./Instrumentation.js\"},{\"stringValue\":\"/app/server.js\"}]}}},{\"key\":\"process.runtime.version\",\"value\":{\"stringValue\":\"20.16.0\"}},{\"key\":\"process.runtime.name\",\"value\":{\"stringValue\":\"nodejs\"}},{\"key\":\"process.runtime.description\",\"value\":{\"stringValue\":\"Node.js\"}},{\"key\":\"process.command\",\"value\":{\"stringValue\":\"/app/server.js\"}},{\"key\":\"process.owner\",\"value\":{\"stringValue\":\"nextjs\"}}]},\"scopeSpans\":[{\"scope\":{\"name\":\"@opentelemetry/instrumentation-grpc\",\"version\":\"0.52.1\"},\"spans\":[{\"traceId\":\"a3068c5690d7e955872ea04eb2f2859b\",\"spanId\":\"428b07968ae20727\",\"parentSpanId\":\"d242dc005baabd8f\",\"name\":\"grpc.oteldemo.AdService/GetAds\",\"kind\":3,\"startTimeUnixNano\":\"1724248066953000000\",\"endTimeUnixNano\":\"1724248066960431536\",\"attributes\":[{\"key\":\"rpc.system\",\"value\":{\"stringValue\":\"grpc\"}},{\"key\":\"rpc.method\",\"value\":{\"stringValue\":\"GetAds\"}},{\"key\":\"rpc.service\",\"value\":{\"stringValue\":\"oteldemo.AdService\"}},{\"key\":\"net.peer.name\",\"value\":{\"stringValue\":\"adservice\"}},{\"key\":\"net.peer.port\",\"value\":{\"intValue\":\"9555\"}},{\"key\":\"rpc.grpc.status_code\",\"value\":{\"intValue\":\"14\"}},{\"key\":\"grpc.error_name\",\"value\":{\"stringValue\":\"Error\"}},{\"key\":\"grpc.error_message\",\"value\":{\"stringValue\":\"14 UNAVAILABLE: \"}}],\"status\":{\"code\":2}}]},{\"scope\":{\"name\":\"next.js\",\"version\":\"0.0.1\"},\"spans\":[{\"traceId\":\"a3068c5690d7e955872ea04eb2f2859b\",\"spanId\":\"d242dc005baabd8f\",\"parentSpanId\":\"9c1af4a84e49fa76\",\"name\":\"executing api route (pages) /api/data\",\"kind\":1,\"startTimeUnixNano\":\"1724248066953000000\",\"endTimeUnixNano\":\"1724248066960992817\",\"attributes\":[{\"key\":\"next.span_name\",\"value\":{\"stringValue\":\"executing api route (pages) /api/data\"}},{\"key\":\"next.span_type\",\"value\":{\"stringValue\":\"Node.runHandler\"}},{\"key\":\"http.status_code\",\"value\":{\"intValue\":\"500\"}}],\"events\":[{\"timeUnixNano\":\"1724248066960608243\",\"name\":\"exception\",\"attributes\":[{\"key\":\"exception.type\",\"value\":{\"stringValue\":\"14\"}},{\"key\":\"exception.message\",\"value\":{\"stringValue\":\"14 UNAVAILABLE: \"}},{\"key\":\"exception.stacktrace\",\"value\":{\"stringValue\":\"Error: 14 UNAVAILABLE: \\n    at callErrorFromStatus (/app/node_modules/@grpc/grpc-js/build/src/call.js:31:19)\\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client.js:193:76)\\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:360:141)\\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:323:181)\\n    at /app/node_modules/@grpc/grpc-js/build/src/resolving-call.js:129:78\\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)\\nfor call at\\n    at ServiceClientImpl.makeUnaryRequest (/app/node_modules/@grpc/grpc-js/build/src/client.js:161:32)\\n    at ServiceClientImpl.\\u003canonymous\\u003e (/app/node_modules/@grpc/grpc-js/build/src/make-client.js:105:19)\\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/clientUtils.js:131:31\\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:209\\n    at AsyncLocalStorage.run (node:async_hooks:346:14)\\n    at AsyncLocalStorageContextManager.with (/app/node_modules/@opentelemetry/context-async-hooks/build/src/AsyncLocalStorageContextManager.js:33:40)\\n    at ContextAPI.with (/app/node_modules/@opentelemetry/api/build/src/api/context.js:60:46)\\n    at ServiceClientImpl.clientMethodTrace [as getAds] (/app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:42)\\n    at /app/.next/server/pages/api/data.js:1:1024\\n    at new ZoneAwarePromise (/app/node_modules/zone.js/bundles/zone.umd.js:1340:33)\"}}]}],\"status\":{\"code\":2}}]},{\"scope\":{\"name\":\"@opentelemetry/instrumentation-http\",\"version\":\"0.52.1\"},\"spans\":[{\"traceId\":\"a3068c5690d7e955872ea04eb2f2859b\",\"spanId\":\"2179d960e903d030\",\"parentSpanId\":\"749576475bfd303f\",\"name\":\"GET\",\"kind\":2,\"startTimeUnixNano\":\"1724248066952000000\",\"endTimeUnixNano\":\"1724248066960664662\",\"attributes\":[{\"key\":\"http.url\",\"value\":{\"stringValue\":\"http://frontend-proxy:8080/api/data?contextKeys=assembly\"}},{\"key\":\"http.host\",\"value\":{\"stringValue\":\"frontend-proxy:8080\"}},{\"key\":\"net.host.name\",\"value\":{\"stringValue\":\"frontend-proxy\"}},{\"key\":\"http.method\",\"value\":{\"stringValue\":\"GET\"}},{\"key\":\"http.scheme\",\"value\":{\"stringValue\":\"http\"}},{\"key\":\"http.target\",\"value\":{\"stringValue\":\"/api/data?contextKeys=assembly\"}},{\"key\":\"http.user_agent\",\"value\":{\"stringValue\":\"python-requests/2.31.0\"}},{\"key\":\"http.flavor\",\"value\":{\"stringValue\":\"1.1\"}},{\"key\":\"net.transport\",\"value\":{\"stringValue\":\"ip_tcp\"}},{\"key\":\"net.host.ip\",\"value\":{\"stringValue\":\"172.18.0.23\"}},{\"key\":\"net.host.port\",\"value\":{\"intValue\":\"8080\"}},{\"key\":\"net.peer.ip\",\"value\":{\"stringValue\":\"172.18.0.25\"}},{\"key\":\"net.peer.port\",\"value\":{\"intValue\":\"60168\"}},{\"key\":\"http.status_code\",\"value\":{\"intValue\":\"500\"}},{\"key\":\"http.status_text\",\"value\":{\"stringValue\":\"INTERNAL SERVER ERROR\"}}],\"status\":{\"code\":2}}]}]}]}\n에러가 왜나는지 알려줄 수 있니?\n"}
+# # agentic_workflow_data = {}
+# json_data = json.dumps(prompt_data)
+# headers = {
+#     "X-API-KEY": api_key,
+#     "content-type": "application/json"
+# }
+#
+# response = requests.post(url, data=json_data, headers=headers)
+# print(response)
+# print(response.text)
 
-response = requests.post(url, data=json_data, headers=headers)
-print(response)
-print(response.text)
+
+# 프리지아 호출
+def call_freesia_api(json_data):
+    headers = {
+        "X-API-KEY": api_key,
+        "content-type": "application/json"
+    }
+    response = requests.post(url, data=json_data, headers=headers)
+    return response
+
+# 보낼 json 데이터의 message 생성
+def create_message(log_data, span_data):
+    f = open("prompt_template.txt", 'r', encoding='UTF8')
+    data = f.read()
+    data = data.replace("{{error_log}}",log_data)
+    data = data.replace("{{error_span}}",span_data)
+    data = {"message":data}
+    json_data = json.dumps(data)
+    return json_data
+
+# 오류 리포트 생성
+def create_error_report(log_data, span_data):
+
+    json_data = create_message(log_data, span_data)
+    result = call_freesia_api(json_data)
+    print(result.text)
+
+#create_error_report(log_data,span_data)
+##
+log_data = """{
+    "container.id": "3664da43153e5051d2c104b66787eed90be022efd5f3d45eec9b9a4e47b4c718",
+    "os.description": "Linux 5.15.153.1-microsoft-standard-WSL2",
+    "process.command_line": "/opt/java/openjdk/bin/java -javaagent:/usr/src/app/opentelemetry-javaagent.jar oteldemo.AdService",
+    "service.name": "adservice",
+    "telemetry.sdk.language": "java",
+    "logRecords_severityText": "WARN",
+    "logRecords_body_stringValue": "GetAds Failed with status Status{code=UNAVAILABLE, description=null, cause=null}",
+    "traceId": "a3068c5690d7e955872ea04eb2f2859b",
+    "observedTimeUnixNano": "2024-08-21 22:47:46"
+}"""
+span_data = """{
+    "service.name": "adservice",
+    "os.type": "linux",
+    "traceId": "a3068c5690d7e955872ea04eb2f2859b",
+    "spanId": "510b715ab6375846",
+    "name": "oteldemo.AdService/GetAds",
+    "http.status_code": null,
+    "rpc.grpc.status_code": "14",
+    "exception.message": "UNAVAILABLE",
+    "exception.stacktrace": null,
+    "http.url": null,
+    "rpc.method": "GetAds",
+    "startTimeUnixNano": "2024-08-21 22:47:46",
+    "endTimeUnixNano": "2024-08-21 22:47:46"
+},
+{
+    "service.name": "frontend",
+    "os.type": "linux",
+    "traceId": "a3068c5690d7e955872ea04eb2f2859b",
+    "spanId": "428b07968ae20727",
+    "name": "grpc.oteldemo.AdService/GetAds",
+    "http.status_code": null,
+    "rpc.grpc.status_code": "14",
+    "exception.message": null,
+    "exception.stacktrace": null,
+    "http.url": null,
+    "rpc.method": "GetAds",
+    "startTimeUnixNano": "2024-08-21 22:47:46",
+    "endTimeUnixNano": "2024-08-21 22:47:46"
+},
+{
+    "service.name": "frontend",
+    "os.type": "linux",
+    "traceId": "a3068c5690d7e955872ea04eb2f2859b",
+    "spanId": "d242dc005baabd8f",
+    "name": "executing api route (pages) /api/data",
+    "http.status_code": "500",
+    "rpc.grpc.status_code": null,
+    "exception.message": "14 UNAVAILABLE: ",
+    "exception.stacktrace": "Error: 14 UNAVAILABLE: \n    at callErrorFromStatus (/app/node_modules/@grpc/grpc-js/build/src/call.js:31:19)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client.js:193:76)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:360:141)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:323:181)\n    at /app/node_modules/@grpc/grpc-js/build/src/resolving-call.js:129:78\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)\nfor call at\n    at ServiceClientImpl.makeUnaryRequest (/app/node_modules/@grpc/grpc-js/build/src/client.js:161:32)\n    at ServiceClientImpl.<anonymous> (/app/node_modules/@grpc/grpc-js/build/src/make-client.js:105:19)\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/clientUtils.js:131:31\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:209\n    at AsyncLocalStorage.run (node:async_hooks:346:14)\n    at AsyncLocalStorageContextManager.with (/app/node_modules/@opentelemetry/context-async-hooks/build/src/AsyncLocalStorageContextManager.js:33:40)\n    at ContextAPI.with (/app/node_modules/@opentelemetry/api/build/src/api/context.js:60:46)\n    at ServiceClientImpl.clientMethodTrace [as getAds] (/app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:42)\n    at /app/.next/server/pages/api/data.js:1:1024\n    at new ZoneAwarePromise (/app/node_modules/zone.js/bundles/zone.umd.js:1340:33)",
+    "http.url": null,
+    "rpc.method": null,
+    "startTimeUnixNano": "2024-08-21 22:47:46",
+    "endTimeUnixNano": "2024-08-21 22:47:46"
+},
+{
+    "service.name": "frontend",
+    "os.type": "linux",
+    "traceId": "a3068c5690d7e955872ea04eb2f2859b",
+    "spanId": "2179d960e903d030",
+    "name": "GET",
+    "http.status_code": "500",
+    "rpc.grpc.status_code": null,
+    "exception.message": null,
+    "exception.stacktrace": null,
+    "http.url": "http://frontend-proxy:8080/api/data?contextKeys=assembly",
+    "rpc.method": null,
+    "startTimeUnixNano": "2024-08-21 22:47:46",
+    "endTimeUnixNano": "2024-08-21 22:47:46"
+},
+{
+    "service.name": "loadgenerator",
+    "os.type": null,
+    "traceId": "a3068c5690d7e955872ea04eb2f2859b",
+    "spanId": "2ecda53ce636e5ce",
+    "name": "GET",
+    "http.status_code": "500",
+    "rpc.grpc.status_code": null,
+    "exception.message": null,
+    "exception.stacktrace": null,
+    "http.url": "http://frontend-proxy:8080/api/data/?contextKeys=assembly",
+    "rpc.method": null,
+    "startTimeUnixNano": "2024-08-21 22:47:46",
+    "endTimeUnixNano": "2024-08-21 22:47:46"
+}"""
+create_error_report(log_data,span_data)
+
