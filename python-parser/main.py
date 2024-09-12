@@ -18,21 +18,45 @@ import variables.trace_id as trace_id
 
 # response에 마크다운이 포함된 경우 escape 문자열 처리
 def make_clean_markdown_json(markdown_json):
-    # 불필요한 ```json, ```plaintext, ```bash 등을 제거
+    print(markdown_json)
+    print('-----------------------')
+    # 1. ```json, ```plaintext, ```bash 등의 불필요한 코드 블록 제거
     cleaned_str = re.sub(r"```(json|plaintext|bash)?\n?", "", markdown_json)
-    # 불필요한 escape 문자 제거
-    clean = cleaned_str.replace('\\"', '"').strip()
-    clean = clean.replace(":\"{", ": {").replace("}\n\",", "},").replace('"content":"{"', '"content": {"')
-    clean = re.sub(r'\\n\s*', '', clean)
-    clean = clean.replace('"]}}"', '"]}}').replace('\\', '/')
-    # print(clean)
 
+    # 2. 공백과 줄바꿈 제거
+    # \n -> 공백으로 변환
+    cleaned_str = re.sub(r'\\n', '', cleaned_str)
+    # 연속적인 공백을 하나의 공백으로 축소
+    cleaned_str = re.sub(r'\s+', ' ', cleaned_str).strip()
+
+    # 3. 이스케이프 문자 제거
+    # \" -> " 로 변환
+    cleaned_str = cleaned_str.replace('\\"', '"')
+    # \ -> /로 변환
+    cleaned_str = cleaned_str.replace('\\', '/')
+
+    # 4. 특수 문자열 패턴 처리
+    # '"{' -> '{' 로 변경
+    cleaned_str = re.sub(r'"\{', '{', cleaned_str)
+    # '}"' -> '}' 로 변경
+    cleaned_str = re.sub(r'\}"', '}', cleaned_str)
+    # \\/ -> / 로 변경
+    cleaned_str = cleaned_str.replace('\\/', '/')
+    # # [, ] 제거
+    # cleaned_str = cleaned_str.replace(']', '').replace('[', '')
+    # cleaned_str = cleaned_str.replace('//"', '')
+
+    # 5. JSON 변환 시 문제가 될 수 있는 불필요한 공백 제거
+    # "key": "value"와 같은 패턴에서 key와 value 사이의 공백 정리
+    cleaned_str = re.sub(r'"\s*:\s*"', '":"', cleaned_str)
+
+    print(cleaned_str)
     # 잘못된 JSON 문자열 디버깅
     try:
-        freesia_result = json.loads(clean)
+        freesia_result = json.loads(cleaned_str)
     except json.JSONDecodeError as e:
         print("JSON 디코딩 에러:", e)
-        print("문제 있는 문자열 주변:", clean[max(0, e.pos-40):e.pos+40])
+        print("문제 있는 문자열 주변:", cleaned_str[max(0, e.pos-40):e.pos+40])
 
     return freesia_result
 
@@ -74,6 +98,15 @@ def db_connection():
     return connection, cursor
 
 
+def select_data(connection, cursor):
+    read_query = """
+            SELECT error_content
+            FROM error_report
+    """
+    cursor.execute(read_query)
+    result = cursor.fetchall()
+    print(result)
+
 def find_service_code(cursor, service_name):
     select_query = f"""
             SELECT service_code
@@ -83,7 +116,6 @@ def find_service_code(cursor, service_name):
     cursor.execute(select_query)
     result = cursor.fetchone()
     return result[0]
-
 
 def insert_data(connection, cursor, dbdata, service_code):
     data_to_insert = {
