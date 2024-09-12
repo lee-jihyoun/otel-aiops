@@ -13,9 +13,9 @@ span_file_name = "filtered_span.json"
 folder_name = "recommendationServiceCacheFailure"
 
 
-log_file_path = "../data" +"/"+ folder_name+"/" + log_file_name
-span_file_path = "../data" +"/"+ folder_name+"/" + span_file_name
-output_path = "../data" +"/"+ folder_name+"/" + 'output/'
+log_file_path = "../../data" +"/"+ folder_name+"/" + log_file_name
+span_file_path = "../../data" +"/"+ folder_name+"/" + span_file_name
+output_path = "../../data" +"/"+ folder_name+"/" + 'output/'
 
 log_file_name_one_row = 'one_row_' + log_file_name
 log_file_name_multi_row = 'multi_row_' + log_file_name
