@@ -22,42 +22,15 @@ def run_batch1():
         filtered_idx = file_idx.idx.get('filtered_logs')
         original_idx = file_idx.idx.get('original_logs')
 
-        print("filtered_log_start")
-        print(datetime.datetime.now())
-        filtered_log_parsing = log_parser.LogParsing(input_path=input_path,
-                                                    output_path=output_path,
-                                                    file_name=filtered_log,
-                                                    idx=filtered_idx)
+        log_parsing = log_parser.LogParsing(input_path=input_path,
+                                                     output_path=output_path,
+                                                     filtered_file_name=filtered_log,
+                                                     original_file_name=original_log,
+                                                     filtered_idx=filtered_idx,
+                                                     original_idx=original_idx)
 
-        parsed_filtered_log = filtered_log_parsing.filtered_logparser()
+        log_parsing.filtered_logparser()
 
-        # index 업데이트
-        new_filtered_index = parsed_filtered_log[0]
-        file_idx.idx[filtered_log[:-5]] = new_filtered_index
-
-        print("parsed_filtered_log")
-        print(parsed_filtered_log[0])  # idx
-        print(parsed_filtered_log[1])  # filtered_log[]
-        print("filterparsed_end_dictionary")
-        print(trace_id.main_dict)
-
-        print("original_log_start")
-        if parsed_filtered_log[1] == []:
-            original_log_parsing = log_parser.LogParsing(input_path=input_path,
-                                                        output_path=output_path,
-                                                        file_name=original_log,
-                                                        idx=original_idx)
-
-            parsed_original_log = original_log_parsing.original_logparser()
-
-            new_original_index = parsed_original_log[0]
-            file_idx.idx[filtered_log[:-5]] = new_original_index
-
-            print("parsed_original_log")
-            print(parsed_original_log[0])  # idx
-            print(parsed_original_log[1])  # filtered_log[]
-            print("originparsed_end_dictionary")
-            print(trace_id.main_dict)
 
         print("end")
         print(datetime.datetime.now())
@@ -113,4 +86,4 @@ def run_batch1():
 
 
 
-        time.sleep(100)
+        time.sleep(3)
