@@ -129,7 +129,7 @@ public class MailService {
         mailContent += "<pre>" + errorReport.getErrorContent() + "</pre>";
 
         mailContent += "<h2>오류 발생 시간</h2>";
-        mailContent += "<p>" + errorReport.getCreatedTime() + "</p>";
+        mailContent += "<p>" + errorReport.getCreateTime() + "</p>";
 
         mailContent += "<h2>오류 발생 위치</h2>";
         mailContent += "<pre>" + errorReport.getErrorLocation() + "</pre>";
