@@ -169,7 +169,7 @@ class LogParsing:
                         trace_info["retry"] += 1
                         print(f"Trace ID: {trace_id}, Retry 증가: {trace_info['retry']}")
                     else:
-                        trace_info["status"] = 'confirm'
+                        trace_info["status"] = 'complete'
                         print(f"Trace ID: {trace_id}, Retry 횟수가 이미 3에 도달")
 
     def filtered_logparser(self):
