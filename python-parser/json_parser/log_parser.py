@@ -20,13 +20,8 @@ class LogParsing:
         self.file_name = file_name
         self.idx = idx
 
-    # def get_trace_status_entries(self, trace_id_dict):
-    #     print("trace_id_dict: ", trace_id_dict)
-    #     return {key: value for key, value in trace_id_dict.items() if value.get("status") == "trace"}
-
     def logparser(self):
         filtered_logs = []
-        flag = 0
 
         input_path = self.input_path
         output_path = self.output_path
@@ -124,20 +119,6 @@ class LogParsing:
                                     else:
                                         pass
 
-                                # # id 비교하는거
-                                # if "traceId" in log_record and log_record["traceId"] != "" and log_record["traceId"] not in trace_id_dict:
-                                #     parsed_log["traceId"] = log_record["traceId"]
-                                #
-                                #     print("11111111111111111111111111")
-                                #     print(log_record["traceId"])
-                                #     print(trace_id_dict)
-                                #
-                                #     trace_id_dict[log_record["traceId"]] = {"status": "log",
-                                #                                             "retry": 0,
-                                #                                             "mail": "N"}
-                                #
-                                #     # traceId가 유효한 경우에만 logRecord 추가
-                                #     filtered_logs.append(parsed_log)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")

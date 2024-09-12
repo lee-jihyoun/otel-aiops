@@ -299,5 +299,5 @@ span_data = """{
     "startTimeUnixNano": "2024-08-21 22:47:46",
     "endTimeUnixNano": "2024-08-21 22:47:46"
 }"""
-create_error_report(log_data,span_data)
+# create_error_report(log_data, span_data)
 
