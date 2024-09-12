@@ -1,5 +1,5 @@
 import threading
-from batch import total_batch
+from batch import parser_batch
 import psycopg2 # pip install psycopg2-binary
 import re
 import requests
@@ -12,7 +12,7 @@ print("==============")
 # trace_id.trace_id_dict["main"] = ""
 # print("main: ", trace_id.trace_id_dict)
 
-thread1 = threading.Thread(target=total_batch.run_batch1) # 각 batch를 실행할 스레드를 생성
+thread1 = threading.Thread(target=parser_batch.run_batch1) # 각 batch를 실행할 스레드를 생성
 thread1.start() # 스레드를 시작 (동시에 실행)
 thread1.join() # 스레드가 종료될 때까지 대기
 
