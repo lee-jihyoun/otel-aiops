@@ -31,11 +31,11 @@ public class ErrorReport {
     @Column(name = "error_content", length = 5000)
     private String errorContent;
 
-    @Column(name = "created_time")
-    private LocalDateTime createdTime;
+    @Column(name = "create_time")
+    private LocalDateTime createTime;
 
-    @Column(name = "error_created_time")
-    private LocalDateTime errorCreatedTime;
+    @Column(name = "error_create_time")
+    private LocalDateTime errorCreateTime;
 
     @Column(name = "error_location", length = 500)
     private String errorLocation;
