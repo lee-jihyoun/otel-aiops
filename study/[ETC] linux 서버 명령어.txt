@@ -1,0 +1,145 @@
+※ 모든 명령어 root로 실행
+[ 방화벽 포트 추가 ]
+firewall-cmd --permanent --add-port=14040/tcp
+firewall-cmd --reload
+firewall-cmd --list-all
+
+
+[ docker 실행 ]
+	cd /opt/opentelemetry-demo
+	docker compose up --detach
+
+
+[ spring-otel-listener 빌드 ]
+## 권한변경
+	cd /opt/otel-aiops/
+	chmod -R 777 spring-otel-listener
+
+## 빌드
+	cd /opt/otel-aiops/spring-otel-listener
+	./gradlew assemble
+
+## 파일복사
+	cp /opt/otel-aiops/spring-otel-listener/build/libs/spring-otel-listener-0.0.1-SNAPSHOT.jar /opt/spring-otel-listener-run/spring-otel-listener-0.0.1-SNAPSHOT.jar
+
+
+[ spring-otel-listener 실행 ]
+	cd /opt/spring-otel-listener-run/
+	nohup java -jar spring-otel-listener-0.0.1-SNAPSHOT.jar &
+
+
+[ spring-reporting-service 빌드 ]
+## 권한변경
+	cd /opt/otel-aiops/
+	chmod -R 777 spring-reporting-service
+
+## 빌드
+	cd /opt/otel-aiops/spring-reporting-service
+	./gradlew assemble
+
+## 파일 복사
+	cp /opt/otel-aiops/spring-reporting-service/build/libs/spring-reporting-service-0.0.1-SNAPSHOT.jar /opt/spring-reporting-service-run/spring-reporting-service-0.0.1-SNAPSHOT.jar
+
+
+[ spring-reporting-service 실행 ]
+	cd /opt/spring-reporting-service-run
+	./start_reporting_service.sh
+
+
+[ 로그 다운로드 ]
+	로그 저장 경로 : /opt/spring-otel-listener-run/
+
+	매트릭 : http://100.83.227.59:13030/download-log/original_metrics.json
+	오리지널 스팬 : http://100.83.227.59:13030/download-log/original_span.json
+	오리지널 로그 : http://100.83.227.59:13030/download-log/original_logs.json
+	필터 스팬 : http://100.83.227.59:13030/download-log/filtered_span.json
+	필터 로그 : http://100.83.227.59:13030/download-log/filtered_logs.json
+    otlp http listener 로그 : http://100.83.227.59:13030/download-log/nohup.out
+    ※ 한시간마다 매트릭, 오리지널 스팬 ,오리지널 로그는 지워짐
+
+
+[ 로그 용량 확인 ]
+	cd /opt/spring-otel-listener-run/
+
+	# 현재 디렉토리의 용량
+	du -sh
+	# 파일별 용량
+	du -ah
+
+[ 오류발생 케이스 ]
+- 오류발생시 filtered_span.json , filtered_logs.json 에 적재되는거 확인 완료
+※확인한 trace ID : b0809e6c6042e67e3cbabb1a2ff83d69
+- 다만 컨트롤러위주로 만들어서 단순한 오류만 있음
+
+	//없는 데이터베이스 조회 , InvalidDataAccessResourceUsageException
+	http://100.83.227.59:14040/error/test01
+
+	// 배열 생성 후 없는 인덱스 조회 , ArrayIndexOutOfBoundsException
+	http://100.83.227.59:14040/error/test02
+
+	//데이터 조회 후 없는 인덱스 조회 ,IndexOutOfBoundsException
+	http://100.83.227.59:14040/error/test03
+
+	//길이가 1인 컬럼에 긴 데이터 넣으려는 시도 , DataIntegrityViolationException
+	http://100.83.227.59:14040/error/test04
+
+	//null인 데이터의 길이를 구함, NullPointerException
+	http://100.83.227.59:14040/error/test05
+
+	//String 타입을 Integer 타입으로 캐스팅 시도, ClassCastException
+	http://100.83.227.59:14040/error/test06
+
+	//String타입을 Integer타입으로 변환 시도, NumberFormatException
+	http://100.83.227.59:14040/error/test07
+
+
+[ Spring 서비스들 종료 ]
+ps -ef |grep spring
+kill -i pid
+
+[ 도커 내부 포트 확인 ]
+	docker ps |grep otel/opentelemetry-collector-contrib
+	e82f562e5766   otel/opentelemetry-collector-contrib:0.105.0
+	"/otelcol-contrib --…"   2 weeks ago   Up About an hour
+	55678-55679/tcp, 0.0.0.0:32768->4317/tcp,
+	[::]:32768->4317/tcp, 0.0.0.0:32769->4318/tcp, [::]:32769->4318/tcp
+
+	-> grpc 32768 사용중
+	-> http 32769 사용중
+	※ 컨테이너 내렷다가 올리면 바뀜,,,
+
+[ 스프링 스케줄러 실행 스크립트 파일 ]
+#!/bin/bash
+
+# OpenTelemetry 에이전트와 서비스 설정
+export JAVA_TOOL_OPTIONS="-javaagent:./opentelemetry-javaagent.jar"
+export OTEL_METRIC_EXPORT_INTERVAL=1000
+export OTEL_TRACES_EXPORTER=otlp
+export OTEL_METRICS_EXPORTER=otlp
+export OTEL_LOGS_EXPORTER=otlp
+export OTEL_SERVICE_NAME=spring-reporting-service
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:32784
+export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://localhost:32784
+export OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://localhost:32784
+export OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://localhost:32784
+export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+
+# Spring Boot 애플리케이션 실행 (백그라운드에서 실행)
+#nohup java -jar spring-reporting-service-0.0.1-SNAPSHOT.jar > spring-reporting-service.log 2>&1 &
+nohup java -jar spring-reporting-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=server > spring-reporting-service.log 2>&1 &
+
+---
+위에서 사용하는 포트번호 32784는 아래의 명령어를 사용해서 나온 데이터중에 포트번호를 찾아서 넣은거임
+docker ps |grep otel/opentelemetry-collector-contrib
+ 55678-55679/tcp, 0.0.0.0:32784 ->4317/tcp, [::]:32784->4317/tcp, 0.0.0.0:32785->4318/tcp, [::]:32785->4318/tcp
+
+컨테이너 재시작을 했을 경우 변경해줘야함
+고정으로 포트 할당하는거 찾아봐야함
+
+
+[ 스케줄러 서비스 실제 로그 저장 위치 ]
+/opt/spring-reporting-service-run/spring-reporting-service.log
+
+[ 스케줄러 정보 ]
+service name : spring-reporting-service
+※ DB에 insert 해놨음

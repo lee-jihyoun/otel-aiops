@@ -1,4 +1,4 @@
-package com.kt.springreportingservice.report.Scheduler;
+package com.kt.springreportingservice.report.scheduler;
 
 import com.kt.springreportingservice.report.domain.ErrorReport;
 import com.kt.springreportingservice.report.domain.MailSendInfo;
@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
