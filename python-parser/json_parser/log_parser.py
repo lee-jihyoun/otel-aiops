@@ -7,8 +7,8 @@ import variables.trace_id as trace_id
 # 2개는 trace_id_dict.json에 있고 2개는 trace_id_dict.json에 존재하지 않음
 # 존재하지 않을 경우 trace_id_dict.json에 추가하기
 
-# trace_id_dict 테스트용
-trace_id.trace_id_dict["log_parser"] = ""
+# # trace_id_dict 테스트용
+# trace_id.trace_id_dict["log_parser"] = ""
 
 
 class LogParsing:
@@ -35,7 +35,7 @@ class LogParsing:
 
         with open(input_path + file_name, "r") as log_file:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
-                print(line.strip())
+                # print(line.strip())
                 try:
                     log_data = json.loads(line.strip())
                     change_timenano_format(log_data)  # 시간 전처리 적용
@@ -83,28 +83,37 @@ class LogParsing:
                                 print(trace_id_dict)
 
                                 # 상태가 trace인가?
+                                print("상태가 trace인가?\n")
                                 trace_status_entries = {key: value for key, value in trace_id_dict.items() if
                                                         isinstance(value, dict) and value.get('status') == 'trace'}
                                 print(trace_status_entries)
 
                                 # trace_id_dict에 상태값이 trace인가 (trace_status_entries 내에 trace_id_dict가 존재하는가) (Y)
                                 if len(trace_status_entries) > 0:
+                                    print("trace_id_dict에 상태값이 trace인가 (trace_status_entries 내에 trace_id_dict가 존재하는가) (Y)\n")
 
                                     # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
                                     if log_record["traceId"] in trace_status_entries:
+                                        print("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
                                         parsed_log["traceId"] = log_record["traceId"]
                                         trace_id_dict[log_record["traceId"]]["status"] = "true"
                                         filtered_logs.append(parsed_log)
 
                                     else:
+                                        print("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
                                         pass
 
                                 # trace_id_dict에 상태값이 trace인가 (N)
                                 else:
+                                    print("trace_id_dict에 상태값이 trace인가 (N)\n")
+
                                     # 파싱된 로그에 trace ID가 있는가? (Y)
                                     if "traceId" in log_record and log_record["traceId"] != "":
+                                        print("파싱된 로그에 trace ID가 있는가? (Y)\n")
+
                                         # trace_id_dict에 key가 있는가? (N)
                                         if log_record["traceId"] not in trace_id_dict:
+                                            print("trace_id_dict에 key가 있는가? (N)\n")
                                             parsed_log["traceId"] = log_record["traceId"]
                                             trace_id_dict[log_record["traceId"]] = {"status": "log",
                                                                                     "retry": 0,
@@ -113,26 +122,27 @@ class LogParsing:
 
                                         # trace_id_dict에 key가 있는가? (Y)
                                         else:
+                                            print("# trace_id_dict에 key가 있는가? (Y)\n")
                                             pass
 
                                     # 파싱된 로그에 trace ID가 있는가? (N)
                                     else:
+                                        print("# 파싱된 로그에 trace ID가 있는가? (N)\n")
                                         pass
-
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
+        # # 로그 데이터를 파일에 저장 (한 줄)
+        # with open(output_path + 'one_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
+        #     json.dump(filtered_logs, log_output_file, separators=(',', ':'))
+        #
+        # # 스팬 데이터를 파일에 저장 (여러 줄)
+        # with open(output_path + 'multi_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
+        #     json.dump(filtered_logs, log_output_file, indent=4)
+        # print("new_idx: ", idx)
+        # # 새로운 인덱스, filtered logs, flag 값 리턴
 
-        # 로그 데이터를 파일에 저장 (한 줄)
-        with open(output_path + 'one_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
-            json.dump(filtered_logs, log_output_file, separators=(',', ':'))
-
-        # 스팬 데이터를 파일에 저장 (여러 줄)
-        with open(output_path + 'multi_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
-            json.dump(filtered_logs, log_output_file, indent=4)
-        print("new_idx: ", idx)
-        # 새로운 인덱스, filtered logs, flag 값 리턴
         return idx, filtered_logs
 
     def original_logparser(self):
@@ -142,7 +152,6 @@ class LogParsing:
         output_path = self.output_path
         file_name = self.file_name
         idx = self.idx
-
         trace_id_dict = trace_id.trace_id_dict
 
         existing_trace_ids_dict = trace_id_dict
@@ -150,7 +159,7 @@ class LogParsing:
 
         with open(input_path + file_name, "r") as log_file:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
-                print(line.strip())
+                # print(line.strip())
                 try:
                     log_data = json.loads(line.strip())
                     change_timenano_format(log_data)  # 시간 전처리 적용
@@ -198,41 +207,50 @@ class LogParsing:
                                 print(trace_id_dict)
 
                                 # 상태가 trace인가?
+                                print("상태가 trace인가?\n")
                                 trace_status_entries = {key: value for key, value in trace_id_dict.items() if
                                                         isinstance(value, dict) and value.get('status') == 'trace'}
                                 print(trace_status_entries)
 
                                 # trace_id_dict에 상태값이 trace인가 (trace_status_entries 내에 trace_id_dict가 존재하는가) (Y)
                                 if len(trace_status_entries) > 0:
+                                    print("trace_id_dict에 상태값이 trace인가 (trace_status_entries 내에 trace_id_dict가 존재하는가) (Y)\n")
 
                                     # 원문로그에 해당 trace id 가 있는가 (Y)
                                     if log_record["traceId"] in trace_status_entries:
+                                        print("원문로그에 해당 trace id 가 있는가 (Y)\n")
                                         parsed_log["traceId"] = log_record["traceId"]
                                         trace_id_dict[log_record["traceId"]]["status"] = "true"
                                         original_logs.append(parsed_log)
 
                                     else:
                                         # trace_id_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가
+                                        print("trace_id_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가 (Y)\n")
+
                                         if trace_id_dict[log_record["traceId"]]["retry"] < 3:
                                             # 리트라이 횟수 증가
+                                            print("리트라이 횟수 증가")
                                             trace_id_dict[log_record["traceId"]]["retry"] += 1
                                             # 로그에 추가
+                                            print("로그에 추가")
                                             original_logs.append(parsed_log)
 
                                         else:
+                                            print("trace_id_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가 (N)\n")
                                             parsed_log["traceId"] = log_record["traceId"]
                                             trace_id_dict[log_record["traceId"]]["status"] = "true"
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
-        # 로그 데이터를 파일에 저장 (한 줄)
-        with open(output_path + 'one_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
-            json.dump(original_logs, log_output_file, separators=(',', ':'))
+        # # 로그 데이터를 파일에 저장 (한 줄)
+        # with open(output_path + 'one_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
+        #     json.dump(original_logs, log_output_file, separators=(',', ':'))
+        #
+        # # 스팬 데이터를 파일에 저장 (여러 줄)
+        # with open(output_path + 'multi_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
+        #     json.dump(original_logs, log_output_file, indent=4)
 
-        # 스팬 데이터를 파일에 저장 (여러 줄)
-        with open(output_path + 'multi_row_' + file_name, 'w', encoding='utf-8') as log_output_file:
-            json.dump(original_logs, log_output_file, indent=4)
         print("new_idx: ", idx)
         # 새로운 인덱스, filtered logs 값 리턴
         return idx, original_logs

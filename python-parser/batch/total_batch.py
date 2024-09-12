@@ -1,10 +1,10 @@
-import time
+import time, datetime
 import json_parser.log_parser as log_parser
 import variables.trace_id as trace_id
 import variables.file_idx as file_idx
 
-# trace_id_dict 테스트용
-trace_id.trace_id_dict["total_batch"] = ""
+# # trace_id_dict 테스트용
+# trace_id.trace_id_dict["total_batch"] = ""
 
 def run_batch1():
 
@@ -21,6 +21,7 @@ def run_batch1():
         original_idx = file_idx.idx.get('original_logs')
 
         print("filtered_log_start")
+        print(datetime.datetime.now())
         filtered_log_parsing = log_parser.LogParsing(input_path=input_path,
                                                     output_path=output_path,
                                                     file_name=filtered_log,
@@ -35,6 +36,8 @@ def run_batch1():
         print("parsed_filtered_log")
         print(parsed_filtered_log[0])  # idx
         print(parsed_filtered_log[1])  # filtered_log[]
+        print("filterparsed_end_dictionary")
+        print(trace_id.trace_id_dict)
 
         print("original_log_start")
         if parsed_filtered_log[1] == []:
@@ -51,9 +54,11 @@ def run_batch1():
             print("parsed_original_log")
             print(parsed_original_log[0])  # idx
             print(parsed_original_log[1])  # filtered_log[]
+            print("originparsed_end_dictionary")
+            print(trace_id.trace_id_dict)
 
         print("end")
+        print(datetime.datetime.now())
 
 
-
-        time.sleep(10)
+        time.sleep(3)

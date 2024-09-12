@@ -8,9 +8,9 @@ import json
 import variables.trace_id as trace_id
 
 print("==============")
-# trace_id_dict 테스트용
-trace_id.trace_id_dict["main"] = ""
-print("main: ", trace_id.trace_id_dict)
+# # trace_id_dict 테스트용
+# trace_id.trace_id_dict["main"] = ""
+# print("main: ", trace_id.trace_id_dict)
 
 thread1 = threading.Thread(target=total_batch.run_batch1) # 각 batch를 실행할 스레드를 생성
 thread1.start() # 스레드를 시작 (동시에 실행)
