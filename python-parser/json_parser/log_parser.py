@@ -27,7 +27,7 @@ class LogParsing:
         print(trace_status_entries)
 
         # main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)
-        if len(trace_status_entries) > 0:
+        if len(trace_status_entries) > 0 and log_record["traceId"] in trace_status_entries:
             print("main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)\n")
 
             # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
@@ -81,6 +81,8 @@ class LogParsing:
                 print("# 파싱된 로그에 trace ID가 있는가? (N)\n")
                 pass
 
+        return filtered_logs
+
     def process_original_log(self, main_dict, log_record, parsed_log, original_logs):
         # 상태가 trace인가?
         print("상태가 trace인가?\n")
@@ -89,7 +91,7 @@ class LogParsing:
         print(trace_status_entries)
 
         # main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)
-        if len(trace_status_entries) > 0:
+        if len(trace_status_entries) > 0 and log_record["traceId"] in trace_status_entries:
             print("main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)\n")
 
             # 원문로그에 해당 trace id 가 있는가 (Y)
@@ -110,25 +112,26 @@ class LogParsing:
                         trace_info["status"] = 'confirm'
                         print(f"Trace ID: {trace_id}, Retry 횟수가 이미 3에 도달")
 
-    def logparser(self):
+        return original_logs
+
+    def filtered_logparser(self):
         result = []
 
         input_path = self.input_path
         file_name = self.file_name
         idx = self.idx
-        main_dict = trace_id.main_dict
 
-        existing_trace_ids_dict = main_dict
-        print("existing_trace_ids_dict: ", existing_trace_ids_dict)  # main_dict 불러와서 저장
 
         with open(input_path + file_name, "r") as log_file:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
+                main_dict = trace_id.main_dict
+
                 try:
                     log_data = json.loads(line.strip())
                     change_timenano_format(log_data)  # 시간 전처리 적용
-
+                    print(log_data)
                     for resource_log in log_data.get('resourceLogs', []):
-                        parsed_log = {
+                        parsed_info = {
                             "container.id": None,
                             "os.description": None,
                             "process.command_line": None,
@@ -143,34 +146,90 @@ class LogParsing:
                         if "resource" in resource_log and "attributes" in resource_log["resource"]:
                             for attribute in resource_log["resource"]["attributes"]:
                                 if attribute["key"] == "container.id":
-                                    parsed_log["container.id"] = attribute["value"]["stringValue"]
+                                    parsed_info["container.id"] = attribute["value"]["stringValue"]
                                 elif attribute["key"] == "os.description":
-                                    parsed_log["os.description"] = attribute["value"]["stringValue"]
+                                    parsed_info["os.description"] = attribute["value"]["stringValue"]
                                 elif attribute["key"] == "process.command_line":
-                                    parsed_log["process.command_line"] = attribute["value"]["stringValue"]
+                                    parsed_info["process.command_line"] = attribute["value"]["stringValue"]
                                 elif attribute["key"] == "service.name":
-                                    parsed_log["service.name"] = attribute["value"]["stringValue"]
+                                    parsed_info["service.name"] = attribute["value"]["stringValue"]
                                 elif attribute["key"] == "telemetry.sdk.language":
-                                    parsed_log["telemetry.sdk.language"] = attribute["value"]["stringValue"]
+                                    parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 
                         for scope_log in resource_log.get("scopeLogs", []):
                             for log_record in scope_log.get("logRecords", []):
                                 if "observedTimeUnixNano" in log_record:
-                                    parsed_log["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
+                                    parsed_info["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
                                 if "severityText" in log_record:
-                                    parsed_log["logRecords_severityText"] = log_record["severityText"]
+                                    parsed_info["logRecords_severityText"] = log_record["severityText"]
                                 if "body" in log_record and "stringValue" in log_record["body"]:
-                                    parsed_log["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
+                                    parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
 
-                                if self.file_name == 'filtered_logs.json':
-                                    self.process_filtered_log(main_dict, log_record, parsed_log, result)
-
-                                else:
-                                    self.process_original_log(main_dict, log_record, parsed_log, result)
+                                filter_result = self.process_filtered_log(main_dict, log_record, parsed_info, result)
+                                result.append(filter_result)
+                                print(result)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
-        print("new_idx: ", idx)
-        # 새로운 인덱스, filtered logs 값 리턴
+        return idx, result
+
+    def original_logparser(self):
+        result = []
+
+        input_path = self.input_path
+        file_name = self.file_name
+        idx = self.idx
+
+        with open(input_path + file_name, "r") as log_file:
+            for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
+                main_dict = trace_id.main_dict
+
+                try:
+                    log_data = json.loads(line.strip())
+                    change_timenano_format(log_data)  # 시간 전처리 적용
+                    print(log_data)
+                    for resource_log in log_data.get('resourceLogs', []):
+                        parsed_info = {
+                            "container.id": None,
+                            "os.description": None,
+                            "process.command_line": None,
+                            "service.name": None,
+                            "telemetry.sdk.language": None,
+                            "logRecords_severityText": None,
+                            "logRecords_body_stringValue": None,
+                            "traceId": None,
+                            "observedTimeUnixNano": None,  # 새로운 시간 필드 추가
+                        }
+
+                        if "resource" in resource_log and "attributes" in resource_log["resource"]:
+                            for attribute in resource_log["resource"]["attributes"]:
+                                if attribute["key"] == "container.id":
+                                    parsed_info["container.id"] = attribute["value"]["stringValue"]
+                                elif attribute["key"] == "os.description":
+                                    parsed_info["os.description"] = attribute["value"]["stringValue"]
+                                elif attribute["key"] == "process.command_line":
+                                    parsed_info["process.command_line"] = attribute["value"]["stringValue"]
+                                elif attribute["key"] == "service.name":
+                                    parsed_info["service.name"] = attribute["value"]["stringValue"]
+                                elif attribute["key"] == "telemetry.sdk.language":
+                                    parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
+
+                        for scope_log in resource_log.get("scopeLogs", []):
+                            for log_record in scope_log.get("logRecords", []):
+                                if "observedTimeUnixNano" in log_record:
+                                    parsed_info["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
+                                if "severityText" in log_record:
+                                    parsed_info["logRecords_severityText"] = log_record["severityText"]
+                                if "body" in log_record and "stringValue" in log_record["body"]:
+                                    parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
+
+                                original_result = self.process_original_log(main_dict, log_record, parsed_info, result)
+                                result.append(original_result)
+                                print(result)
+
+
+                except json.JSONDecodeError as e:
+                    print(f"Error parsing line: {e}")
+
         return idx, result
