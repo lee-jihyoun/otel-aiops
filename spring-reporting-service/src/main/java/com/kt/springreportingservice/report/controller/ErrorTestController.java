@@ -3,7 +3,7 @@ package com.kt.springreportingservice.report.controller;
 
 import com.kt.springreportingservice.report.domain.ErrorReport;
 import com.kt.springreportingservice.report.repository.ErrorReportRepository;
-import com.kt.springreportingservice.report.repository.ErrorTestRepository;
+//import com.kt.springreportingservice.report.repository.ErrorTestRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,15 +15,15 @@ import java.util.List;
 @RestController
 public class ErrorTestController {
 
-    ErrorTestRepository errorTestRepository;
+//    ErrorTestRepository errorTestRepository;
 
     ErrorReportRepository errorReportRepository;
 
     //없는 데이터베이스 조회 , InvalidDataAccessResourceUsageException
-    @GetMapping("/error/test01")
-    public void errorTest01() {
-        errorTestRepository.findAll();
-    }
+//    @GetMapping("/error/test01")
+//    public void errorTest01() {
+//        errorTestRepository.findAll();
+//    }
 
     // 배열 생성 후 없는 인덱스 조회 , ArrayIndexOutOfBoundsException
     @GetMapping("/error/test02")
