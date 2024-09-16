@@ -1,10 +1,14 @@
-from create_report.create_report import CreateReport
+from report_util.create_report import CreateReport
 
+# cd otel_aiops\python-parser
+# python -m batch.api_batch
 
+main_dict={}
 
 def main():
-    # CreateReport 클래스 인스턴스 생성
-    report_creator = CreateReport()
+    
+    # 테스트 데이터 정의 시작
+    
     # 로그와 스팬 데이터를 정의
     log_data = """    {
         "container.id": null,
@@ -101,14 +105,69 @@ def main():
     }"""
 
 
+    a123={
+        "service_code" : "OG077201",
+        "status" : "log",
+        "exception_stacktrace" : "error_01",
+        "parsing_data_log" : "파싱된 로그 456",
+        "parsing_data_trace" : "파싱된 트레이스 456",
+        "retry" : 1,
+        "mail":"N"
+    }
+    b456={
+        "service_code" : "OG077201",
+        "status" : "trace",
+        "exception_stacktrace" : "error_02",
+        "parsing_data_log" : "파싱된 로그 789",
+        "parsing_data_trace" : "파싱된 트레이스 789",
+        "retry" : 1,
+        "mail":"N"
+    }
+    c789={
+        "service_code" : "OG077201",
+        "status" : "complete",
+        "exception_stacktrace" : "error_03",
+        "parsing_data_log" : log_data,
+        "parsing_data_trace" : span_data,
+        "retry" : 1,
+        "mail":"N"
+    }
+    d012={
+        "service_code" : "OG077201",
+        "status" : "complete",
+        "exception_stacktrace" : "error_04",
+        "parsing_data_log" : "파싱된 로그 123",
+        "parsing_data_trace" : "파싱된 트레이스 123",
+        "retry" : 1,
+        "mail":"N"
+    }
+    main_dict={"a123" : a123 , "b456" : b456 , "c789" : c789 , "d012" : d012 }
+
+    # 테스트 데이터 정의 종료
+
+    # CreateReport 클래스 인스턴스 생성
+    report_creator = CreateReport()
+
+    # 완료 목록 추출
+    complete_dict = report_creator.findCompleteData(main_dict)
+    # print(complete_dict)
+
+    # DB에서의 error_history와 완료 목록을 비교하여 오류리포트 발송 대상 선정
+    error_report_dict = report_creator.compare_db_dict(complete_dict)
+    # print(error_report_dict)
+    
+    # 2024.09.17 여기까지 테스트 완료
+    # 데이터 파싱부분 해결해야함
+    # 오류리포트 생성 및 저장
+    report_creator.create_and_save_error_report(error_report_dict)
+
+
+
     # 오류 리포트 생성 호출 및 결과 출력
     # report_creator.create_error_report(log_data, span_data)
+    #
+    # print(report_creator.create_message(log_data, span_data))
 
-    report_creator.findCompleteData()
-    print(report_creator.create_message(log_data, span_data))
-    result = report_creator.select_error_history()
-    for data in result:
-        print(data)
 
 
 
