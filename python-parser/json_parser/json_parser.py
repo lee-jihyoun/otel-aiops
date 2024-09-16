@@ -4,13 +4,13 @@ from util.datetime_util import change_timenano_format
 import os
 
 # 경로 설정
-log_file_name = "filtered_logs.json"
-span_file_name = "filtered_span.json"
+# log_file_name = "filtered_logs.json"
+# span_file_name = "filtered_span.json"
 
-# log_file_name = "original_logs.json"
-# span_file_name = "original_span.json"
+log_file_name = "original_logs.json"
+span_file_name = "original_span.json"
 
-folder_name = "recommendationServiceCacheFailure"
+folder_name = "springbootListener_tomcat"
 
 
 log_file_path = "../../data" +"/"+ folder_name+"/" + log_file_name
