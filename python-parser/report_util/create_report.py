@@ -28,18 +28,18 @@ class CreateReport:
     def db_connection(self):
 
         return psycopg2.connect(
-            # host='100.83.227.59',
-            # port=5532,
-            # user='test_admin',
-            # password='new1234!',
-            # database='rnp'
-
-            # 집 서버
-            host='192.168.55.125',
+            host='100.83.227.59',
             port=5532,
             user='test_admin',
-            password='rlatjdcjf!1',
+            password='new1234!',
             database='rnp'
+
+            # 집 서버
+            # host='192.168.55.125',
+            # port=5532,
+            # user='test_admin',
+            # password='rlatjdcjf!1',
+            # database='rnp'
         )
 
     # DB에서 API key 읽어오기
