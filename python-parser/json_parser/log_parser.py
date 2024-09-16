@@ -58,12 +58,17 @@ class LogParsing:
                 if log_record["traceId"] not in main_dict:
                     print("main_dict에 key가 있는가? (N)\n")
                     parsed_log["traceId"] = log_record["traceId"]
+
                     main_dict[log_record["traceId"]] = {"status": "log",
                                                         "parsing_data_log": parsed_log,
                                                         "retry": 0,
                                                         "mail": "N"}
-                    print(main_dict)
+                    # main_dict[log_record["traceId"]]["status"] = "log"
+                    # main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
+                    # main_dict[log_record["traceId"]]["retry"] = 0
+                    # main_dict[log_record["traceId"]]["mail"] = "N"
 
+                    print(main_dict)
 
                 # main_dict에 key가 있는가? (Y)
                 else:
@@ -79,7 +84,6 @@ class LogParsing:
                     else:
                         print("# main_dict 상태값이 confirm인가? (N)? (Y)\n")
                         pass
-
 
             # 파싱된 로그에 trace ID가 있는가? (N)
             else:
@@ -114,13 +118,13 @@ class LogParsing:
                 # main_dict에 key가 있는가? (N)
                 if log_record["traceId"] not in main_dict:
                     print("main_dict에 key가 있는가? (N)\n")
+
                     parsed_log["traceId"] = log_record["traceId"]
                     main_dict[log_record["traceId"]] = {"status": "log",
                                                         "parsing_data_log": parsed_log,
                                                         "retry": 0,
                                                         "mail": "N"}
                     print(main_dict)
-
 
                 # main_dict에 key가 있는가? (Y)
                 else:
@@ -178,13 +182,12 @@ class LogParsing:
         file_name = self.filtered_file_name
         idx = self.filtered_idx
 
-
         with open(input_path + file_name, "r") as log_file:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
                 main_dict = trace_id.main_dict
 
-                # # 디버깅할 때 사용..
-                # input()
+                # 디버깅할 때 사용..
+                input()
 
                 print("filtered_log_start")
                 print(datetime.datetime.now())
@@ -210,13 +213,13 @@ class LogParsing:
                             for attribute in resource_log["resource"]["attributes"]:
                                 if attribute["key"] == "container.id":
                                     parsed_info["container.id"] = attribute["value"]["stringValue"]
-                                elif attribute["key"] == "os.description":
+                                if attribute["key"] == "os.description":
                                     parsed_info["os.description"] = attribute["value"]["stringValue"]
-                                elif attribute["key"] == "process.command_line":
+                                if attribute["key"] == "process.command_line":
                                     parsed_info["process.command_line"] = attribute["value"]["stringValue"]
-                                elif attribute["key"] == "service.name":
+                                if attribute["key"] == "service.name":
                                     parsed_info["service.name"] = attribute["value"]["stringValue"]
-                                elif attribute["key"] == "telemetry.sdk.language":
+                                if attribute["key"] == "telemetry.sdk.language":
                                     parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 
                         for scope_log in resource_log.get("scopeLogs", []):
@@ -238,8 +241,6 @@ class LogParsing:
                                 print("filterparsed_end_dictionary")
                                 print(trace_id.main_dict)
 
-
-
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
@@ -253,8 +254,8 @@ class LogParsing:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
                 main_dict = trace_id.main_dict
 
-                # # 디버깅할 때 사용 ..
-                # input()
+                # 디버깅할 때 사용 ..
+                input()
 
                 print("original_log_start")
                 print(datetime.datetime.now())
@@ -280,13 +281,13 @@ class LogParsing:
                             for attribute in resource_log["resource"]["attributes"]:
                                 if attribute["key"] == "container.id":
                                     parsed_info["container.id"] = attribute["value"]["stringValue"]
-                                elif attribute["key"] == "os.description":
+                                if attribute["key"] == "os.description":
                                     parsed_info["os.description"] = attribute["value"]["stringValue"]
-                                elif attribute["key"] == "process.command_line":
+                                if attribute["key"] == "process.command_line":
                                     parsed_info["process.command_line"] = attribute["value"]["stringValue"]
-                                elif attribute["key"] == "service.name":
+                                if attribute["key"] == "service.name":
                                     parsed_info["service.name"] = attribute["value"]["stringValue"]
-                                elif attribute["key"] == "telemetry.sdk.language":
+                                if attribute["key"] == "telemetry.sdk.language":
                                     parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 
                         for scope_log in resource_log.get("scopeLogs", []):

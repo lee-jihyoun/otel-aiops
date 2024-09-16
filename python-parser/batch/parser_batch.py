@@ -19,71 +19,39 @@ def run_batch1():
         filtered_log = 'filtered_logs.json'
         original_log = 'original_logs.json'
 
-        filtered_idx = file_idx.idx.get('filtered_logs')
-        original_idx = file_idx.idx.get('original_logs')
+        filtered_log_idx = file_idx.idx.get('filtered_logs')
+        original_log_idx = file_idx.idx.get('original_logs')
 
         log_parsing = log_parser.LogParsing(input_path=input_path,
-                                                     output_path=output_path,
-                                                     filtered_file_name=filtered_log,
-                                                     original_file_name=original_log,
-                                                     filtered_idx=filtered_idx,
-                                                     original_idx=original_idx)
+                                            output_path=output_path,
+                                            filtered_file_name=filtered_log,
+                                            original_file_name=original_log,
+                                            filtered_idx=filtered_log_idx,
+                                            original_idx=original_log_idx)
 
         log_parsing.filtered_logparser()
 
 
         print("end")
         print(datetime.datetime.now())
-        #
-        #
-        # print("###########스팬 시작############")
-        # filtered_span = 'filtered_span.json'
-        # original_span = 'original_span.json'
-        #
-        # filtered_idx = file_idx.idx.get('filtered_span')
-        # original_idx = file_idx.idx.get('original_span')
-        #
-        # print("filtered_span_start")
-        # print(datetime.datetime.now())
-        # filtered_span_parsing = trace_parser.TraceParsing(input_path=input_path,
-        #                                             output_path=output_path,
-        #                                             file_name=filtered_span,
-        #                                             idx=filtered_idx)
-        #
-        # parsed_filtered_span = filtered_span_parsing.traceparser()
-        # time.sleep(100000)
-        # # index 업데이트
-        # new_filtered_index = parsed_filtered_span[0]
-        # file_idx.idx[filtered_span[:-5]] = new_filtered_index
-        #
-        # print("parsed_filtered_span")
-        # print(parsed_filtered_span[0])  # idx
-        # print(parsed_filtered_span[1])  # filtered_span[]
-        # print("filterparsed_end_dictionary")
-        # print(trace_id.main_dict)
-        #
-        # print("original_span_start")
-        # if parsed_filtered_span[1] == []:
-        #     original_span_parsing = trace_parser.TraceParsing(input_path=input_path,
-        #                                                 output_path=output_path,
-        #                                                 file_name=original_span,
-        #                                                 idx=original_idx)
-        #
-        #     parsed_original_span = original_span_parsing.traceparser()
-        #
-        #     new_original_index = parsed_original_span[0]
-        #     file_idx.idx[filtered_span[:-5]] = new_original_index
-        #
-        #     print("parsed_original_span")
-        #     print(parsed_original_span[0])  # idx
-        #     print(parsed_original_span[1])  # filtered_span[]
-        #     print("originparsed_end_dictionary")
-        #     print(trace_id.main_dict)
+
+        print("############스팬 시작############")
+        filtered_span = 'filtered_span.json'
+        original_span = 'original_span.json'
+
+        filtered_span_idx = file_idx.idx.get('filtered_span')
+        original_span_idx = file_idx.idx.get('original_span')
+
+        trace_parsing = trace_parser.TraceParsing(input_path=input_path,
+                                                output_path=output_path,
+                                                filtered_file_name=filtered_span,
+                                                original_file_name=original_span,
+                                                filtered_idx=filtered_span_idx,
+                                                original_idx=original_span_idx)
+
+        trace_parsing.filtered_traceparser()
 
         print("end")
         print(datetime.datetime.now())
 
-
-
-
-        time.sleep(3)
+        time.sleep(1000)

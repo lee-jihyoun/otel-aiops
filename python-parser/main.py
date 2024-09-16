@@ -6,14 +6,14 @@ import requests
 import json
 import variables.trace_id as trace_id
 
-# print("==============")
+print("==============")
 # # trace_id_dict 테스트용
 # trace_id.trace_id_dict["main"] = ""
 # print("main: ", trace_id.trace_id_dict)
-#
-# thread1 = threading.Thread(target=total_batch.run_batch1)  # 각 batch를 실행할 스레드를 생성
-# thread1.start()  # 스레드를 시작 (동시에 실행)
-# thread1.join()  # 스레드가 종료될 때까지 대기
+
+thread1 = threading.Thread(target=parser_batch.run_batch1)  # 각 batch를 실행할 스레드를 생성
+thread1.start()  # 스레드를 시작 (동시에 실행)
+thread1.join()  # 스레드가 종료될 때까지 대기
 
 
 # response에 마크다운이 포함된 경우 escape 문자열 처리
@@ -170,12 +170,12 @@ def select_api_key(connection, cursor):
     return result[0]
 
 
-conn, cur = db_connection()
-
-
-# freesia api 연동
-url = "http://freesia.run:8080/openapi/v1/chat"
-api_key = select_api_key(conn, cur)
+# conn, cur = db_connection()
+#
+#
+# # freesia api 연동
+# url = "http://freesia.run:8080/openapi/v1/chat"
+# api_key = select_api_key(conn, cur)
 
 
 # 프리지아 호출
@@ -304,13 +304,13 @@ span_data = """
 }
 """
 
-# freesia api 호출
-response = create_error_report(log_data, span_data)
-# response 데이터 escape 문자열 처리
-clean_result = make_clean_markdown_json(response)
-# DB insert를 위해 response 데이터 파싱
-service_name, db_data = make_db_data(clean_result)
-print(db_data)
-# response의 service_name을 이용하여 DB에서 sevice_code를 조회함
-service_code = find_service_code(cur, service_name)
-insert_data(conn, cur, db_data, service_code)
+# # freesia api 호출
+# response = create_error_report(log_data, span_data)
+# # response 데이터 escape 문자열 처리
+# clean_result = make_clean_markdown_json(response)
+# # DB insert를 위해 response 데이터 파싱
+# service_name, db_data = make_db_data(clean_result)
+# print(db_data)
+# # response의 service_name을 이용하여 DB에서 sevice_code를 조회함
+# service_code = find_service_code(cur, service_name)
+# insert_data(conn, cur, db_data, service_code)
