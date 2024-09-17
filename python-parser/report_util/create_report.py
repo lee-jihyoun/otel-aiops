@@ -104,11 +104,17 @@ class CreateReport:
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
     def create_and_save_error_report(self, error_report_dict):
         for key, value in error_report_dict.items():
-            error_report = self.create_error_report(value["parsing_data_log"] , value["parsing_data_trace"])
-            result = self.make_db_data(error_report)
-            # result["service_code"] = value["service_code"]
-            # self.save_error_report(result)
-            # self.save_error_history(value)
+            value["parsing_data_log"] = self.remove_json_value(value["parsing_data_log"])
+            response = self.create_error_report(value["parsing_data_log"] , value["parsing_data_trace"])
+            clean_result = self.make_clean_markdown_json(response)
+            service_name, db_data = self.make_db_data(clean_result)
+            service_code = self.find_service_code(service_name)
+            db_data["trace_id"] = key
+            db_data["service_code"] = service_code
+            self.save_error_report(db_data, service_code)
+            self.save_error_history(value)
+
+
 
 
     # error_history 테이블에 데이터 추가
@@ -116,7 +122,7 @@ class CreateReport:
         with self.db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
                 INSERT INTO error_history (service_code, exception_stacktrace)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             ''', (error_report["service_code"], error_report["exception_stacktrace"]))
 
     def save_error_report(self, error_report, service_code):
@@ -124,24 +130,25 @@ class CreateReport:
             cur.execute('''
                 INSERT INTO error_report (
                     service_code,
-                    error_name, 
-                    error_content, 
-                    error_location, 
-                    error_cause, 
-                    error_create_time, 
-                    service_impact,
-                    error_solution
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    error_name,
+                    error_content,
+                    error_create_time,
+                    error_location,
+                    error_cause,
+                    error_solution,
+                    trace_id,
+                    service_impact)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
-                service_code,
-                error_report["error_name"],
-                error_report["error_content"],
-                error_report["error_location"],
-                error_report["error_cause"],
-                error_report["error_create_time"],
-                error_report["service_impact"],
-                error_report["error_solution"]
+                    service_code,
+                    error_report["error_name"],
+                    error_report["error_content"],
+                    error_report["error_create_time"],
+                    error_report["error_location"],
+                    error_report["error_cause"],
+                    error_report["error_solution"],
+                    error_report["trace_id"],
+                    error_report["service_impact"]
             ))
 
     # 리포트 대상 데이터 출력
@@ -241,6 +248,7 @@ class CreateReport:
                     FROM service_info
                     where service_name_eng = '{service_name}'
             """
+            print(select_query)
             cur.execute(select_query)
             result = cur.fetchone()
             return result[0]

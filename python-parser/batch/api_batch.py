@@ -155,7 +155,7 @@ def main():
 
 
     a123={
-        "service_code" : "OG077201",
+        "service_code" : "PA1010",
         "status" : "log",
         "exception_stacktrace" : "error_01",
         "parsing_data_log" : "파싱된 로그 456",
@@ -164,7 +164,7 @@ def main():
         "mail":"N"
     }
     b456={
-        "service_code" : "OG077201",
+        "service_code" : "PA1010",
         "status" : "trace",
         "exception_stacktrace" : "error_02",
         "parsing_data_log" : "파싱된 로그 789",
@@ -173,7 +173,7 @@ def main():
         "mail":"N"
     }
     c789={
-        "service_code" : "OG077201",
+        "service_code" : "PA1010",
         "status" : "complete",
         "exception_stacktrace" : "error_03",
         "parsing_data_log" : log_data,
@@ -181,16 +181,24 @@ def main():
         "retry" : 1,
         "mail":"N"
     }
-    d012={
-        "service_code" : "OG077201",
+    # d012={
+    #     "service_code" : "PA1010",
+    #     "status" : "complete",
+    #     "exception_stacktrace" : "error_04",
+    #     "parsing_data_log" : "파싱된 로그 123",
+    #     "parsing_data_trace" : "파싱된 트레이스 123",
+    #     "retry" : 1,
+    #     "mail":"N"
+    # }
+    main_dict={"a123" : a123 , "b456" : b456 , "7097e6b36b89fb6be8fcbbaafffe1302" : {
+        "service_code" : "PA1010",
         "status" : "complete",
-        "exception_stacktrace" : "error_04",
-        "parsing_data_log" : "파싱된 로그 123",
-        "parsing_data_trace" : "파싱된 트레이스 123",
+        "exception_stacktrace" : "error_03",
+        "parsing_data_log" : log_data,
+        "parsing_data_trace" : span_data,
         "retry" : 1,
         "mail":"N"
-    }
-    main_dict={"a123" : a123 , "b456" : b456 , "c789" : c789 , "d012" : d012 }
+    }}
 
     # 테스트 데이터 정의 종료
 
@@ -198,19 +206,17 @@ def main():
     report_creator = CreateReport()
 
     # 완료 목록 추출
-    # complete_dict = report_creator.findCompleteData(main_dict)
+    complete_dict = report_creator.findCompleteData(main_dict)
     # print('\n * complete_dict:', complete_dict)
 
     # DB에서의 error_history와 완료 목록을 비교하여 오류리포트 발송 대상 선정
-    # error_report_dict = report_creator.compare_db_dict(complete_dict)
+    error_report_dict = report_creator.compare_db_dict(complete_dict)
     # print('\n * error_report_dict:', error_report_dict)
     
     # 2024.09.17 여기까지 테스트 완료
     # 데이터 파싱부분 해결해야함
     # 오류리포트 생성 및 저장
-    # report_creator.create_and_save_error_report(error_report_dict)
-
-
+    report_creator.create_and_save_error_report(error_report_dict)
 
     # 오류 리포트 생성 호출 및 결과 출력
     # report_creator.create_error_report(log_data, span_data)
@@ -218,28 +224,7 @@ def main():
     # print(report_creator.create_message(log_data, span_data))
 
 
-    # API 호출 및 DB insert 연동
-    # 1. input 데이터 전처리: 오류 내용(exception.stacktrace)에 {}가 포함된 경우 전처리하여 api 호출(ex: adServiceFailure)
-    log_data = report_creator.remove_json_value(log_data)
 
-    # 2. freesia api 호출
-    response = report_creator.create_error_report(log_data, span_data)
-    print('\n * response data:', response)
-
-    # 3. response 데이터 escape 문자열 처리
-    clean_result = report_creator.make_clean_markdown_json(response)
-    print('\n * clean_result:', clean_result)
-
-    # 4. DB insert를 위해 response 데이터 파싱
-    service_name, db_data = report_creator.make_db_data(clean_result)
-    print('\n * db_data:', db_data)
-
-    # 5. response의 service_name을 이용하여 DB에서 sevice_code를 조회함
-    service_code = report_creator.find_service_code(service_name)
-
-    # 6. DB insert
-    report_creator.save_error_report(db_data, service_code)
-    print("============== api result DB insert 완료 ==============")
 
 
 main()
