@@ -111,7 +111,7 @@ class CreateReport:
             service_code = self.find_service_code(service_name)
             db_data["trace_id"] = key
             db_data["service_code"] = service_code
-            self.save_error_report(db_data, service_code)
+            self.save_error_report(db_data)
             self.save_error_history(value)
 
 
@@ -125,7 +125,7 @@ class CreateReport:
                 VALUES (%s, %s)
             ''', (error_report["service_code"], error_report["exception_stacktrace"]))
 
-    def save_error_report(self, error_report, service_code):
+    def save_error_report(self, error_report):
         with self.db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
                 INSERT INTO error_report (
@@ -140,7 +140,7 @@ class CreateReport:
                     service_impact)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
-                    service_code,
+                    error_report["service_code"],
                     error_report["error_name"],
                     error_report["error_content"],
                     error_report["error_create_time"],
@@ -173,6 +173,7 @@ class CreateReport:
                 complete_dict[key] = value
         return complete_dict
 
+    # Database insert 데이터로 변환
     def make_db_data(self, clean_response):
         content = clean_response['data']['content']
         # print(type(content))
@@ -195,6 +196,7 @@ class CreateReport:
         error_report["error_solution"] = error_solution
         return service_name, error_report
 
+    # log data에 포함된 {} 기호 전처리
     def remove_json_value(self, value):
         # print('* in remove_json_value 함수:', value)
         value = value.replace("{", "(").replace("}", ")")
@@ -240,7 +242,7 @@ class CreateReport:
             print("============== api result DB insert 실패 ==============")
         return freesia_result
 
-
+    # 서비스명으로 서비스코드 찾기
     def find_service_code(self, service_name):
         with self.db_connection() as conn, conn.cursor() as cur:
             select_query = f"""
