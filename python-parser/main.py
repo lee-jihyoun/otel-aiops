@@ -18,8 +18,6 @@ thread1.join()  # 스레드가 종료될 때까지 대기
 
 # response에 마크다운이 포함된 경우 escape 문자열 처리
 def make_clean_markdown_json(markdown_json):
-    print(markdown_json)
-    print('-----------------------')
     # 1. ```json, ```plaintext, ```bash 등의 불필요한 코드 블록 제거
     cleaned_str = re.sub(r"```(json|plaintext|bash)?\n?", "", markdown_json)
 
@@ -42,23 +40,27 @@ def make_clean_markdown_json(markdown_json):
     cleaned_str = re.sub(r'\}"', '}', cleaned_str)
     # \\/ -> / 로 변경
     cleaned_str = cleaned_str.replace('\\/', '/')
-    # # [, ] 제거
-    # cleaned_str = cleaned_str.replace(']', '').replace('[', '')
-    # cleaned_str = cleaned_str.replace('//"', '')
+    # // 제거
+    cleaned_str = cleaned_str.replace('//', '')
 
     # 5. JSON 변환 시 문제가 될 수 있는 불필요한 공백 제거
     # "key": "value"와 같은 패턴에서 key와 value 사이의 공백 정리
     cleaned_str = re.sub(r'"\s*:\s*"', '":"', cleaned_str)
 
-    print(cleaned_str)
     # 잘못된 JSON 문자열 디버깅
     try:
         freesia_result = json.loads(cleaned_str)
     except json.JSONDecodeError as e:
-        print("JSON 디코딩 에러:", e)
-        print("문제 있는 문자열 주변:", cleaned_str[max(0, e.pos-40):e.pos+40])
-
+        print("* JSON 디코딩 에러:", e)
+        print("* 문제 있는 문자열 주변:", cleaned_str[max(0, e.pos-60):e.pos+60])
+        print("============== api result DB insert 실패 ==============")
     return freesia_result
+
+
+def remove_json_value(value):
+    # print('* in remove_json_value 함수:', value)
+    value = value.replace("{", "(").replace("}", ")")
+    return value
 
 
 # reponse["data"]["content"]가 깔끔한 json으로 오는 경우
@@ -72,16 +74,15 @@ def make_db_data(clean_response):
         error_content = content["오류내용"]["오류 내용"]
         error_location = content["분석결과"]["오류 발생 위치"]
         error_cause = content["분석결과"]["오류 근본 원인"]
-        # service_impact = content["분석결과"]["서비스 영향도"]
+        service_impact = content["분석결과"]["서비스 영향도"]
         error_solution = content["후속조치"]["조치방안"]
 
-        # error_report["service_code"] = service_code
         error_report["error_name"] = error_name
         error_report["error_create_time"] = error_create_time
         error_report["error_content"] = error_content
         error_report["error_location"] = error_location
         error_report["error_cause"] = error_cause
-        # error_report["service_impact"] = service_impact
+        error_report["service_impact"] = service_impact
         error_report["error_solution"] = error_solution
         return service_name, error_report
 
@@ -125,7 +126,7 @@ def insert_data(connection, cursor, dbdata, service_code):
         "error_location": dbdata['error_location'],
         "error_cause": dbdata['error_cause'],
         "error_create_time": dbdata['error_create_time'],
-        # "service_impact": dbdata['service_impact'],
+        "service_impact": dbdata['service_impact'],
         "error_solution": dbdata['error_solution']
     }
     # SQL 쿼리 생성 및 실행
@@ -137,8 +138,9 @@ def insert_data(connection, cursor, dbdata, service_code):
                 error_location, 
                 error_cause, 
                 error_create_time, 
+                service_impact,
                 error_solution
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
     try:
         cursor.execute(insert_query, (
@@ -148,7 +150,7 @@ def insert_data(connection, cursor, dbdata, service_code):
             data_to_insert["error_location"],
             data_to_insert["error_cause"],
             data_to_insert["error_create_time"],
-            # data_to_insert["service_impact"],
+            data_to_insert["service_impact"],
             data_to_insert["error_solution"]
         ))
 
@@ -170,12 +172,12 @@ def select_api_key(connection, cursor):
     return result[0]
 
 
-# conn, cur = db_connection()
-#
-#
-# # freesia api 연동
-# url = "http://freesia.run:8080/openapi/v1/chat"
-# api_key = select_api_key(conn, cur)
+conn, cur = db_connection()
+
+
+# freesia api 연동
+url = "http://freesia.run:8080/openapi/v1/chat"
+api_key = select_api_key(conn, cur)
 
 
 # 프리지아 호출
@@ -208,109 +210,161 @@ def create_error_report(log_data, span_data):
 # api 호출용 데이터
 log_data = """
 {
-    "container.id": null,
-    "os.description": null,
-    "process.command_line": null,
-    "service.name": "currencyservice",
-    "telemetry.sdk.language": "cpp",
-    "logRecords_severityText": "INFO",
-    "logRecords_body_stringValue": "Convert conversion successful",
-    "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
-    "observedTimeUnixNano": "2024-09-09 11:01:37"
-},
-{
-    "container.id": null,
-    "os.description": null,
-    "process.command_line": null,
-    "service.name": "currencyservice",
-    "telemetry.sdk.language": "cpp",
-    "logRecords_severityText": "INFO",
-    "logRecords_body_stringValue": "Convert conversion successful",
-    "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
-    "observedTimeUnixNano": "2024-09-09 11:01:37"
-},
-{
-    "container.id": null,
-    "os.description": null,
-    "process.command_line": null,
-    "service.name": "currencyservice",
-    "telemetry.sdk.language": "cpp",
-    "logRecords_severityText": "INFO",
-    "logRecords_body_stringValue": "Convert conversion successful",
-    "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
-    "observedTimeUnixNano": "2024-09-09 11:01:37"
-}
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "observedTimeUnixNano": "2024-08-21 23:00:26"
+    },
+    {
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "observedTimeUnixNano": "2024-08-21 23:00:26"
+    },
+    {
+        "container.id": null,
+        "os.description": null,
+        "process.command_line": null,
+        "service.name": "currencyservice",
+        "telemetry.sdk.language": "cpp",
+        "logRecords_severityText": "INFO",
+        "logRecords_body_stringValue": "Convert conversion successful",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "observedTimeUnixNano": "2024-08-21 23:00:26"
+    }
 """
 span_data = """
 {
-        "service.name": "productcatalogservice",
+        "service.name": "checkoutservice",
         "os.type": "linux",
-        "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
-        "spanId": "f80c8aefe5b11f96",
-        "name": "oteldemo.ProductCatalogService/GetProduct",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "spanId": "63227652df31b934",
+        "name": "oteldemo.PaymentService/Charge",
+        "http.status_code": null,
+        "rpc.grpc.status_code": "2",
+        "exception.message": null,
+        "exception.stacktrace": null,
+        "http.url": null,
+        "rpc.method": "Charge",
+        "startTimeUnixNano": "2024-08-21 23:00:26",
+        "endTimeUnixNano": "2024-08-21 23:00:26"
+    },
+    {
+        "service.name": "checkoutservice",
+        "os.type": "linux",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "spanId": "11549d72d2032a27",
+        "name": "oteldemo.CheckoutService/PlaceOrder",
+        "http.status_code": null,
+        "rpc.grpc.status_code": "13",
+        "exception.message": "could not charge the card: rpc error: code = Unknown desc = PaymentService Fail Feature Flag Enabled",
+        "exception.stacktrace": null,
+        "http.url": null,
+        "rpc.method": "PlaceOrder",
+        "startTimeUnixNano": "2024-08-21 23:00:26",
+        "endTimeUnixNano": "2024-08-21 23:00:26"
+    },
+    {
+        "service.name": "frontend",
+        "os.type": "linux",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "spanId": "98c7119541a153fb",
+        "name": "executing api route (pages) /api/checkout",
+        "http.status_code": "500",
+        "rpc.grpc.status_code": null,
+        "exception.message": "13 INTERNAL: failed to charge card: could not charge the card: rpc error: code = Unknown desc = PaymentService Fail Feature Flag Enabled",
+        "exception.stacktrace": "Error: 13 INTERNAL: failed to charge card: could not charge the card: rpc error: code = Unknown desc = PaymentService Fail Feature Flag Enabled\n    at callErrorFromStatus (/app/node_modules/@grpc/grpc-js/build/src/call.js:31:19)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client.js:193:76)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:360:141)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:323:181)\n    at /app/node_modules/@grpc/grpc-js/build/src/resolving-call.js:129:78\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)\nfor call at\n    at ServiceClientImpl.makeUnaryRequest (/app/node_modules/@grpc/grpc-js/build/src/client.js:161:32)\n    at ServiceClientImpl.<anonymous> (/app/node_modules/@grpc/grpc-js/build/src/make-client.js:105:19)\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/clientUtils.js:131:31\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:209\n    at AsyncLocalStorage.run (node:async_hooks:346:14)\n    at AsyncLocalStorageContextManager.with (/app/node_modules/@opentelemetry/context-async-hooks/build/src/AsyncLocalStorageContextManager.js:33:40)\n    at ContextAPI.with (/app/node_modules/@opentelemetry/api/build/src/api/context.js:60:46)\n    at ServiceClientImpl.clientMethodTrace [as placeOrder] (/app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:42)\n    at /app/.next/server/pages/api/checkout.js:1:1041\n    at new ZoneAwarePromise (/app/node_modules/zone.js/bundles/zone.umd.js:1340:33)",
+        "http.url": null,
+        "rpc.method": null,
+        "startTimeUnixNano": "2024-08-21 23:00:26",
+        "endTimeUnixNano": "2024-08-21 23:00:26"
+    },
+    {
+        "service.name": "frontend",
+        "os.type": "linux",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "spanId": "be50c0fcc088f2ea",
+        "name": "POST",
+        "http.status_code": "500",
+        "rpc.grpc.status_code": null,
+        "exception.message": null,
+        "exception.stacktrace": null,
+        "http.url": "http://frontend-proxy:8080/api/checkout",
+        "rpc.method": null,
+        "startTimeUnixNano": "2024-08-21 23:00:26",
+        "endTimeUnixNano": "2024-08-21 23:00:26"
+    },
+    {
+        "service.name": "frontend",
+        "os.type": "linux",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "spanId": "5e3d8f0e54ca4696",
+        "name": "grpc.oteldemo.CheckoutService/PlaceOrder",
         "http.status_code": null,
         "rpc.grpc.status_code": "13",
         "exception.message": null,
         "exception.stacktrace": null,
         "http.url": null,
-        "rpc.method": "GetProduct",
-        "startTimeUnixNano": "2024-09-09 11:01:37",
-        "endTimeUnixNano": "2024-09-09 11:01:37"
+        "rpc.method": "PlaceOrder",
+        "startTimeUnixNano": "2024-08-21 23:00:26",
+        "endTimeUnixNano": "2024-08-21 23:00:26"
     },
-{
-        "service.name": "frontend",
-        "os.type": "linux",
-        "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
-        "spanId": "98704af9d466f751",
-        "name": "executing api route (pages) /api/recommendations",
-        "http.status_code": "500",
-        "rpc.grpc.status_code": null,
-        "exception.message": "13 INTERNAL: Error: ProductCatalogService Fail Feature Flag Enabled",
-        "exception.stacktrace": "Error: 13 INTERNAL: Error: ProductCatalogService Fail Feature Flag Enabled\n    at callErrorFromStatus (/app/node_modules/@grpc/grpc-js/build/src/call.js:31:19)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client.js:193:76)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:360:141)\n    at Object.onReceiveStatus (/app/node_modules/@grpc/grpc-js/build/src/client-interceptors.js:323:181)\n    at /app/node_modules/@grpc/grpc-js/build/src/resolving-call.js:129:78\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)\nfor call at\n    at ServiceClientImpl.makeUnaryRequest (/app/node_modules/@grpc/grpc-js/build/src/client.js:161:32)\n    at ServiceClientImpl.<anonymous> (/app/node_modules/@grpc/grpc-js/build/src/make-client.js:105:19)\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/clientUtils.js:131:31\n    at /app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:209\n    at AsyncLocalStorage.run (node:async_hooks:346:14)\n    at AsyncLocalStorageContextManager.with (/app/node_modules/@opentelemetry/context-async-hooks/build/src/AsyncLocalStorageContextManager.js:33:40)\n    at ContextAPI.with (/app/node_modules/@opentelemetry/api/build/src/api/context.js:60:46)\n    at ServiceClientImpl.clientMethodTrace [as getProduct] (/app/node_modules/@opentelemetry/instrumentation-grpc/build/src/instrumentation.js:211:42)\n    at /app/.next/server/pages/api/products/[productId].js:1:1562\n    at new ZoneAwarePromise (/app/node_modules/zone.js/bundles/zone.umd.js:1340:33)",
-        "http.url": null,
-        "rpc.method": null,
-        "startTimeUnixNano": "2024-09-09 11:01:37",
-        "endTimeUnixNano": "2024-09-09 11:01:37"
-    },
-{
-        "service.name": "frontend",
-        "os.type": "linux",
-        "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
-        "spanId": "455738cdeb7bcdeb",
-        "name": "GET",
+    {
+        "service.name": "loadgenerator",
+        "os.type": null,
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "spanId": "ed013ccaa25fdb34",
+        "name": "POST",
         "http.status_code": "500",
         "rpc.grpc.status_code": null,
         "exception.message": null,
         "exception.stacktrace": null,
-        "http.url": "http://frontend-proxy:8080/api/recommendations?productIds=&sessionId=d01c9b15-6b11-49cf-8f1f-56a9275a8838&currencyCode=CHF",
+        "http.url": "http://frontend-proxy:8080/api/checkout",
         "rpc.method": null,
-        "startTimeUnixNano": "2024-09-09 11:01:37",
-        "endTimeUnixNano": "2024-09-09 11:01:37"
+        "startTimeUnixNano": "2024-08-21 23:00:26",
+        "endTimeUnixNano": "2024-08-21 23:00:26"
     },
-{
-        "service.name": "frontend",
+    {
+        "service.name": "paymentservice",
         "os.type": "linux",
-        "traceId": "915e4996fe945b8b6d9761d81e4c4f4d",
-        "spanId": "0b07af67b0dcdc60",
-        "name": "grpc.oteldemo.ProductCatalogService/GetProduct",
+        "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
+        "spanId": "e88b55d75ac1a487",
+        "name": "grpc.oteldemo.PaymentService/Charge",
         "http.status_code": null,
-        "rpc.grpc.status_code": "13",
-        "exception.message": null,
-        "exception.stacktrace": null,
+        "rpc.grpc.status_code": null,
+        "exception.message": "PaymentService Fail Feature Flag Enabled",
+        "exception.stacktrace": "Error: PaymentService Fail Feature Flag Enabled\n    at module.exports.charge (/usr/src/app/charge.js:21:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Object.chargeServiceHandler [as charge] (/usr/src/app/index.js:21:22)",
         "http.url": null,
-        "rpc.method": "GetProduct",
-        "startTimeUnixNano": "2024-09-09 11:01:37",
-        "endTimeUnixNano": "2024-09-09 11:01:37"
-}
+        "rpc.method": "Charge",
+        "startTimeUnixNano": "2024-08-21 23:00:26",
+        "endTimeUnixNano": "2024-08-21 23:00:26"
+    }
 """
 
+# # API 호출 및 DB insert 연동 테스트
+# # 오류 내용(exception.stacktrace)에 {}가 포함된 경우 전처리하여 api 호출(ex: adServiceFailure)
+# log_data = remove_json_value(log_data)
 # # freesia api 호출
 # response = create_error_report(log_data, span_data)
+# print('\n * response data:', response)
 # # response 데이터 escape 문자열 처리
 # clean_result = make_clean_markdown_json(response)
+# print('\n * clean_result:', clean_result)
 # # DB insert를 위해 response 데이터 파싱
 # service_name, db_data = make_db_data(clean_result)
-# print(db_data)
+# print('\n * db_data:', db_data)
 # # response의 service_name을 이용하여 DB에서 sevice_code를 조회함
 # service_code = find_service_code(cur, service_name)
 # insert_data(conn, cur, db_data, service_code)
+# print("============== api result DB insert 완료 ==============")
+
