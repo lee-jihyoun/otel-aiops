@@ -47,4 +47,4 @@ def run_batch1():
         trace_parsing.filtered_trace_parser()
         print("**************** 트레이스 파싱 end :", datetime.datetime.now(), "****************")
 
-        time.sleep(1000)
+        # time.sleep(1000)

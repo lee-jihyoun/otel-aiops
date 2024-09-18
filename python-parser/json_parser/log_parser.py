@@ -61,8 +61,10 @@ class LogParsing:
 
                     main_dict[log_record["traceId"]] = {"status": "log",
                                                         "parsing_data_log": parsed_log,
+                                                        "parsing_data_trace": "",
                                                         "retry": 0,
                                                         "mail": "N"}
+
                     # main_dict[log_record["traceId"]]["status"] = "log"
                     # main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
                     # main_dict[log_record["traceId"]]["retry"] = 0
@@ -122,6 +124,7 @@ class LogParsing:
                     parsed_log["traceId"] = log_record["traceId"]
                     main_dict[log_record["traceId"]] = {"status": "log",
                                                         "parsing_data_log": parsed_log,
+                                                        "parsing_data_trace": "",
                                                         "retry": 0,
                                                         "mail": "N"}
                     print('* main_dict:', main_dict)
