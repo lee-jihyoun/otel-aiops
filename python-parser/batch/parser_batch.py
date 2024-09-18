@@ -8,14 +8,12 @@ import variables.file_idx as file_idx
 # trace_id.main_dict["total_batch"] = ""
 
 def run_batch1():
-
-
     while True:
         # 경로 설정
         input_path = '../data/testfolder/'
         output_path = '../data/testfolder/output/'
 
-        print("############로그 시작############")
+        print("**************** 로그 파싱 시작 ****************")
         filtered_log = 'filtered_logs.json'
         original_log = 'original_logs.json'
 
@@ -30,12 +28,9 @@ def run_batch1():
                                             original_idx=original_log_idx)
 
         log_parsing.filtered_logparser()
+        print("**************** 로그 파싱 end :", datetime.datetime.now(), "****************")
 
-
-        print("end")
-        print(datetime.datetime.now())
-
-        print("############스팬 시작############")
+        print("**************** 트레이스 파싱 시작 ****************")
         filtered_span = 'filtered_span.json'
         original_span = 'original_span.json'
 
@@ -43,15 +38,13 @@ def run_batch1():
         original_span_idx = file_idx.idx.get('original_span')
 
         trace_parsing = trace_parser.TraceParsing(input_path=input_path,
-                                                output_path=output_path,
-                                                filtered_file_name=filtered_span,
-                                                original_file_name=original_span,
-                                                filtered_idx=filtered_span_idx,
-                                                original_idx=original_span_idx)
+                                                  output_path=output_path,
+                                                  filtered_file_name=filtered_span,
+                                                  original_file_name=original_span,
+                                                  filtered_idx=filtered_span_idx,
+                                                  original_idx=original_span_idx)
 
         trace_parsing.filtered_traceparser()
-
-        print("end")
-        print(datetime.datetime.now())
+        print("**************** 트레이스 파싱 end :", datetime.datetime.now(), "****************")
 
         time.sleep(1000)

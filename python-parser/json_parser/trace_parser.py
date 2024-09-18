@@ -31,7 +31,7 @@ class TraceParsing:
         print("상태가 log인가?\n")
         trace_status_entries = {key: value for key, value in main_dict.items() if
                                 isinstance(value, dict) and value.get('status') == 'log'}
-        print(trace_status_entries)
+        print('* trace_status_entries:', trace_status_entries)
 
         # main_dict에 상태값이 log인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)
         if len(trace_status_entries) > 0:
@@ -187,15 +187,15 @@ class TraceParsing:
                 main_dict = trace_id.main_dict
 
                 # 디버깅할 때 사용..
+                print('* 아무 글자나 입력:')
                 input()
 
-                print("filtered_log_start")
-                print(datetime.datetime.now())
+                print("================ filtered_span 파싱 start :", datetime.datetime.now(), "================")
 
                 try:
                     span_data = json.loads(line.strip())
                     change_timenano_format(span_data)
-                    print(span_data)
+                    print('* span_data:', span_data)
 
                     for resource in span_data.get('resourceSpans', []):
                         parsed_info = {
@@ -262,14 +262,9 @@ class TraceParsing:
                                         #     self.process_filtered_trace(main_dict, span, parsed_info)
 
                                         self.process_filtered_trace(main_dict, span, parsed_info)
-                                        print("============filtered===========\n")
-
-                                        print("parsed_filtered_trace")
-                                        print("filtered_idx")
-                                        print(idx)  # idx
-
-                                        print("filterparsed_end_dictionary")
-                                        print(trace_id.main_dict)
+                                        print("================ filtered_span 파싱 end ================\n")
+                                        print("* filtered_idx:", idx)
+                                        print("* filter_span_parsed_end_dictionary:", trace_id.main_dict)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
@@ -288,15 +283,15 @@ class TraceParsing:
                 main_dict = trace_id.main_dict
 
                 # 디버깅할 때 사용..
+                print('* 아무 글자나 입력:')
                 input()
 
-                print("original_span_start")
-                print(datetime.datetime.now())
+                print("================ original_span 파싱 start :", datetime.datetime.now(), "================")
 
                 try:
                     span_data = json.loads(line.strip())
                     change_timenano_format(span_data)
-                    print(span_data)
+                    print('* span_data:', span_data)
 
                     for resource in span_data.get('resourceSpans', []):
                         parsed_info = {
@@ -366,13 +361,9 @@ class TraceParsing:
                                         self.process_original_trace(main_dict, span, parsed_info)
 
                                         # print(result)
-                                        print("============original===========\n")
-                                        print("parsed_original_trace")
-                                        print("original_idx")
-                                        print(idx)  # idx
-
-                                        print("originalparsed_end_dictionary")
-                                        print(trace_id.main_dict)
+                                        print("================ original_span 파싱 end ================\n")
+                                        print("* original_idx:", idx)
+                                        print("* original_span_parsed_end_dictionary:", trace_id.main_dict)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")

@@ -25,10 +25,10 @@ class LogParsing:
     def process_filtered_log(self, main_dict, log_record, parsed_log):
         # 상태가 trace인가?
         print("상태가 trace인가?\n")
-        print(main_dict)
+        print('* main_dict:', main_dict)
         trace_status_entries = {key: value for key, value in main_dict.items() if
                                 isinstance(value, dict) and value.get('status') == 'trace'}
-        print(trace_status_entries)
+        print('* trace_status_entries:', trace_status_entries)
 
         # main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (N)
         # main_dict에 존재하는 경우 필터링 -> original_logs
@@ -124,7 +124,7 @@ class LogParsing:
                                                         "parsing_data_log": parsed_log,
                                                         "retry": 0,
                                                         "mail": "N"}
-                    print(main_dict)
+                    print('* main_dict:', main_dict)
 
                 # main_dict에 key가 있는가? (Y)
                 else:
@@ -177,7 +177,6 @@ class LogParsing:
                         print(f"Trace ID: {trace_id}, Retry 횟수가 이미 3에 도달")
 
     def filtered_logparser(self):
-
         input_path = self.input_path
         file_name = self.filtered_file_name
         idx = self.filtered_idx
@@ -187,15 +186,15 @@ class LogParsing:
                 main_dict = trace_id.main_dict
 
                 # 디버깅할 때 사용..
+                print('* 아무 글자나 입력:')
                 input()
 
-                print("filtered_log_start")
-                print(datetime.datetime.now())
+                print("================ filtered_log 파싱 start :", datetime.datetime.now(), "================")
 
                 try:
                     log_data = json.loads(line.strip())
                     change_timenano_format(log_data)  # 시간 전처리 적용
-                    print(log_data)
+                    print('* log_data:', log_data)
                     for resource_log in log_data.get('resourceLogs', []):
                         parsed_info = {
                             "container.id": None,
@@ -232,20 +231,14 @@ class LogParsing:
                                     parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
 
                                 self.process_filtered_log(main_dict, log_record, parsed_info)
-                                print("============filtered===========\n")
-
-                                print("parsed_filtered_log")
-                                print("filtered_idx")
-                                print(idx)  # idx
-
-                                print("filterparsed_end_dictionary")
-                                print(trace_id.main_dict)
+                                print("============ filtered log 파싱 end ===========\n")
+                                print("* filtered_idx:", idx)
+                                print("* filter_log_parsed_end_dictionary:", trace_id.main_dict)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
     def original_logparser(self):
-
         input_path = self.input_path
         file_name = self.original_file_name
         idx = self.original_idx
@@ -255,15 +248,15 @@ class LogParsing:
                 main_dict = trace_id.main_dict
 
                 # 디버깅할 때 사용 ..
+                print('* 아무 글자나 입력:')
                 input()
 
-                print("original_log_start")
-                print(datetime.datetime.now())
+                print("================ original_log 파싱 start :", datetime.datetime.now(), "================")
 
                 try:
                     log_data = json.loads(line.strip())
                     change_timenano_format(log_data)  # 시간 전처리 적용
-                    print(log_data)
+                    print('* log_data:', log_data)
                     for resource_log in log_data.get('resourceLogs', []):
                         parsed_info = {
                             "container.id": None,
@@ -302,13 +295,9 @@ class LogParsing:
                                 self.process_original_log(main_dict, log_record, parsed_info)
 
                                 # print(result)
-                                print("============original===========\n")
-                                print("parsed_original_log")
-                                print("original_idx")
-                                print(idx)  # idx
-
-                                print("originalparsed_end_dictionary")
-                                print(trace_id.main_dict)
+                                print("============ original log 파싱 end ===========\n")
+                                print("* original_idx:", idx)
+                                print("* originalparsed_end_dictionary:", trace_id.main_dict)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
