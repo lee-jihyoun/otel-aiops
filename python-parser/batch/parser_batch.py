@@ -44,7 +44,7 @@ def run_batch1():
                                                   filtered_idx=filtered_span_idx,
                                                   original_idx=original_span_idx)
 
-        trace_parsing.filtered_traceparser()
+        trace_parsing.filtered_trace_parser()
         print("**************** 트레이스 파싱 end :", datetime.datetime.now(), "****************")
 
         time.sleep(1000)

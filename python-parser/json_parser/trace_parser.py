@@ -2,23 +2,10 @@ import json, itertools, datetime
 from util.datetime_util import change_timenano_format
 import variables.trace_id as trace_id
 
-# Trace_parser에서 할 일
-# - filtered_span & original_span parsing
-# - trace id 찾는 함수 : 500, error가 발생한 trace id를 찾기
-
-# batch1
-# 1. parsing_span()
-
-# batch2
-# 1. find_trace_id() -> return trace_ids {} / 500, error를 갖는 trace id 추출
-# 2. extract_span_with_trace_id() / trace id에 맞는 span만 추출
-# 3. parsing_span() / filtered_span, extraced_span 데이터 경우에 따라 make_parsed_info()를 호출하는 함수
-# 4. make_parsed_info() / parsed_info를 만드는 함수. 디테일한 파싱 작업 수행
 
 class TraceParsing:
 
     def __init__(self, input_path, output_path, filtered_file_name, original_file_name, filtered_idx, original_idx):
-
         self.input_path = input_path
         self.output_path = output_path
         self.filtered_file_name = filtered_file_name
@@ -40,18 +27,18 @@ class TraceParsing:
             # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
             if span["traceId"] in trace_status_entries:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                parsed_trace["traceId"] = span["traceId"]
+                parsed_trace[0]["traceId"] = span["traceId"]
                 main_dict[span["traceId"]]["status"] = "confirm"
                 # filtered_traces.append(parsed_trace)
 
             else:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
-                self.original_traceparser()
+                self.original_trace_parser()
                 # pass
 
-        # # main_dict에 상태값이 log인가 (N)
-        # else:
-        #     print("main_dict에 상태값이 log인가 (N)\n")
+            # # main_dict에 상태값이 log인가 (N)
+            # else:
+            #     print("main_dict에 상태값이 log인가 (N)\n")
 
             # 파싱된 트레이스에 trace ID가 있는가? (Y)
             if "traceId" in span and span["traceId"] != "":
@@ -66,7 +53,7 @@ class TraceParsing:
                     main_dict[span["traceId"]]["retry"] = 0
                     main_dict[span["traceId"]]["mail"] = "N"
 
-                    print(main_dict)
+                    print('* main_dict:', main_dict)
 
                 # main_dict에 key가 있는가? (Y)
                 else:
@@ -101,7 +88,7 @@ class TraceParsing:
 
             else:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
-                self.original_traceparser()
+                self.original_trace_parser()
                 # pass
 
             # # main_dict에 상태값이 log인가 (N)
@@ -124,7 +111,7 @@ class TraceParsing:
                     main_dict[span["traceId"]]["retry"] = 0
                     main_dict[span["traceId"]]["mail"] = "N"
 
-                    print(main_dict)
+                    print('* main_dict:', main_dict)
 
                 # main_dict에 key가 있는가? (Y)
                 else:
@@ -176,12 +163,12 @@ class TraceParsing:
                         trace_info["status"] = 'complete'
                         print(f"Trace ID: {trace_id}, Retry 횟수가 이미 3에 도달")
 
-    def filtered_traceparser(self):
-
+    def filtered_trace_parser(self):
         input_path = self.input_path
         file_name = self.filtered_file_name
         idx = self.filtered_idx
 
+        parsing_trace_data_list = []
         with open(input_path + file_name, "r") as span_file:
             for current_index, line in enumerate(itertools.islice(span_file, idx, None), start=idx):
                 main_dict = trace_id.main_dict
@@ -261,18 +248,21 @@ class TraceParsing:
                                         # if self.file_name == 'filtered_span.json':
                                         #     self.process_filtered_trace(main_dict, span, parsed_info)
 
-                                        self.process_filtered_trace(main_dict, span, parsed_info)
-                                        print("================ filtered_span 파싱 end ================\n")
-                                        print("* filtered_idx:", idx)
-                                        print("* filter_span_parsed_end_dictionary:", trace_id.main_dict)
+                        # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
+                        parsing_trace_data_list.append(parsed_info)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
+                self.process_filtered_trace(main_dict, span, parsing_trace_data_list)
+                print("================ filtered_span 파싱 end ================\n")
+                print("* filtered_idx:", idx)
+                print("* filter_span_parsed_end_dictionary:", trace_id.main_dict)
+
         # print("new_idx: ", idx)
         # return idx, result
 
-    def original_traceparser(self):
+    def original_trace_parser(self):
 
         input_path = self.input_path
         file_name = self.original_file_name
