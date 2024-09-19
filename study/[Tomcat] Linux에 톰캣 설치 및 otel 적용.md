@@ -119,3 +119,19 @@
     root     1935457       1  7 00:34 pts/5    00:00:26 /opt/jdk-17.0.2/bin/java -Djava.util.logging.config.file=/opt/apache-tomcat-10.1.30/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED -javaagent:opentelemetry-javaagent.jar -Dotel.resource.attributes=service.name=spring-reporting-service,service.namespace=TOMCAT,service.code=SL1001 -Dspring.profiles.active=server -classpath /opt/apache-tomcat-10.1.30/bin/bootstrap.jar:/opt/apache-tomcat-10.1.30/bin/tomcat-juli.jar -Dcatalina.base=/opt/apache-tomcat-10.1.30 -Dcatalina.home=/opt/apache-tomcat-10.1.30 -Djava.io.tmpdir=/opt/apache-tomcat-10.1.30/temp org.apache.catalina.startup.Bootstrap start
     root     1949712 1742265  0 00:40 pts/5    00:00:00 grep --color=auto tomcat
     =====================================================================
+
+# tomcat 계정 생성 / tomcat 그룹 생성 / 톰캣 홈디렉토리 지정
+    sudo groupadd tomcat
+    useradd -r -m -U -d /opt/apache-tomcat-10.1.30 -s /bin/bash tomcat
+
+# tomcat 비밀번호 설정
+    passwd tomcat
+    비번은 늘하던거
+
+# 권한 및 소유자 변경
+    sudo chown -R tomcat:tomcat /opt/apache-tomcat-10.1.30
+
+# 톰캣 실행
+    su - tomcat
+    cd /opt/apache-tomcat-10.1.30/bin
+    ./startup.sh
