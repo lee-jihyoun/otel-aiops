@@ -1,6 +1,7 @@
 import json, itertools, datetime
 from util.datetime_util import change_timenano_format
 import variables.trace_id as trace_id
+import variables.file_idx as file_idx
 
 
 class TraceParsing:
@@ -253,7 +254,8 @@ class TraceParsing:
 
                 self.process_filtered_trace(main_dict, span, parsing_trace_data_list)
                 print("================ filtered_span 파싱 end ================\n")
-                print("* filtered_idx:", idx)
+                print("* filtered_idx:", current_index)
+                file_idx.idx["filtered_span"] = current_index
                 print("* filter_span_parsed_end_dictionary:", trace_id.main_dict)
 
         # print("new_idx: ", idx)
@@ -344,7 +346,8 @@ class TraceParsing:
 
                 self.process_original_trace(main_dict, span, parsed_info)
                 print("================ original_span 파싱 end ================\n")
-                print("* original_idx:", idx)
+                print("* original_idx:", current_index)
+                file_idx.idx["original_span"] = current_index
                 print("* original_span_parsed_end_dictionary:", trace_id.main_dict)
 
         # print("new_idx: ", idx)
