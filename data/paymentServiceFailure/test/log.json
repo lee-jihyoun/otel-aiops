@@ -27,17 +27,6 @@
         "service.name": "currencyservice",
         "telemetry.sdk.language": "cpp",
         "logRecords_severityText": "INFO",
-        "logRecords_body_stringValue": "GetSupportedCurrencies successful",
-        "traceId": "9a9fb64a036a2e2b9ce23f414b71a81a",
-        "observedTimeUnixNano": "2024-08-21 23:00:26"
-    },
-    {
-        "container.id": null,
-        "os.description": null,
-        "process.command_line": null,
-        "service.name": "currencyservice",
-        "telemetry.sdk.language": "cpp",
-        "logRecords_severityText": "INFO",
         "logRecords_body_stringValue": "Convert conversion successful",
         "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
         "observedTimeUnixNano": "2024-08-21 23:00:26"

@@ -52,5 +52,8 @@ public class ErrorReport {
     @Column(name = "error_report_send_yn", length = 1)
     private String errorReportSendYn;
 
+    @Column(name ="service_impact", length = 5000)
+    private String serviceImpact;
+
     // Getters and Setters
 }

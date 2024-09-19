@@ -28,18 +28,18 @@ class CreateReport:
     def db_connection(self):
 
         return psycopg2.connect(
-            # host='100.83.227.59',
-            # port=5532,
-            # user='test_admin',
-            # password='new1234!',
-            # database='rnp'
-
-            # 집 서버
-            host='192.168.55.125',
+            host='100.83.227.59',
             port=5532,
             user='test_admin',
-            password='rlatjdcjf!1',
+            password='new1234!',
             database='rnp'
+
+            # 집 서버
+            # host='192.168.55.125',
+            # port=5532,
+            # user='test_admin',
+            # password='rlatjdcjf!1',
+            # database='rnp'
         )
 
     # DB에서 API key 읽어오기
@@ -104,11 +104,17 @@ class CreateReport:
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
     def create_and_save_error_report(self, error_report_dict):
         for key, value in error_report_dict.items():
-            error_report = self.create_error_report(value["parsing_data_log"] , value["parsing_data_trace"])
-            result = self.make_db_data(error_report)
-            # result["service_code"] = value["service_code"]
-            # self.save_error_report(result)
-            # self.save_error_history(value)
+            value["parsing_data_log"] = self.remove_json_value(value["parsing_data_log"])
+            response = self.create_error_report(value["parsing_data_log"] , value["parsing_data_trace"])
+            clean_result = self.make_clean_markdown_json(response)
+            service_name, db_data = self.make_db_data(clean_result)
+            service_code = self.find_service_code(service_name)
+            db_data["trace_id"] = key
+            db_data["service_code"] = service_code
+            self.save_error_report(db_data)
+            self.save_error_history(value)
+
+
 
 
     # error_history 테이블에 데이터 추가
@@ -116,33 +122,33 @@ class CreateReport:
         with self.db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
                 INSERT INTO error_history (service_code, exception_stacktrace)
-                VALUES (?, ?)
+                VALUES (%s, %s)
             ''', (error_report["service_code"], error_report["exception_stacktrace"]))
 
     def save_error_report(self, error_report):
         with self.db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
                 INSERT INTO error_report (
-                service_code,
-                error_name,
-                error_content,
-                error_create_time,
-                error_location,
-                error_cause,
-                error_solution,
-
-                service_impact)
-                VALUES (?,?,?,?,?,?,?,?)
+                    service_code,
+                    error_name,
+                    error_content,
+                    error_create_time,
+                    error_location,
+                    error_cause,
+                    error_solution,
+                    trace_id,
+                    service_impact)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
-                error_report["service_code"],
-                error_report["error_name"],
-                error_report["error_content"],
-                error_report["error_create_time"],
-                error_report["error_location"],
-                error_report["error_cause"],
-                error_report["error_solution"],
-
-                error_report["service_impact"],
+                    error_report["service_code"],
+                    error_report["error_name"],
+                    error_report["error_content"],
+                    error_report["error_create_time"],
+                    error_report["error_location"],
+                    error_report["error_cause"],
+                    error_report["error_solution"],
+                    error_report["trace_id"],
+                    error_report["service_impact"]
             ))
 
     # 리포트 대상 데이터 출력
@@ -167,13 +173,10 @@ class CreateReport:
                 complete_dict[key] = value
         return complete_dict
 
-
-    # reponse["data"]["content"]가 깔끔한 json으로 오는 경우
+    # Database insert 데이터로 변환
     def make_db_data(self, clean_response):
-
-        clean_response = json.loads(clean_response)
-        content = json.loads(clean_response['data']['content'])
-        print(type(content))
+        content = clean_response['data']['content']
+        # print(type(content))
         error_report = {}
         service_name = content["기본정보"]["서비스명(영문)"]
         error_name = content["오류내용"]["오류 이름"]
@@ -181,16 +184,73 @@ class CreateReport:
         error_content = content["오류내용"]["오류 내용"]
         error_location = content["분석결과"]["오류 발생 위치"]
         error_cause = content["분석결과"]["오류 근본 원인"]
-        # service_impact = content["분석결과"]["서비스 영향도"]
+        service_impact = content["분석결과"]["서비스 영향도"]
         error_solution = content["후속조치"]["조치방안"]
 
-        # error_report["service_code"] = service_code
         error_report["error_name"] = error_name
         error_report["error_create_time"] = error_create_time
         error_report["error_content"] = error_content
         error_report["error_location"] = error_location
         error_report["error_cause"] = error_cause
-        # error_report["service_impact"] = service_impact
+        error_report["service_impact"] = service_impact
         error_report["error_solution"] = error_solution
-        return error_report
+        return service_name, error_report
 
+    # log data에 포함된 {} 기호 전처리
+    def remove_json_value(self, value):
+        # print('* in remove_json_value 함수:', value)
+        value = value.replace("{", "(").replace("}", ")")
+        return value
+
+    # response에 마크다운이 포함된 경우 escape 문자열 처리
+    def make_clean_markdown_json(self, markdown_json):
+        # 1. ```json, ```plaintext, ```bash 등의 불필요한 코드 블록 제거
+        cleaned_str = re.sub(r"```(json|plaintext|bash)?\n?", "", markdown_json)
+
+        # 2. 공백과 줄바꿈 제거
+        # \n -> 공백으로 변환
+        cleaned_str = re.sub(r'\\n', '', cleaned_str)
+        # 연속적인 공백을 하나의 공백으로 축소
+        cleaned_str = re.sub(r'\s+', ' ', cleaned_str).strip()
+
+        # 3. 이스케이프 문자 제거
+        # \" -> " 로 변환
+        cleaned_str = cleaned_str.replace('\\"', '"')
+        # \ -> /로 변환
+        cleaned_str = cleaned_str.replace('\\', '/')
+
+        # 4. 특수 문자열 패턴 처리
+        # '"{' -> '{' 로 변경
+        cleaned_str = re.sub(r'"\{', '{', cleaned_str)
+        # '}"' -> '}' 로 변경
+        cleaned_str = re.sub(r'\}"', '}', cleaned_str)
+        # \\/ -> / 로 변경
+        cleaned_str = cleaned_str.replace('\\/', '/')
+        # // 제거
+        cleaned_str = cleaned_str.replace('//', '')
+
+        # 5. JSON 변환 시 문제가 될 수 있는 불필요한 공백 제거
+        # "key": "value"와 같은 패턴에서 key와 value 사이의 공백 정리
+        cleaned_str = re.sub(r'"\s*:\s*"', '":"', cleaned_str)
+
+        # 잘못된 JSON 문자열 디버깅
+        try:
+            freesia_result = json.loads(cleaned_str)
+        except json.JSONDecodeError as e:
+            print("* JSON 디코딩 에러:", e)
+            print("* 문제 있는 문자열 주변:", cleaned_str[max(0, e.pos-60):e.pos+60])
+            print("============== api result DB insert 실패 ==============")
+        return freesia_result
+
+    # 서비스명으로 서비스코드 찾기
+    def find_service_code(self, service_name):
+        with self.db_connection() as conn, conn.cursor() as cur:
+            select_query = f"""
+                    SELECT service_code
+                    FROM service_info
+                    where service_name_eng = '{service_name}'
+            """
+            print(select_query)
+            cur.execute(select_query)
+            result = cur.fetchone()
+            return result[0]
