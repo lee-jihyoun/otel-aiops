@@ -1,14 +1,7 @@
 import json, itertools, datetime
-import time
-
 from util.datetime_util import change_timenano_format
 import variables.trace_id as trace_id
-
-# 로그 데이터 파싱 및 필요한 key 값 추출
-# JSON 파일을 읽어오기
-
-# # main_dict 테스트용
-# trace_id.main_dict["log_parser"] = ""
+import variables.file_idx as file_idx
 
 
 class LogParsing:
@@ -41,8 +34,6 @@ class LogParsing:
                 main_dict[log_record["traceId"]]["status"] = "confirm"
                 main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
 
-                # filtered_logs.append(parsed_log)
-
             else:
                 print("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
                 self.original_logparser()
@@ -67,27 +58,14 @@ class LogParsing:
                                                         "retry": 0,
                                                         "mail": "N"}
 
-                    # main_dict[log_record["traceId"]]["status"] = "log"
-                    # main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
-                    # main_dict[log_record["traceId"]]["retry"] = 0
-                    # main_dict[log_record["traceId"]]["mail"] = "N"
-
                     print(main_dict)
 
                 # main_dict에 key가 있는가? (Y)
                 else:
                     print("# main_dict에 key가 있는가? (Y)\n")
-
-                    # main_dict 상태값이 confirm인가? (Y)
-                    if main_dict[log_record["traceId"]]["status"] == "confirm":
-                        print("# main_dict 상태값이 confirm인가? (Y)? (Y)\n")
-                        main_dict[log_record["traceId"]]["status"] = "complete"
-                        main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
-
-                    # main_dict 상태값이 confirm인가? (N)
-                    else:
-                        print("# main_dict 상태값이 confirm인가? (N)? (Y)\n")
-                        pass
+                    parsed_log["traceId"] = log_record["traceId"]
+                    main_dict[log_record["traceId"]]["status"] = "confirm"
+                    main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
 
             # 파싱된 로그에 trace ID가 있는가? (N)
             else:
@@ -135,18 +113,11 @@ class LogParsing:
                 # main_dict에 key가 있는가? (Y)
                 else:
                     print("# main_dict에 key가 있는가? (Y)\n")
+                    parsed_log["traceId"] = log_record["traceId"]
+                    main_dict[log_record["traceId"]]["status"] = "confirm"
+                    main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
 
-                    # main_dict 상태값이 confirm인가? (Y)
-                    if main_dict[log_record["traceId"]]["status"] == "confirm":
-                        print("# main_dict 상태값이 confirm인가? (Y)? (Y)\n")
-                        main_dict[log_record["traceId"]]["status"] = "complete"
-                        main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
-
-                    # main_dict 상태값이 confirm인가? (N)
-                    else:
-                        print("# main_dict 상태값이 confirm인가? (N)? (Y)\n")
-                        pass
-
+                    pass
 
             # 파싱된 로그에 trace ID가 있는가? (N)
             else:
@@ -181,7 +152,7 @@ class LogParsing:
                         trace_info["retry"] += 1
                         print(f"Trace ID: {trace_id}, Retry 증가: {trace_info['retry']}")
                     else:
-                        trace_info["status"] = 'complete'
+                        trace_info["status"] = 'confirm'
                         print(f"Trace ID: {trace_id}, Retry 횟수가 이미 3에 도달")
 
     def filtered_logparser(self):
@@ -192,6 +163,8 @@ class LogParsing:
         with open(input_path + file_name, "r") as log_file:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
                 main_dict = trace_id.main_dict
+                print(current_index)
+
 
                 # 디버깅할 때 사용..
                 print('* 아무 글자나 입력:')
@@ -238,13 +211,14 @@ class LogParsing:
                                 if "body" in log_record and "stringValue" in log_record["body"]:
                                     parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
 
-                                self.process_filtered_log(main_dict, log_record, parsed_info)
-                                print("============ filtered log 파싱 end ===========\n")
-                                print("* filtered_idx:", idx)
-                                print("* filter_log_parsed_end_dictionary:", trace_id.main_dict)
-
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
+
+                self.process_filtered_log(main_dict, log_record, parsed_info)
+                print("============ filtered log 파싱 end ===========\n")
+                print("* filtered_idx:", current_index)
+                file_idx.idx["filtered_logs"] = current_index + 1
+                print("* filter_log_parsed_end_dictionary:", trace_id.main_dict)
 
     def original_logparser(self):
         input_path = self.input_path
@@ -300,12 +274,11 @@ class LogParsing:
                                 if "body" in log_record and "stringValue" in log_record["body"]:
                                     parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
 
-                                self.process_original_log(main_dict, log_record, parsed_info)
-
-                                # print(result)
-                                print("============ original log 파싱 end ===========\n")
-                                print("* original_idx:", idx)
-                                print("* originalparsed_end_dictionary:", trace_id.main_dict)
-
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
+
+                self.process_original_log(main_dict, log_record, parsed_info)
+                print("============ original log 파싱 end ===========\n")
+                print("* original_idx:", current_index)
+                file_idx.idx["original_logs"] = current_index + 1
+                print("* originalparsed_end_dictionary:", trace_id.main_dict)
