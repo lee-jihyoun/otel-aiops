@@ -9,9 +9,11 @@ import variables.file_idx as file_idx
 
 def run_batch1():
     while True:
-        # 경로 설정
+        # 경로 설정(local에서 테스트 시)
         input_path = '../data/testfolder/'
-        output_path = '../data/testfolder/output/'
+
+        # 경로 설정(서버에서 테스트 시)
+        # input_path = '/opt/spring-otel-listener-run/'
 
         print("**************** 로그 파싱 시작 ****************")
         filtered_log = 'filtered_logs.json'
@@ -23,7 +25,6 @@ def run_batch1():
         print("* original_log_idx:", original_log_idx)
 
         log_parsing = log_parser.LogParsing(input_path=input_path,
-                                            output_path=output_path,
                                             filtered_file_name=filtered_log,
                                             original_file_name=original_log,
                                             filtered_idx=filtered_log_idx,
@@ -42,7 +43,6 @@ def run_batch1():
         print("* original_span_idx:", original_span_idx)
 
         trace_parsing = trace_parser.TraceParsing(input_path=input_path,
-                                                  output_path=output_path,
                                                   filtered_file_name=filtered_span,
                                                   original_file_name=original_span,
                                                   filtered_idx=filtered_span_idx,

@@ -6,10 +6,9 @@ import variables.file_idx as file_idx
 
 class LogParsing:
 
-    def __init__(self, input_path, output_path, filtered_file_name, original_file_name, filtered_idx, original_idx):
+    def __init__(self, input_path, filtered_file_name, original_file_name, filtered_idx, original_idx):
 
         self.input_path = input_path
-        self.output_path = output_path
         self.filtered_file_name = filtered_file_name
         self.original_file_name = original_file_name
         self.filtered_idx = filtered_idx
@@ -281,4 +280,4 @@ class LogParsing:
                 print("============ original log 파싱 end ===========\n")
                 print("* original_idx:", current_index)
                 file_idx.idx["original_logs"] = current_index + 1
-                print("* originalparsed_end_dictionary:", trace_id.main_dict)
+                print("* original_parsed_end_dictionary:", trace_id.main_dict)

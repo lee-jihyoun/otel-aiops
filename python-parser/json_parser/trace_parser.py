@@ -6,9 +6,8 @@ import variables.file_idx as file_idx
 
 class TraceParsing:
 
-    def __init__(self, input_path, output_path, filtered_file_name, original_file_name, filtered_idx, original_idx):
+    def __init__(self, input_path, filtered_file_name, original_file_name, filtered_idx, original_idx):
         self.input_path = input_path
-        self.output_path = output_path
         self.filtered_file_name = filtered_file_name
         self.original_file_name = original_file_name
         self.filtered_idx = filtered_idx
