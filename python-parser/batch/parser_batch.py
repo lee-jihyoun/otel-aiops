@@ -19,7 +19,8 @@ def run_batch1():
 
         filtered_log_idx = file_idx.idx.get('filtered_logs')
         original_log_idx = file_idx.idx.get('original_logs')
-        print("filtered_log_idx, original_log_idx: ", filtered_log_idx, original_log_idx)
+        print("* filtered_log_idx:", filtered_log_idx)
+        print("* original_log_idx:", original_log_idx)
 
         log_parsing = log_parser.LogParsing(input_path=input_path,
                                             output_path=output_path,
@@ -37,7 +38,8 @@ def run_batch1():
 
         filtered_span_idx = file_idx.idx.get('filtered_span')
         original_span_idx = file_idx.idx.get('original_span')
-        print("filtered_span_idx, original_span_idx: ", filtered_span_idx, original_span_idx)
+        print("* filtered_span_idx:", filtered_span_idx)
+        print("* original_span_idx:", original_span_idx)
 
         trace_parsing = trace_parser.TraceParsing(input_path=input_path,
                                                   output_path=output_path,

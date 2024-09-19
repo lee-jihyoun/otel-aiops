@@ -28,11 +28,10 @@ class TraceParsing:
             # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
             if span["traceId"] in trace_status_entries:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                for co_parsed_trace in parsed_trace:
-                    co_parsed_trace["traceId"] = span["traceId"]
+                matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
+                if matching_trace:
                     main_dict[span["traceId"]]["status"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
-
+                    main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
                     print('* main_dict:', main_dict)
 
             else:
@@ -63,11 +62,10 @@ class TraceParsing:
                 else:
                     print("# main_dict에 key가 있는가? (Y)\n")
                     print('* main_dict:', main_dict)
-                    for co_parsed_trace in parsed_trace:
-                        co_parsed_trace["traceId"] = span["traceId"]
+                    matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
+                    if matching_trace:
                         main_dict[span["traceId"]]["status"] = "confirm"
-                        main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
-
+                        main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
                         print('* main_dict:', main_dict)
 
             # 파싱된 로그에 trace ID가 있는가? (N)
@@ -82,15 +80,11 @@ class TraceParsing:
             # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
             if span["traceId"] in trace_status_entries:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                for co_parsed_trace in parsed_trace:
-                    co_parsed_trace["traceId"] = span["traceId"]
+                matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
+                if matching_trace:
                     main_dict[span["traceId"]]["status"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
-
+                    main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
                     print('* main_dict:', main_dict)
-                # parsed_trace["traceId"] = span["traceId"]
-                # main_dict[span["traceId"]]["status"] = "confirm"
-                # # filtered_traces.append(parsed_trace)
 
             else:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
@@ -120,11 +114,10 @@ class TraceParsing:
                 # main_dict에 key가 있는가? (Y)
                 else:
                     print("# main_dict에 key가 있는가? (Y)\n")
-                    for co_parsed_trace in parsed_trace:
-                        co_parsed_trace["traceId"] = span["traceId"]
+                    matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
+                    if matching_trace:
                         main_dict[span["traceId"]]["status"] = "confirm"
-                        main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
-
+                        main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
                         print('* main_dict:', main_dict)
 
             # 파싱된 로그에 trace ID가 있는가? (N)
@@ -146,10 +139,10 @@ class TraceParsing:
             # 원문로그에 해당 trace id 가 있는가 (Y)
             if span["traceId"] in trace_status_entries:
                 print("원문로그에 해당 trace id 가 있는가 (Y)\n")
-                for co_parsed_trace in parsed_trace:
-                    co_parsed_trace["traceId"] = span["traceId"]
+                matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
+                if matching_trace:
                     main_dict[span["traceId"]]["status"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
+                    main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
 
             else:
                 # main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가
@@ -242,9 +235,8 @@ class TraceParsing:
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
-                print("******parsing_trace_data_list******")
-                print(parsing_trace_data_list)
-                print(parsed_info)
+                # print("* parsing_trace_data_list:", parsing_trace_data_list)
+
                 self.process_filtered_trace(main_dict, span, parsing_trace_data_list)
                 print("================ filtered_span 파싱 end ================\n")
                 print("* filtered_idx:", current_index)
