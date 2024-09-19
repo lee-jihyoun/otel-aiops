@@ -9,6 +9,12 @@ firewall-cmd --list-all
 	cd /opt/opentelemetry-demo
 	docker compose up --detach
 
+[ docker 이미지 삭제 ]
+    docker rm -f $(docker ps -qa)
+
+[ docker 실행 ]
+    docker compose up --force-recreate --remove-orphans --detach
+
 
 [ spring-otel-listener 빌드 ]
 ## 권한변경
