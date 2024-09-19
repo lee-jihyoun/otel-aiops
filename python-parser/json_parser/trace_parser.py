@@ -27,6 +27,8 @@ class TraceParsing:
             # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
             if span["traceId"] in trace_status_entries:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
+                # co_parsed_trace["traceId"] = span["traceId"]
+
                 parsed_trace[0]["traceId"] = span["traceId"]
                 main_dict[span["traceId"]]["status"] = "confirm"
                 # filtered_traces.append(parsed_trace)
@@ -175,7 +177,7 @@ class TraceParsing:
         file_name = self.filtered_file_name
         idx = self.filtered_idx
 
-        parsing_trace_data_list = []
+        parsing_trace_data_list = [] # "a111", "b111"
         with open(input_path + file_name, "r") as span_file:
             for current_index, line in enumerate(itertools.islice(span_file, idx, None), start=idx):
                 main_dict = trace_id.main_dict

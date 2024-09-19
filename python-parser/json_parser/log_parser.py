@@ -39,6 +39,8 @@ class LogParsing:
                 print("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
                 parsed_log["traceId"] = log_record["traceId"]
                 main_dict[log_record["traceId"]]["status"] = "confirm"
+                main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
+
                 # filtered_logs.append(parsed_log)
 
             else:
@@ -102,6 +104,7 @@ class LogParsing:
                 print("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
                 parsed_log["traceId"] = log_record["traceId"]
                 main_dict[log_record["traceId"]]["status"] = "confirm"
+                main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
                 # filtered_logs.append(parsed_log)
 
             else:
@@ -167,6 +170,8 @@ class LogParsing:
                 print("원문로그에 해당 trace id 가 있는가 (Y)\n")
                 parsed_log["traceId"] = log_record["traceId"]
                 main_dict[log_record["traceId"]]["status"] = "confirm"
+                main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
+
             else:
                 # main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가
                 print("main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가 (Y)\n")

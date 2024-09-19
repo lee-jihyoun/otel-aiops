@@ -1,5 +1,5 @@
 import threading
-from batch import parser_batch, api_batch
+from batch import parser_batch
 import psycopg2  # pip install psycopg2-binary
 import re
 import requests

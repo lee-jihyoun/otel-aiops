@@ -10,7 +10,7 @@ import os
 log_file_name = "original_logs.json"
 span_file_name = "original_span.json"
 
-folder_name = "springbootListener_tomcat"
+folder_name = "testfolder"
 
 
 log_file_path = "../../data" +"/"+ folder_name+"/" + log_file_name
