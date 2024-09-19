@@ -30,8 +30,8 @@ class TraceParsing:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
                 for co_parsed_trace in parsed_trace:
                     co_parsed_trace["traceId"] = span["traceId"]
-                    main_dict[span["traceId"]]["parsing_data_log"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_log"] = parsed_trace
+                    main_dict[span["traceId"]]["status"] = "confirm"
+                    main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
 
                     print('* main_dict:', main_dict)
 
@@ -47,6 +47,8 @@ class TraceParsing:
                 # main_dict에 key가 있는가? (N)
                 if span["traceId"] not in main_dict:
                     print("main_dict에 key가 있는가? (N)\n")
+                    print("parsed_trace*******")
+                    print(parsed_trace)
                     for co_parsed_trace in parsed_trace:
                         co_parsed_trace["traceId"] = span["traceId"]
                         main_dict[span["traceId"]] = {"status": "trace",
@@ -63,8 +65,8 @@ class TraceParsing:
                     print('* main_dict:', main_dict)
                     for co_parsed_trace in parsed_trace:
                         co_parsed_trace["traceId"] = span["traceId"]
-                        main_dict[span["traceId"]]["parsing_data_log"] = "confirm"
-                        main_dict[span["traceId"]]["parsing_data_log"] = parsed_trace
+                        main_dict[span["traceId"]]["status"] = "confirm"
+                        main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
 
                         print('* main_dict:', main_dict)
 
@@ -82,8 +84,8 @@ class TraceParsing:
                 print("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
                 for co_parsed_trace in parsed_trace:
                     co_parsed_trace["traceId"] = span["traceId"]
-                    main_dict[span["traceId"]]["parsing_data_log"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_log"] = parsed_trace
+                    main_dict[span["traceId"]]["status"] = "confirm"
+                    main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
 
                     print('* main_dict:', main_dict)
                 # parsed_trace["traceId"] = span["traceId"]
@@ -120,8 +122,8 @@ class TraceParsing:
                     print("# main_dict에 key가 있는가? (Y)\n")
                     for co_parsed_trace in parsed_trace:
                         co_parsed_trace["traceId"] = span["traceId"]
-                        main_dict[span["traceId"]]["parsing_data_log"] = "confirm"
-                        main_dict[span["traceId"]]["parsing_data_log"] = parsed_trace
+                        main_dict[span["traceId"]]["status"] = "confirm"
+                        main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
 
                         print('* main_dict:', main_dict)
 
@@ -146,8 +148,8 @@ class TraceParsing:
                 print("원문로그에 해당 trace id 가 있는가 (Y)\n")
                 for co_parsed_trace in parsed_trace:
                     co_parsed_trace["traceId"] = span["traceId"]
-                    main_dict[span["traceId"]]["parsing_data_log"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_log"] = parsed_trace
+                    main_dict[span["traceId"]]["status"] = "confirm"
+                    main_dict[span["traceId"]]["parsing_data_trace"] = parsed_trace
 
             else:
                 # main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가
@@ -235,19 +237,19 @@ class TraceParsing:
                                         if attribute["key"] == "exception.stacktrace":
                                             parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
 
-                        # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
-                        parsing_trace_data_list.append(parsed_info)
+                                # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
+                                parsing_trace_data_list.append(parsed_info)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
-
+                print("******parsing_trace_data_list******")
+                print(parsing_trace_data_list)
+                print(parsed_info)
                 self.process_filtered_trace(main_dict, span, parsing_trace_data_list)
                 print("================ filtered_span 파싱 end ================\n")
                 print("* filtered_idx:", current_index)
                 file_idx.idx["filtered_span"] = current_index + 1
                 print("* filter_span_parsed_end_dictionary:", trace_id.main_dict)
-        # print("new_idx: ", idx)
-        # return idx, result
 
     def original_trace_parser(self):
 
@@ -326,17 +328,14 @@ class TraceParsing:
                                         if attribute["key"] == "exception.stacktrace":
                                             parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
 
-                        # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
-                        parsing_trace_data_list.append(parsed_info)
+                                # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
+                                parsing_trace_data_list.append(parsed_info)
 
                 except json.JSONDecodeError as e:
                     print(f"Error parsing line: {e}")
 
-                self.process_original_trace(main_dict, span, parsed_info)
+                self.process_original_trace(main_dict, span, parsing_trace_data_list)
                 print("================ original_span 파싱 end ================\n")
                 print("* original_idx:", current_index)
                 file_idx.idx["original_span"] = current_index + 1
                 print("* original_span_parsed_end_dictionary:", trace_id.main_dict)
-
-        # print("new_idx: ", idx)
-        # return idx, result
