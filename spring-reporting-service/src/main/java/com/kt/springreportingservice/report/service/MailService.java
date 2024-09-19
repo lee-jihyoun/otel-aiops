@@ -125,11 +125,16 @@ public class MailService {
         mailContent += "<h2>오류명</h2>";
         mailContent += "<p>" + errorReport.getErrorName() + "</p>";
 
+        mailContent += "<h2>오류 발생 시간</h2>";
+        mailContent += "<p>" + errorReport.getCreateTime() + "</p>";
+
+        mailContent += "<h2>서비스 영향도</h2>";
+        mailContent += "<pre>" + errorReport.getServiceImpact() + "</pre>";
+
         mailContent += "<h2>오류 내용</h2>";
         mailContent += "<pre>" + errorReport.getErrorContent() + "</pre>";
 
-        mailContent += "<h2>오류 발생 시간</h2>";
-        mailContent += "<p>" + errorReport.getCreateTime() + "</p>";
+
 
         mailContent += "<h2>오류 발생 위치</h2>";
         mailContent += "<pre>" + errorReport.getErrorLocation() + "</pre>";

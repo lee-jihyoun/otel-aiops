@@ -42,26 +42,36 @@ public class ErrorReportScheduler {
 
         if (!errorReports.isEmpty()) {
             for (ErrorReport errorReport : errorReports) {
-                ServiceInfo serviceInfo = errorReport.getServiceInfo(); // ServiceInfo 객체를 가져옴
-                String serviceCode = serviceInfo.getServiceCode(); // ServiceInfo에서 serviceCode 가져옴
-                // user_info 테이블에서 service_code로 사용자 목록 조회
-                List<UserInfo> users = userInfoRepository.findByServiceInfo(serviceInfo);
-                Map<String,String> mailForm =  mailService.createMailForm(errorReport);
-                for (UserInfo user : users) {
-                    //메일발송
-                    mailService.sendEmail(user.getEmail(), mailForm.get("mailTitle"), mailForm.get("mailContent"));
-                    
-                    MailSendInfo mailSendInfo = new MailSendInfo();
-                    mailSendInfo.setReceiverEmail(user.getEmail());
-                    mailSendInfo.setErrorReport(errorReport); // ErrorReport 객체를 직접 설정
-                    mailSendInfo.setServiceCode(serviceCode); // serviceCode 설정
-                    mailSendInfo.setIsMailSent("Y");
-                    mailSendInfoRepository.save(mailSendInfo);
+                try {
+                    ServiceInfo serviceInfo = errorReport.getServiceInfo(); // ServiceInfo 객체를 가져옴
+                    String serviceCode = serviceInfo.getServiceCode(); // ServiceInfo에서 serviceCode 가져옴
+                    // user_info 테이블에서 service_code로 사용자 목록 조회
+                    List<UserInfo> users = userInfoRepository.findByServiceInfo(serviceInfo);
+                    Map<String, String> mailForm = mailService.createMailForm(errorReport);
+
+                    for (UserInfo user : users) {
+                        // 메일 발송
+                        mailService.sendEmail(user.getEmail(), mailForm.get("mailTitle"), mailForm.get("mailContent"));
+                        MailSendInfo mailSendInfo = new MailSendInfo();
+                        mailSendInfo.setReceiverEmail(user.getEmail());
+                        mailSendInfo.setErrorReport(errorReport); // ErrorReport 객체를 직접 설정
+                        mailSendInfo.setServiceCode(serviceCode); // serviceCode 설정
+                        mailSendInfo.setIsMailSent("Y");
+                        mailSendInfoRepository.save(mailSendInfo);
+                    }
+                    // 에러 리포트를 'Y'로 업데이트 후 플러시
+                    errorReport.setErrorReportSendYn("Y");
+                    errorReportRepository.saveAndFlush(errorReport);
+
+                } catch (Exception e) {
+                    // 오류 발생 시 'E'로 업데이트 후 플러시
+                    logger.error("Error processing report: {}", errorReport.getSeq(), e);
+                    errorReport.setErrorReportSendYn("E");
+                    errorReportRepository.saveAndFlush(errorReport);
                 }
-                errorReport.setErrorReportSendYn("Y");
-                errorReportRepository.save(errorReport);
             }
         }
         logger.info("### ErrorReportScheduler ended");
     }
 }
+
