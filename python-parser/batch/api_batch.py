@@ -16,6 +16,7 @@ def main():
         "os.description": null,
         "process.command_line": null,
         "service.name": "currencyservice",
+        "service.code": "CU1005",
         "telemetry.sdk.language": "cpp",
         "logRecords_severityText": "INFO",
         "logRecords_body_stringValue": "Convert conversion successful",
@@ -27,6 +28,7 @@ def main():
         "os.description": null,
         "process.command_line": null,
         "service.name": "currencyservice",
+        "service.code": "CU1005",
         "telemetry.sdk.language": "cpp",
         "logRecords_severityText": "INFO",
         "logRecords_body_stringValue": "Convert conversion successful",
@@ -38,6 +40,7 @@ def main():
         "os.description": null,
         "process.command_line": null,
         "service.name": "currencyservice",
+        "service.code": "CU1005",
         "telemetry.sdk.language": "cpp",
         "logRecords_severityText": "INFO",
         "logRecords_body_stringValue": "Convert conversion successful",
@@ -48,6 +51,7 @@ def main():
     span_data = """    
     {
         "service.name": "checkoutservice",
+        "service.code": "CH1004",
         "os.type": "linux",
         "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
         "spanId": "63227652df31b934",
@@ -63,6 +67,7 @@ def main():
     },
     {
         "service.name": "checkoutservice",
+        "service.code": "CH1004",
         "os.type": "linux",
         "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
         "spanId": "11549d72d2032a27",
@@ -78,6 +83,7 @@ def main():
     },
     {
         "service.name": "frontend",
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
         "spanId": "98c7119541a153fb",
@@ -93,6 +99,7 @@ def main():
     },
     {
         "service.name": "frontend",
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
         "spanId": "be50c0fcc088f2ea",
@@ -108,6 +115,7 @@ def main():
     },
     {
         "service.name": "frontend",
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
         "spanId": "5e3d8f0e54ca4696",
@@ -123,6 +131,7 @@ def main():
     },
     {
         "service.name": "loadgenerator",
+        "service.code": "LO1009",
         "os.type": null,
         "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
         "spanId": "ed013ccaa25fdb34",
@@ -138,6 +147,7 @@ def main():
     },
     {
         "service.name": "paymentservice",
+        "service.code": "PA1010",
         "os.type": "linux",
         "traceId": "7097e6b36b89fb6be8fcbbaafffe1302",
         "spanId": "e88b55d75ac1a487",

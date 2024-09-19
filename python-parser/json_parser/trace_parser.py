@@ -184,6 +184,10 @@ class TraceParsing:
                             for attribute in resource["resource"]["attributes"]:
                                 if attribute["key"] == "service.name":
                                     service_name = attribute["value"]["stringValue"]
+                                if attribute["key"] == "service.code":
+                                    service_code = attribute["value"]["stringValue"]
+                                else:
+                                    service_code = None
                                 if attribute["key"] == "os.type":
                                     os_type = attribute["value"]["stringValue"]
 
@@ -193,6 +197,7 @@ class TraceParsing:
 
                                 parsed_info = {
                                     "service.name": service_name,
+                                    "service.code": service_code,
                                     "os.type": os_type,
                                     "traceId": span.get("traceId"),
                                     "spanId": span.get("spanId"),
@@ -273,15 +278,20 @@ class TraceParsing:
                             for attribute in resource["resource"]["attributes"]:
                                 if attribute["key"] == "service.name":
                                     service_name = attribute["value"]["stringValue"]
+                                if attribute["key"] == "service.code":
+                                    service_code = attribute["value"]["stringValue"]
+                                else:
+                                    service_code = None
                                 if attribute["key"] == "os.type":
                                     os_type = attribute["value"]["stringValue"]
 
-                        # log_parser에서 for scope_log in resource_log.get("scopeLogs", []):
+                                    # log_parser에서 for scope_log in resource_log.get("scopeLogs", []):
                         for scopeSpan in resource.get("scopeSpans", []):
                             for span in scopeSpan.get("spans", []):
 
                                 parsed_info = {
                                     "service.name": service_name,
+                                    "service.code": service_code,
                                     "os.type": os_type,
                                     "traceId": span.get("traceId"),
                                     "spanId": span.get("spanId"),

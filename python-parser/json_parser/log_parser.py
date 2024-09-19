@@ -181,6 +181,7 @@ class LogParsing:
                             "os.description": None,
                             "process.command_line": None,
                             "service.name": None,
+                            "service.code": None,
                             "telemetry.sdk.language": None,
                             "logRecords_severityText": None,
                             "logRecords_body_stringValue": None,
@@ -198,6 +199,8 @@ class LogParsing:
                                     parsed_info["process.command_line"] = attribute["value"]["stringValue"]
                                 if attribute["key"] == "service.name":
                                     parsed_info["service.name"] = attribute["value"]["stringValue"]
+                                if attribute["key"] == "service.code":
+                                    parsed_info["service.code"] = attribute["value"]["stringValue"]
                                 if attribute["key"] == "telemetry.sdk.language":
                                     parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 
@@ -244,6 +247,7 @@ class LogParsing:
                             "os.description": None,
                             "process.command_line": None,
                             "service.name": None,
+                            "service.code": None,
                             "telemetry.sdk.language": None,
                             "logRecords_severityText": None,
                             "logRecords_body_stringValue": None,
@@ -261,6 +265,8 @@ class LogParsing:
                                     parsed_info["process.command_line"] = attribute["value"]["stringValue"]
                                 if attribute["key"] == "service.name":
                                     parsed_info["service.name"] = attribute["value"]["stringValue"]
+                                if attribute["key"] == "service.code":
+                                    parsed_info["service.code"] = attribute["value"]["stringValue"]
                                 if attribute["key"] == "telemetry.sdk.language":
                                     parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 

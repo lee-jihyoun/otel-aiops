@@ -99,23 +99,21 @@ class CreateReport:
             # 비교 데이터 데이터 없음
             if len(result)==0 :
                 error_report_dict[key] = value
+            else:
+                print('* DB insert 실패. 중복된 exception.stacktrace가 존재합니다.')
         return error_report_dict
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
     def create_and_save_error_report(self, error_report_dict):
         for key, value in error_report_dict.items():
             value["parsing_data_log"] = self.remove_json_value(value["parsing_data_log"])
-            response = self.create_error_report(value["parsing_data_log"] , value["parsing_data_trace"])
+            response = self.create_error_report(value["parsing_data_log"], value["parsing_data_trace"])
             clean_result = self.make_clean_markdown_json(response)
-            service_name, db_data = self.make_db_data(clean_result)
-            service_code = self.find_service_code(service_name)
+            db_data = self.make_db_data(clean_result)
             db_data["trace_id"] = key
-            db_data["service_code"] = service_code
             self.save_error_report(db_data)
             self.save_error_history(value)
-
-
-
+            print("* DB insert 완료")
 
     # error_history 테이블에 데이터 추가
     def save_error_history(self, error_report):
@@ -176,9 +174,8 @@ class CreateReport:
     # Database insert 데이터로 변환
     def make_db_data(self, clean_response):
         content = clean_response['data']['content']
-        # print(type(content))
         error_report = {}
-        service_name = content["기본정보"]["서비스명(영문)"]
+        service_code = content["기본정보"]["서비스코드"]
         error_name = content["오류내용"]["오류 이름"]
         error_create_time = content["오류내용"]["발생 시간"]
         error_content = content["오류내용"]["오류 내용"]
@@ -187,6 +184,7 @@ class CreateReport:
         service_impact = content["분석결과"]["서비스 영향도"]
         error_solution = content["후속조치"]["조치방안"]
 
+        error_report["service_code"] = service_code
         error_report["error_name"] = error_name
         error_report["error_create_time"] = error_create_time
         error_report["error_content"] = error_content
@@ -194,7 +192,7 @@ class CreateReport:
         error_report["error_cause"] = error_cause
         error_report["service_impact"] = service_impact
         error_report["error_solution"] = error_solution
-        return service_name, error_report
+        return error_report
 
     # log data에 포함된 {} 기호 전처리
     def remove_json_value(self, value):
@@ -241,16 +239,3 @@ class CreateReport:
             print("* 문제 있는 문자열 주변:", cleaned_str[max(0, e.pos-60):e.pos+60])
             print("============== api result DB insert 실패 ==============")
         return freesia_result
-
-    # 서비스명으로 서비스코드 찾기
-    def find_service_code(self, service_name):
-        with self.db_connection() as conn, conn.cursor() as cur:
-            select_query = f"""
-                    SELECT service_code
-                    FROM service_info
-                    where service_name_eng = '{service_name}'
-            """
-            print(select_query)
-            cur.execute(select_query)
-            result = cur.fetchone()
-            return result[0]
