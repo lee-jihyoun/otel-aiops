@@ -165,9 +165,9 @@ class LogParsing:
                 print(current_index)
 
 
-                # 디버깅할 때 사용..
-                print('* 아무 글자나 입력:')
-                input()
+                # # 디버깅할 때 사용..
+                # print('* 아무 글자나 입력:')
+                # input()
 
                 print("================ filtered_log 파싱 start :", datetime.datetime.now(), "================")
 
@@ -231,9 +231,9 @@ class LogParsing:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
                 main_dict = trace_id.main_dict
 
-                # 디버깅할 때 사용 ..
-                print('* 아무 글자나 입력:')
-                input()
+                # # 디버깅할 때 사용 ..
+                # print('* 아무 글자나 입력:')
+                # input()
 
                 print("================ original_log 파싱 start :", datetime.datetime.now(), "================")
 
