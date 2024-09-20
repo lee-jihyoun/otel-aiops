@@ -1,4 +1,6 @@
 import json, itertools, datetime
+import time
+
 from util.datetime_util import change_timenano_format
 import variables.trace_id as trace_id
 import variables.file_idx as file_idx
@@ -210,7 +212,7 @@ class TraceParsing:
                                 # trace에서는 scopespan 안에 attribute가 따로 있음
                                 for attribute in span.get("attributes", []):
                                     try:
-                                        if attribute["key"] == "http.status_code":
+                                        if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
                                             parsed_info["http.status_code"] = attribute["value"]["intValue"]
                                         if attribute["key"] == "rpc.grpc.status_code":
                                             parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
@@ -301,7 +303,7 @@ class TraceParsing:
                                 # trace에서는 scopespan 안에 attribute가 따로 있음
                                 for attribute in span.get("attributes", []):
                                     try:
-                                        if attribute["key"] == "http.status_code":
+                                        if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
                                             parsed_info["http.status_code"] = attribute["value"]["intValue"]
                                         if attribute["key"] == "rpc.grpc.status_code":
                                             parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
@@ -332,3 +334,4 @@ class TraceParsing:
                 logging.info(f"* original_idx: {current_index}")
                 file_idx.idx["original_span"] = current_index + 1
                 logging.info("* original_span_parsed_end_dictionary:", trace_id.main_dict)
+                time.sleep(0.5)
