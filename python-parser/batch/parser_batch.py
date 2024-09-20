@@ -1,13 +1,12 @@
 import time, datetime
 import json_parser.log_parser as log_parser
 import json_parser.trace_parser as trace_parser
-import variables.trace_id as trace_id
 import variables.file_idx as file_idx
 
 # # main_dict 테스트용
 # trace_id.main_dict["total_batch"] = ""
 
-def run_batch1():
+def main():
     while True:
         # 경로 설정(local에서 테스트 시)
         input_path = '../data/testfolder/'
