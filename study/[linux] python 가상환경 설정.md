@@ -8,7 +8,7 @@ python -m venv venv
 source venv/bin/activate
 
 # window인 경우
-source 가상환경이름/Scripts/activate
+가상환경이름\Scripts\activate
 
 # 가상환경 라이브러리 일괄 설치(requirements.txt에 정리된 버전 설치)
 pip install -r requirements.txt 
