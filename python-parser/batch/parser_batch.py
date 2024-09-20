@@ -7,7 +7,7 @@ import logging
 def main():
     while True:
         # 경로 설정(local에서 테스트 시)
-        input_path = '../data/testfolder/'
+        input_path = '../data/servertest/'
 
         # 경로 설정(서버에서 테스트 시)
         # input_path = '/opt/spring-otel-listener-run/'

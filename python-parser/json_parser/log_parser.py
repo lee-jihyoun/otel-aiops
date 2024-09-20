@@ -16,6 +16,8 @@ class LogParsing:
         self.original_idx = original_idx
 
     def process_filtered_log(self, main_dict, log_record, parsed_log):
+
+        print(parsed_log)
         # 상태가 trace인가?
         logging.info("상태가 trace인가?\n")
         logging.info(f"* main_dict: {main_dict}")
@@ -29,9 +31,11 @@ class LogParsing:
             # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
             if log_record["traceId"] in trace_status_entries:
                 logging.info("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                parsed_log["traceId"] = log_record["traceId"]
-                main_dict[log_record["traceId"]]["status"] = "confirm"
-                main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
+                matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
+                if matching_log:
+                    parsed_log["traceId"] = log_record["traceId"]
+                    main_dict[log_record["traceId"]]["status"] = "confirm"
+                    main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
 
             else:
                 logging.info("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
@@ -45,20 +49,26 @@ class LogParsing:
                 # main_dict에 key가 있는가? (N)
                 if log_record["traceId"] not in main_dict:
                     logging.info("main_dict에 key가 있는가? (N)\n")
-                    parsed_log["traceId"] = log_record["traceId"]
+                    for co_parsed_log in parsed_log:
+                        co_parsed_log["traceId"] = log_record["traceId"]
 
-                    main_dict[log_record["traceId"]] = {"status": "log",
-                                                        "parsing_data_log": parsed_log,
-                                                        "parsing_data_trace": "",
-                                                        "retry": 0,
-                                                        "mail": "N"}
+                        main_dict[log_record["traceId"]] = {"status": "log",
+                                                            "parsing_data_log": parsed_log,
+                                                            "parsing_data_trace": "",
+                                                            "retry": 0,
+                                                            "mail": "N"}
+                    logging.info(f"* main_dict: {main_dict}")
 
                 # main_dict에 key가 있는가? (Y)
                 else:
                     logging.info("# main_dict에 key가 있는가? (Y)\n")
-                    parsed_log["traceId"] = log_record["traceId"]
-                    main_dict[log_record["traceId"]]["status"] = "confirm"
-                    main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
+                    logging.info(f"* main_dict: {main_dict}")
+
+                    matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
+                    if matching_log:
+                        parsed_log["traceId"] = log_record["traceId"]
+                        main_dict[log_record["traceId"]]["status"] = "confirm"
+                        main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
 
             # 파싱된 로그에 trace ID가 있는가? (N)
             else:
@@ -73,10 +83,11 @@ class LogParsing:
             # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
             if log_record["traceId"] in trace_status_entries:
                 logging.info("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                parsed_log["traceId"] = log_record["traceId"]
-                main_dict[log_record["traceId"]]["status"] = "confirm"
-                main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
-                # filtered_logs.append(parsed_log)
+                matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
+                if matching_log:
+                    parsed_log["traceId"] = log_record["traceId"]
+                    main_dict[log_record["traceId"]]["status"] = "confirm"
+                    main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
 
             else:
                 logging.info("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
@@ -95,20 +106,25 @@ class LogParsing:
                 if log_record["traceId"] not in main_dict:
                     logging.info("main_dict에 key가 있는가? (N)\n")
 
-                    parsed_log["traceId"] = log_record["traceId"]
-                    main_dict[log_record["traceId"]] = {"status": "log",
-                                                        "parsing_data_log": parsed_log,
-                                                        "parsing_data_trace": "",
-                                                        "retry": 0,
-                                                        "mail": "N"}
-                    logging.info(f"* main_dict: {main_dict}")
+                    for co_parsed_log in parsed_log:
+                        co_parsed_log["traceId"] = log_record["traceId"]
+
+                        main_dict[log_record["traceId"]] = {"status": "log",
+                                                            "parsing_data_log": parsed_log,
+                                                            "parsing_data_trace": "",
+                                                            "retry": 0,
+                                                            "mail": "N"}
+
+                        logging.info(f"* main_dict: {main_dict}")
 
                 # main_dict에 key가 있는가? (Y)
                 else:
                     logging.info("# main_dict에 key가 있는가? (Y)\n")
-                    parsed_log["traceId"] = log_record["traceId"]
-                    main_dict[log_record["traceId"]]["status"] = "confirm"
-                    main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
+                    matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
+                    if matching_log:
+                        parsed_log["traceId"] = log_record["traceId"]
+                        main_dict[log_record["traceId"]]["status"] = "confirm"
+                        main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
 
                     pass
 
@@ -130,9 +146,11 @@ class LogParsing:
             # 원문로그에 해당 trace id 가 있는가 (Y)
             if log_record["traceId"] in trace_status_entries:
                 logging.info("원문로그에 해당 trace id 가 있는가 (Y)\n")
-                parsed_log["traceId"] = log_record["traceId"]
-                main_dict[log_record["traceId"]]["status"] = "confirm"
-                main_dict[log_record["traceId"]]["parsing_data_log"] = parsed_log
+                matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
+                if matching_log:
+                    parsed_log["traceId"] = log_record["traceId"]
+                    main_dict[log_record["traceId"]]["status"] = "confirm"
+                    main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
 
             else:
                 # main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가
@@ -150,6 +168,8 @@ class LogParsing:
         input_path = self.input_path
         file_name = self.filtered_file_name
         idx = self.filtered_idx
+
+        parsing_log_data_list = []
 
         with open(input_path + file_name, "r") as log_file:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
@@ -195,6 +215,8 @@ class LogParsing:
 
                         for scope_log in resource_log.get("scopeLogs", []):
                             for log_record in scope_log.get("logRecords", []):
+                                print("log_record")
+                                print(log_record)
                                 if "observedTimeUnixNano" in log_record:
                                     parsed_info["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
                                 if "severityText" in log_record:
@@ -202,10 +224,12 @@ class LogParsing:
                                 if "body" in log_record and "stringValue" in log_record["body"]:
                                     parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
 
+                            parsing_log_data_list.append(parsed_info)
+
                 except json.JSONDecodeError as e:
                     logging.ERROR(f"Error parsing line: {e}")
 
-                self.process_filtered_log(main_dict, log_record, parsed_info)
+                self.process_filtered_log(main_dict, log_record, parsing_log_data_list)
                 logging.info("============ filtered log 파싱 end ===========\n")
                 logging.info(f"* filtered_idx: {current_index}")
                 file_idx.idx["filtered_logs"] = current_index + 1
@@ -215,6 +239,8 @@ class LogParsing:
         input_path = self.input_path
         file_name = self.original_file_name
         idx = self.original_idx
+
+        parsing_log_data_list = []
 
         with open(input_path + file_name, "r") as log_file:
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
@@ -267,10 +293,12 @@ class LogParsing:
                                 if "body" in log_record and "stringValue" in log_record["body"]:
                                     parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
 
+                            parsing_log_data_list.append(parsed_info)
+
                 except json.JSONDecodeError as e:
                     logging.ERROR(f"Error parsing line: {e}")
 
-                self.process_original_log(main_dict, log_record, parsed_info)
+                self.process_original_log(main_dict, log_record, parsing_log_data_list)
                 logging.info("============ original log 파싱 end ===========\n")
                 logging.info(f"* original_idx: {current_index}")
                 file_idx.idx["original_logs"] = current_index + 1
