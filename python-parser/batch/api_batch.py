@@ -1,4 +1,5 @@
 import time
+import logging
 
 from report_util.create_report import CreateReport
 import variables.trace_id as trace_id
@@ -53,7 +54,7 @@ def main():
         "observedTimeUnixNano": "2024-08-21 23:00:26"
     }
     """
-    span_data = """    
+    span_data = """
     {
         "service.name": "checkoutservice",
         "service.code": "CH1004",
@@ -223,11 +224,11 @@ def main():
 
         # 완료 목록 추출
         complete_dict = report_creator.findCompleteData(main_dict)
-        print('\n * complete_dict:', complete_dict)
+        logging.info(f"* complete_dict: {complete_dict}")
 
         # DB에서의 error_history와 완료 목록을 비교하여 오류리포트 발송 대상 선정
         error_report_dict = report_creator.compare_db_dict(complete_dict)
-        print('\n * error_report_dict:', error_report_dict)
+        logging.info(f"* error_report_dict: {error_report_dict}")
 
         # 2024.09.17 여기까지 테스트 완료
         # 데이터 파싱부분 해결해야함
