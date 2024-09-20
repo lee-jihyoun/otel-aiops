@@ -166,9 +166,9 @@ class TraceParsing:
             for current_index, line in enumerate(itertools.islice(span_file, idx, None), start=idx):
                 main_dict = trace_id.main_dict
                 print("================ filtered_span 파싱 start :", datetime.datetime.now(), "================")
-                # 디버깅할 때 사용..
-                print('* 아무 글자나 입력:')
-                input()
+                # # 디버깅할 때 사용..
+                # print('* 아무 글자나 입력:')
+                # input()
 
                 try:
                     span_data = json.loads(line.strip())
@@ -177,6 +177,7 @@ class TraceParsing:
 
                     for resource in span_data.get('resourceSpans', []):
                         service_name = None
+                        service_code = None
                         os_type = None
 
                         # if "resource" in resource_log and "attributes" in resource_log["resource"]:
@@ -186,8 +187,6 @@ class TraceParsing:
                                     service_name = attribute["value"]["stringValue"]
                                 if attribute["key"] == "service.code":
                                     service_code = attribute["value"]["stringValue"]
-                                else:
-                                    service_code = None
                                 if attribute["key"] == "os.type":
                                     os_type = attribute["value"]["stringValue"]
 
@@ -260,9 +259,9 @@ class TraceParsing:
                 main_dict = trace_id.main_dict
                 print("================ original_span 파싱 start :", datetime.datetime.now(), "================")
 
-                # 디버깅할 때 사용..
-                print('* 아무 글자나 입력:')
-                input()
+                # # 디버깅할 때 사용..
+                # print('* 아무 글자나 입력:')
+                # input()
 
                 try:
                     span_data = json.loads(line.strip())
@@ -271,6 +270,7 @@ class TraceParsing:
 
                     for resource in span_data.get('resourceSpans', []):
                         service_name = None
+                        service_code = None
                         os_type = None
 
                         # if "resource" in resource_log and "attributes" in resource_log["resource"]:
@@ -280,8 +280,6 @@ class TraceParsing:
                                     service_name = attribute["value"]["stringValue"]
                                 if attribute["key"] == "service.code":
                                     service_code = attribute["value"]["stringValue"]
-                                else:
-                                    service_code = None
                                 if attribute["key"] == "os.type":
                                     os_type = attribute["value"]["stringValue"]
 
