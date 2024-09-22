@@ -104,3 +104,7 @@ print(complete_data)
 print()
 
 r.flushall()
+r.set("test_data_01" ,"zzzzzzzzzzzzzzzzzzzzzzzzzz")
+
+# 키 만료시간 지정
+r.expire('test_data_01', 10)
