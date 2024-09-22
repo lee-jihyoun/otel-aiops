@@ -2,12 +2,14 @@ import redis
 import json
 
 # pip install redis
+# pip install redis[hiredis]
+
 # Redis 클라이언트 설정
 r = redis.Redis(host='100.83.227.59', port=16379, db=0, password='redis1234!')
 
 # 저장할 데이터
 data = {
-    "status": "complete",
+    "status": "trace",
     "parsing_data_log": [" 로그 파싱된 데이터"],
     "parsing_data_trace": [" 트레이스 파싱된 데이터"],
     "retry": 2,
@@ -41,3 +43,64 @@ r.flushall()
 # 모든 키 가져오기
 print(r.keys("*"))
 
+
+
+data_01 = {
+    "status": "trace",
+    "parsing_data_log": [" 로그 파싱된 데이터"],
+    "parsing_data_trace": [" 트레이스 파싱된 데이터"],
+    "retry": 2,
+    "api": "N"
+}
+data_02 = {
+    "status": "log",
+    "parsing_data_log": [" 로그 파싱된 데이터"],
+    "parsing_data_trace": [" 트레이스 파싱된 데이터"],
+    "retry": 2,
+    "api": "N"
+}
+data_03 = {
+    "status": "complete",
+    "parsing_data_log": [" 로그 파싱된 데이터"],
+    "parsing_data_trace": [" 트레이스 파싱된 데이터"],
+    "retry": 2,
+    "api": "N"
+}
+# 데이터 저장 및 "complete" 상태인 데이터의 키를 Set에 추가
+r.set('data_01', json.dumps(data_01))
+r.sadd('trace_set', 'data_01')
+
+r.set('data_02', json.dumps(data_02))
+r.sadd('log_set', 'data_02')
+
+r.set('data_03', json.dumps(data_03))
+r.sadd('complete_set', 'data_03')
+
+# "trace" 상태인 데이터 조회
+trace_keys = r.smembers('trace_set')
+trace_data = []
+for key in trace_keys:
+    trace_data.append(json.loads(r.get(key)))
+
+print(trace_data)
+print()
+
+# "log" 상태인 데이터 조회
+log_keys = r.smembers('log_set')
+log_data = []
+for key in log_keys:
+    log_data.append(json.loads(r.get(key)))
+
+print(log_data)
+print()
+
+# "complete" 상태인 데이터 조회
+complete_keys = r.smembers('complete_set')
+complete_data = []
+for key in complete_keys:
+    complete_data.append(json.loads(r.get(key)))
+
+print(complete_data)
+print()
+
+r.flushall()
