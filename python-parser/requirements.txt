@@ -6,3 +6,4 @@ psycopg2-binary==2.9.9
 pytz==2024.1
 requests==2.32.3
 urllib3==2.2.2
+redis==5.0.8
