@@ -7,6 +7,7 @@ import com.kt.springreportingservice.report.domain.UserInfo;
 import com.kt.springreportingservice.report.repository.ErrorReportRepository;
 import com.kt.springreportingservice.report.repository.MailSendInfoRepository;
 import com.kt.springreportingservice.report.repository.UserInfoRepository;
+import com.kt.springreportingservice.report.service.ErrorReportService;
 import com.kt.springreportingservice.report.service.MailService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -31,7 +32,11 @@ public class ErrorReportScheduler {
 
     private MailSendInfoRepository mailSendInfoRepository;
 
+    private ErrorReportService errorReportService;
+
     private MailService mailService;
+
+
 
     @Transactional
     @Scheduled(fixedRate = 60000) // 1분마다 실행
@@ -47,11 +52,9 @@ public class ErrorReportScheduler {
                     String serviceCode = serviceInfo.getServiceCode(); // ServiceInfo에서 serviceCode 가져옴
                     // user_info 테이블에서 service_code로 사용자 목록 조회
                     List<UserInfo> users = userInfoRepository.findByServiceInfo(serviceInfo);
-                    Map<String, String> mailForm = mailService.createMailForm(errorReport);
-
                     for (UserInfo user : users) {
                         // 메일 발송
-                        mailService.sendEmail(user.getEmail(), mailForm.get("mailTitle"), mailForm.get("mailContent"));
+                        mailService.sendEmail(user.getEmail(), "오류 리포트", errorReportService.templateModel(errorReport));
                         MailSendInfo mailSendInfo = new MailSendInfo();
                         mailSendInfo.setReceiverEmail(user.getEmail());
                         mailSendInfo.setErrorReport(errorReport); // ErrorReport 객체를 직접 설정

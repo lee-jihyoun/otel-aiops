@@ -3,6 +3,9 @@ package com.kt.springreportingservice.report.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -27,6 +30,10 @@ public class MailSendInfo {
 
     @Column(name = "receiver_email")
     private String receiverEmail;
+
+    @CreationTimestamp
+    @Column(name = "create_time")
+    private LocalDateTime createTime;
 
     // Getters and Setters
 }

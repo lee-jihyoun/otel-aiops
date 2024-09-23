@@ -34,22 +34,51 @@ firewall-cmd --list-all
 	nohup java -jar spring-otel-listener-0.0.1-SNAPSHOT.jar &
 
 
-[ spring-reporting-service 빌드 ]
-## 권한변경
-	cd /opt/otel-aiops/
-	chmod -R 777 spring-reporting-service
-
-## 빌드
-	cd /opt/otel-aiops/spring-reporting-service
-	./gradlew assemble
-
-## 파일 복사
-	cp /opt/otel-aiops/spring-reporting-service/build/libs/spring-reporting-service-0.0.1-SNAPSHOT.jar /opt/spring-reporting-service-run/spring-reporting-service-0.0.1-SNAPSHOT.jar
-
-
 [ spring-reporting-service 실행 ]
-	cd /opt/spring-reporting-service-run
-	./start_reporting_service.sh
+## 빌드
+    cd /opt/otel-aiops/spring-reporting-service
+    ./gradlew assemble
+
+## 복사
+    cp /opt/otel-aiops/spring-reporting-service/build/libs/spring-reporting-service-0.0.1-SNAPSHOT.jar /opt/apache-tomcat-10.1.30/webapps/ROOT.war
+
+## 권한 변경
+    chown tomcat:tomcat /opt/apache-tomcat-10.1.30/webapps/ROOT.war
+    chmod 755 /opt/apache-tomcat-10.1.30/webapps/ROOT.war
+
+## 계정 변경
+    su - tomcat
+
+# 톰캣 실행
+    su - tomcat
+    cd /opt/apache-tomcat-10.1.30/bin
+    ./startup.sh
+
+# 톰캣 중지
+	cd /opt/apache-tomcat-10.1.30/bin/
+	./shutdown.sh
+
+
+
+--- 현재 사용하지 않음 ---
+    [ spring-reporting-service 빌드 ]
+    ## 권한변경
+        cd /opt/otel-aiops/
+        chmod -R 777 spring-reporting-service
+
+    ## 빌드
+        cd /opt/otel-aiops/spring-reporting-service
+        ./gradlew assemble
+
+    ## 파일 복사
+        cp /opt/otel-aiops/spring-reporting-service/build/libs/spring-reporting-service-0.0.1-SNAPSHOT.jar /opt/spring-reporting-service-run/spring-reporting-service-0.0.1-SNAPSHOT.jar
+
+
+    [ spring-reporting-service 실행 ]
+        cd /opt/spring-reporting-service-run
+        ./start_reporting_service.sh
+--- 현재 사용하지 않음 ---
+
 
 
 [ 로그 다운로드 ]

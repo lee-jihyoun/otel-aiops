@@ -1,24 +1,17 @@
 package com.kt.springreportingservice.report.service;
 
 import com.kt.springreportingservice.report.domain.ApiAuthToken;
-import com.kt.springreportingservice.report.domain.ErrorReport;
 import com.kt.springreportingservice.report.repository.ApiAuthTokenRepository;
 import jakarta.annotation.PostConstruct;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -96,61 +89,56 @@ public class MailService {
 
 
 
-    public Map<String,String> createMailForm(ErrorReport errorReport){
+//    public String formatContent(String content) {
+//        // 정규식: 숫자+점(예: 1. 2. 3.) 뒤에 줄바꿈을 추가
+//        return content.replaceAll("(\\d+\\. )", "\n\n$1");
+//    }
+//
+//
+//    public Map<String,String> createMailForm(ErrorReport errorReport)  {
+//        /*
+//        오류명 : error_name
+//        오류 내용 :  error_content
+//        오류 발생 시간 : created_time
+//        오류 발생 위치 : error_location
+//        오류 근본 원인 : error_cause
+//        오류 해결 방법 : error_solution
+//        */
+//        Map<String,String> mailForm = new HashMap<>();
+//        String mailContent="";
+//        try{
+//            ClassPathResource resource = new ClassPathResource("templates/error_report_mail_template.html.backup");
+//            // 파일 내용을 읽음
+//            mailContent = new String(Files.readAllBytes(Paths.get(resource.getURI())), StandardCharsets.UTF_8);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//
+//        String mailTitle ="오류 리포트";
+//        ServiceInfo serviceInfo = errorReport.getServiceInfo();
+//        String errorCause = formatContent(errorReport.getErrorCause());
+//        String errorSolution = formatContent(errorReport.getErrorSolution());
+//        mailContent = mailContent.replace("{{service_name_en}}", serviceInfo.getServiceNameEng());
+//        mailContent = mailContent.replace("{{service_name_kr}}", serviceInfo.getServiceNameKr());
+//        mailContent = mailContent.replace("{{service_code}}", serviceInfo.getServiceCode());
+//        mailContent = mailContent.replace("{{service_desc}}", serviceInfo.getServiceDesc());
+//
+//
+//        mailContent = mailContent.replace("{{error_name}}", errorReport.getErrorName());
+//        mailContent = mailContent.replace("{{created_time}}", errorReport.getCreateTime().toString());
+//        mailContent = mailContent.replace("{{error_content}}", errorReport.getErrorContent());
+//
+//        mailContent = mailContent.replace("{{error_location}}", errorReport.getErrorLocation());
+//        mailContent = mailContent.replace("{{error_cause}}", errorCause);
+//        mailContent = mailContent.replace("{{service_impact}}", errorReport.getServiceImpact());
+//
+//        mailContent = mailContent.replace("{{error_solution}}", errorSolution);
+//
+//
+//        mailForm.put("mailTitle" , mailTitle);
+//        mailForm.put("mailContent" , mailContent);
+//        return mailForm;
+//    }
 
-        /*
-        오류명 : error_name
-        오류 내용 :  error_content
-        오류 발생 시간 : created_time
-        오류 발생 위치 : error_location
-        오류 근본 원인 : error_cause
-        오류 해결 방법 : error_solution
-        */
-        Map<String,String> mailForm = new HashMap<>();
-        String mailContent = "";
-        String mailTitle ="오류 리포트";
-
-
-        mailContent = "<html>";
-        mailContent += "<head>";
-        mailContent += "<style>";
-        mailContent += "body { font-family: Arial, sans-serif; }";
-        mailContent += "h2 { color: #2C3E50; }";
-        mailContent += "p { font-size: 14px; }";
-        mailContent += "pre { background-color: #F4F4F4; padding: 10px; border-radius: 5px; }";
-        mailContent += "</style>";
-        mailContent += "</head>";
-        mailContent += "<body>";
-
-        mailContent += "<h2>오류명</h2>";
-        mailContent += "<p>" + errorReport.getErrorName() + "</p>";
-
-        mailContent += "<h2>오류 발생 시간</h2>";
-        mailContent += "<p>" + errorReport.getCreateTime() + "</p>";
-
-        mailContent += "<h2>서비스 영향도</h2>";
-        mailContent += "<pre>" + errorReport.getServiceImpact() + "</pre>";
-
-        mailContent += "<h2>오류 내용</h2>";
-        mailContent += "<pre>" + errorReport.getErrorContent() + "</pre>";
-
-
-
-        mailContent += "<h2>오류 발생 위치</h2>";
-        mailContent += "<pre>" + errorReport.getErrorLocation() + "</pre>";
-
-        mailContent += "<h2>오류 근본 원인</h2>";
-        mailContent += "<pre>" + errorReport.getErrorCause() + "</pre>";
-
-        mailContent += "<h2>오류 해결 방법</h2>";
-        mailContent += "<pre>" + errorReport.getErrorSolution() + "</pre>";
-
-        mailContent += "</body>";
-        mailContent += "</html>";
-
-        mailForm.put("mailTitle" , mailTitle);
-        mailForm.put("mailContent" , mailContent);
-        return mailForm;
-    }
 }
 

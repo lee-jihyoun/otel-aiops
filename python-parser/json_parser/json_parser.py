@@ -4,11 +4,11 @@ from util.datetime_util import change_timenano_format
 import os
 
 # 경로 설정
-# log_file_name = "filtered_logs.json"
-# span_file_name = "filtered_span.json"
-
-log_file_name = "original_logs.json"
-span_file_name = "original_span.json"
+log_file_name = "filtered_logs.json"
+span_file_name = "filtered_span.json"
+#
+# log_file_name = "original_logs.json"
+# span_file_name = "original_span.json"
 
 folder_name = "testfolder"
 
@@ -45,6 +45,7 @@ with open(log_file_path, "r") as log_file:
                     "os.description": None,
                     "process.command_line": None,
                     "service.name": None,
+                    "service.code": None,
                     "telemetry.sdk.language": None,
                     "logRecords_severityText": None,
                     "logRecords_body_stringValue": None,
@@ -57,13 +58,15 @@ with open(log_file_path, "r") as log_file:
                     for attribute in resource_log["resource"]["attributes"]:
                         if attribute["key"] == "container.id":
                             parsed_log["container.id"] = attribute["value"]["stringValue"]
-                        elif attribute["key"] == "os.description":
+                        if attribute["key"] == "os.description":
                             parsed_log["os.description"] = attribute["value"]["stringValue"]
-                        elif attribute["key"] == "process.command_line":
+                        if attribute["key"] == "process.command_line":
                             parsed_log["process.command_line"] = attribute["value"]["stringValue"]
-                        elif attribute["key"] == "service.name":
+                        if attribute["key"] == "service.name":
                             parsed_log["service.name"] = attribute["value"]["stringValue"]
-                        elif attribute["key"] == "telemetry.sdk.language":
+                        if attribute["key"] == "service.code":
+                            parsed_log["service.code"] = attribute["value"]["stringValue"]
+                        if attribute["key"] == "telemetry.sdk.language":
                             parsed_log["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 
                 # scopeLogs와 logRecords에서 필요한 정보 추출
@@ -110,12 +113,15 @@ with open(span_file_path, "r") as span_file:
 
             for resourceSpan in span_data.get('resourceSpans', []):
                 service_name = None
+                service_code = None
                 os_type = None
 
                 if "resource" in resourceSpan and "attributes" in resourceSpan["resource"]:
                     for attribute in resourceSpan["resource"]["attributes"]:
                         if attribute["key"] == "service.name":
                             service_name = attribute["value"]["stringValue"]
+                        if attribute["key"] == "service.code":
+                            service_code = attribute["value"]["stringValue"]
                         if attribute["key"] == "os.type":
                             os_type = attribute["value"]["stringValue"]
 
@@ -125,6 +131,7 @@ with open(span_file_path, "r") as span_file:
                             parsed_info = {
                                 "service.name": service_name,
                                 "os.type": os_type,
+                                "service.code": service_code,
                                 "traceId": span.get("traceId"),
                                 "spanId": span.get("spanId"),
                                 "name": span.get("name"),

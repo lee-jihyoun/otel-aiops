@@ -3,7 +3,9 @@ package com.kt.springreportingservice.report.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -29,11 +31,16 @@ public class ServiceInfo {
     @Column(name = "service_desc")
     private String serviceDesc;
 
+    @CreationTimestamp
+    @Column(name = "create_time")
+    private LocalDateTime createTime;
+
     @OneToMany(mappedBy = "serviceInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ErrorReport> errorReports;
 
     @OneToMany(mappedBy = "serviceInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserInfo> userInfos;
+
 
     // Getters and Setters
 }
