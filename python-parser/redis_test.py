@@ -108,3 +108,59 @@ r.set("test_data_01" ,"zzzzzzzzzzzzzzzzzzzzzzzzzz")
 
 # 키 만료시간 지정
 r.expire('test_data_01', 10)
+
+'''
+### redis-cli 명령어 정리
+
+# 연희가 쓰는 DB 접속하기(0번 DB)
+redis-cli -h 127.0.0.1 -p 16379 -n 0
+
+# 해쉬 생성 & 키 최초 삽입
+hset key_store:a123 "retry" 0
+hset filter_log_hash:a123 "parsing_data_log" "log_parsing_result"
+hset filter_trace_hash:a123 "parsing_data_trace" "trace_parsing_result"
+
+hset complete_hash: a123 "parsing_data_log" "log_parsing_result" "parsing_data_trace" "trace_parsing_result"
+
+# 모든 키, 값 조회
+hgetall key_store:a123
+1) "status"
+2) "confirm"
+3) "retry"
+4) "0"
+
+
+# 모든 키 삭제
+flushall
+
+# 현재 생성되어 있는 모든 키 (데이터가 많은 경우 부하가 심하기 때문에 운영 중인 서비스에선 주의가 필요)
+keys *
+1) "key_store:a123"
+
+# 특정 키 삭제
+del a123
+
+# 특정 키의 값 모두 출력
+hvals key_store:a123
+1) "confirm"
+2) "0"
+
+# 특정 키의 모든 필드 조회
+hkeys key_store:a123
+1) "status"
+2) "retry"
+
+
+# filter_log_hash에는 키가 있고, filter_trace_hash에는 없는 경우
+hset key_store:a123 "retry" 0
+hset filter_log_hash:b123 "parsing_data_log" "filter_log_parsing_result"
+hset filter_trace_hash:a123 "parsing_data_trace" "filter_trace_parsing_result"
+
+# original 데이터 비교
+hset key_store:a123 "retry" 0
+hset filter_log_hash:b123 "parsing_data_log" "filter_log_parsing_result"
+hset filter_trace_hash:a123 "parsing_data_trace" "filter_trace_parsing_result"
+hset original_log_hash:a123 "parsing_data_log" "origin_log_parsing_result"
+hset original_trace_hash:b123 "parsing_data_trace" "origin_trace_parsing_result"
+
+'''
