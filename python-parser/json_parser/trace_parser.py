@@ -1,335 +1,190 @@
 import json, itertools, datetime
-import time
-
 from util.datetime_util import change_timenano_format
-import logging
+import logging, redis, time
 
+filter_last_position = 0
+original_last_position = 0
 
 class TraceParsing:
 
-    def __init__(self, input_path, filtered_file_name, original_file_name, filtered_idx, original_idx):
+    def __init__(self, input_path, file_name):
         self.input_path = input_path
-        self.filtered_file_name = filtered_file_name
-        self.original_file_name = original_file_name
-        self.filtered_idx = filtered_idx
-        self.original_idx = original_idx
+        self.file_name = file_name
 
-    def process_filtered_trace(self, main_dict, span, parsed_trace):
-        # 상태가 log인가?
-        logging.info("상태가 log인가?\n")
-        trace_status_entries = {key: value for key, value in main_dict.items() if
-                                isinstance(value, dict) and value.get('status') == 'log'}
-
-        # main_dict에 상태값이 log인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)
-        if len(trace_status_entries) > 0:
-            logging.info("main_dict에 상태값이 log인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)\n")
-
-            # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
-            if span["traceId"] in trace_status_entries:
-                logging.info("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
-                if matching_trace:
-                    main_dict[span["traceId"]]["status"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
-                    logging.info(f"* main_dict: {main_dict}")
-
-            else:
-                logging.info("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
-                self.original_trace_parser()
-                # pass
-
-            # 파싱된 트레이스에 trace ID가 있는가? (Y)
-            if "traceId" in span and span["traceId"] != "":
-                logging.info("파싱된 트레이스에 trace ID가 있는가? (Y)\n")
-
-                # main_dict에 key가 있는가? (N)
-                if span["traceId"] not in main_dict:
-                    logging.info("main_dict에 key가 있는가? (N)\n")
-                    for co_parsed_trace in parsed_trace:
-                        co_parsed_trace["traceId"] = span["traceId"]
-                        main_dict[span["traceId"]] = {"status": "trace",
-                                                      "parsing_data_log": "",
-                                                      "parsing_data_trace": parsed_trace,
-                                                      "retry": 0,
-                                                      "mail": "N"}
-
-                    logging.info(f"* main_dict: {main_dict}")
-
-                # main_dict에 key가 있는가? (Y)
-                else:
-                    logging.info("# main_dict에 key가 있는가? (Y)\n")
-                    logging.info(f"* main_dict: {main_dict}")
-                    matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
-                    if matching_trace:
-                        main_dict[span["traceId"]]["status"] = "confirm"
-                        main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
-                        logging.info(f"* main_dict: {main_dict}")
-
-            # 파싱된 로그에 trace ID가 있는가? (N)
-            else:
-                logging.info("# 파싱된 로그에 trace ID가 있는가? (N)\n")
-                pass
-
-        # main_dict에 상태값이 log인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)
-        elif len(trace_status_entries) > 0 and span["traceId"] in trace_status_entries:
-            logging.info("main_dict에 상태값이 log인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)\n")
-
-            # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
-            if span["traceId"] in trace_status_entries:
-                logging.info("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
-                if matching_trace:
-                    main_dict[span["traceId"]]["status"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
-                    logging.info(f"* main_dict: {main_dict}")
-
-            else:
-                logging.info("파싱된 트레이스와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
-                self.original_trace_parser()
-                # pass
-
-        else:
-            logging.info("main_dict에 상태값이 log인가 (N)\n")
-
-            # 파싱된 트레이스에 trace ID가 있는가? (Y)
-            if "traceId" in span and span["traceId"] != "":
-                logging.info("파싱된 트레이스에 trace ID가 있는가? (Y)\n")
-
-                # main_dict에 key가 있는가? (N)
-                if span["traceId"] not in main_dict:
-                    logging.info("main_dict에 key가 있는가? (N)\n")
-                    for co_parsed_trace in parsed_trace:
-                        co_parsed_trace["traceId"] = span["traceId"]
-                        main_dict[span["traceId"]] = {"status": "trace",
-                                                      "parsing_data_log": "",
-                                                      "parsing_data_trace": parsed_trace,
-                                                      "retry": 0,
-                                                      "mail": "N"}
-
-                        logging.info(f"* main_dict: {main_dict}")
-
-                # main_dict에 key가 있는가? (Y)
-                else:
-                    logging.info("# main_dict에 key가 있는가? (Y)\n")
-                    matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
-                    if matching_trace:
-                        main_dict[span["traceId"]]["status"] = "confirm"
-                        main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
-                        logging.info(f"* main_dict: {main_dict}")
-
-            # 파싱된 로그에 trace ID가 있는가? (N)
-            else:
-                logging.info("# 파싱된 스팬에 trace ID가 있는가? (N)\n")
-                pass
-
-    def process_original_trace(self, main_dict, span, parsed_trace):
-        # 상태가 log인가?
-        logging.info("상태가 log인가?\n")
-        trace_status_entries = {key: value for key, value in main_dict.items() if
-                                isinstance(value, dict) and value.get('status') == 'log'}
-
-        # main_dict에 상태값이 log인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)
-        if len(trace_status_entries) > 0:
-            logging.info("main_dict에 상태값이 log인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)\n")
-
-            # 원문로그에 해당 trace id 가 있는가 (Y)
-            if span["traceId"] in trace_status_entries:
-                logging.info("원문로그에 해당 trace id 가 있는가 (Y)\n")
-                matching_trace = [data for data in parsed_trace if data.get("traceId") == span["traceId"]]
-                if matching_trace:
-                    main_dict[span["traceId"]]["status"] = "confirm"
-                    main_dict[span["traceId"]]["parsing_data_trace"] = matching_trace
-
-            else:
-                # main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가
-                logging.info("main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가 (Y)\n")
-                # trace_status_entries에서 retry 값을 1씩 증가
-                for trace_id, trace_info in trace_status_entries.items():
-                    if trace_info.get("retry", 0) < 3:  # retry가 3 미만일 때만 증가
-                        trace_info["retry"] += 1
-                        logging.info(f"Trace ID: {trace_id}, Retry 증가: {trace_info['retry']}")
-                        # break
-                    else:
-                        trace_info["status"] = 'confirm'
-                        logging.info(f"Trace ID: {trace_id}, Retry 횟수가 이미 3에 도달")
-
-    def filtered_trace_parser(self):
+    def traceparser(self):
         input_path = self.input_path
-        file_name = self.filtered_file_name
-        idx = self.filtered_idx
+        file_name = self.file_name
+
+        global filter_last_position, original_last_position
 
         parsing_trace_data_list = [] # "a111", "b111"
-        with open(input_path + file_name, "r") as span_file:
-            for current_index, line in enumerate(itertools.islice(span_file, idx, None), start=idx):
-                main_dict = trace_id.main_dict
-                logging.info(f"================ filtered_span 파싱 start: {datetime.datetime.now()} ================")
-                # # 디버깅할 때 사용..
-                # print('* 아무 글자나 입력:')
-                # input()
+        with open(input_path + file_name, "r") as log_file:
+            # print(last_position)
+            if file_name == "filtered_logs.json":
+                # 파일 포인터를 마지막 읽은 위치로 이동
+                log_file.seek(filter_last_position)
+            else:
+                log_file.seek(original_last_position)
 
-                try:
-                    span_data = json.loads(line.strip())
-                    change_timenano_format(span_data)
+            # log_file.seek(last_position)
 
-                    for resource in span_data.get('resourceSpans', []):
-                        service_name = None
-                        service_code = None
-                        os_type = None
+            # print("===========================")
+            # print(log_file)
 
-                        # if "resource" in resource_log and "attributes" in resource_log["resource"]:
-                        if "resource" in resource and "attributes" in resource["resource"]:
-                            for attribute in resource["resource"]["attributes"]:
-                                if attribute["key"] == "service.name":
-                                    service_name = attribute["value"]["stringValue"]
-                                if attribute["key"] == "service.code":
-                                    service_code = attribute["value"]["stringValue"]
-                                if attribute["key"] == "os.type":
-                                    os_type = attribute["value"]["stringValue"]
+            while True:
+                line = log_file.readline()  # 한 줄씩 읽기
+                # print("===========================")
+                # print(line)
 
-                        # log_parser에서 for scope_log in resource_log.get("scopeLogs", []):
-                        for scopeSpan in resource.get("scopeSpans", []):
-                            for span in scopeSpan.get("spans", []):
-
-                                parsed_info = {
-                                    "service.name": service_name,
-                                    "service.code": service_code,
-                                    "os.type": os_type,
-                                    "traceId": span.get("traceId"),
-                                    "spanId": span.get("spanId"),
-                                    "name": span.get("name"),
-                                    "http.status_code": None,
-                                    "rpc.grpc.status_code": None,
-                                    "exception.message": None,
-                                    "exception.stacktrace": None,
-                                    "http.url": None,
-                                    "rpc.method": None,
-                                    "startTimeUnixNano": span.get("startTimeUnixNano"),
-                                    "endTimeUnixNano": span.get("endTimeUnixNano")
-                                }
-
-                                # trace에서는 scopespan 안에 attribute가 따로 있음
-                                for attribute in span.get("attributes", []):
-                                    try:
-                                        if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
-                                            parsed_info["http.status_code"] = attribute["value"]["intValue"]
-                                        if attribute["key"] == "rpc.grpc.status_code":
-                                            parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
-                                        if attribute["key"] == "http.url":
-                                            parsed_info["http.url"] = attribute["value"]["stringValue"]
-                                        if attribute["key"] == "rpc.method":
-                                            parsed_info["rpc.method"] = attribute["value"]["stringValue"]
-                                    except KeyError as e:
-                                        logging.ERROR(f"Key is not found: {e}")
-                                        continue
-                                # event 발생 시 event key 내에 exception.message와 exception.stacktrace가 따로 있음
-                                for event in span.get("events", []):
-                                    for attribute in event.get("attributes", []):
-                                        if attribute["key"] == "exception.message":
-                                            parsed_info["exception.message"] = attribute["value"]["stringValue"]
-                                        if attribute["key"] == "exception.stacktrace":
-                                            parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
-
-                                # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
-                                parsing_trace_data_list.append(parsed_info)
-
-                except json.JSONDecodeError as e:
-                    logging.ERROR(f"Error parsing line: {e}")
-
-                self.process_filtered_trace(main_dict, span, parsing_trace_data_list)
-                logging.info("================ filtered_span 파싱 end ================\n")
-                logging.info(f"* filtered_idx: {current_index}")
-                file_idx.idx["filtered_span"] = current_index + 1
-                logging.info(f"* filter_span_parsed_end_dictionary: {trace_id.main_dict}")
-
-
-    def original_trace_parser(self):
-        input_path = self.input_path
-        file_name = self.original_file_name
-        idx = self.original_idx
-
-        parsing_trace_data_list = []
-
-        with open(input_path + file_name, "r") as span_file:
-            for current_index, line in enumerate(itertools.islice(span_file, idx, None), start=idx):
-                main_dict = trace_id.main_dict
-                logging.info(f"================ original_span 파싱 start: {datetime.datetime.now()} ================")
+                if not line:  # 더 이상 읽을 데이터가 없으면
+                    print("데이터가 없습니다")
+                    break  # 루프를 종료
 
                 # # 디버깅할 때 사용..
                 # print('* 아무 글자나 입력:')
                 # input()
+                else:
+                    logging.info(f"================ filtered_span 파싱 start: {datetime.datetime.now()} ================")
+                    # # 디버깅할 때 사용..
+                    # print('* 아무 글자나 입력:')
+                    # input()
 
-                try:
-                    span_data = json.loads(line.strip())
-                    change_timenano_format(span_data)
+                    try:
+                        span_data = json.loads(line.strip())
+                        change_timenano_format(span_data)
 
-                    for resource in span_data.get('resourceSpans', []):
-                        service_name = None
-                        service_code = None
-                        os_type = None
+                        for resource in span_data.get('resourceSpans', []):
+                            service_name = None
+                            service_code = None
+                            os_type = None
 
-                        # if "resource" in resource_log and "attributes" in resource_log["resource"]:
-                        if "resource" in resource and "attributes" in resource["resource"]:
-                            for attribute in resource["resource"]["attributes"]:
-                                if attribute["key"] == "service.name":
-                                    service_name = attribute["value"]["stringValue"]
-                                if attribute["key"] == "service.code":
-                                    service_code = attribute["value"]["stringValue"]
-                                if attribute["key"] == "os.type":
-                                    os_type = attribute["value"]["stringValue"]
+                            # if "resource" in resource_log and "attributes" in resource_log["resource"]:
+                            if "resource" in resource and "attributes" in resource["resource"]:
+                                for attribute in resource["resource"]["attributes"]:
+                                    if attribute["key"] == "service.name":
+                                        service_name = attribute["value"]["stringValue"]
+                                    if attribute["key"] == "service.code":
+                                        service_code = attribute["value"]["stringValue"]
+                                    if attribute["key"] == "os.type":
+                                        os_type = attribute["value"]["stringValue"]
+                            # log_parser에서 for scope_log in resource_log.get("scopeLogs", []):
+                            for scopeSpan in resource.get("scopeSpans", []):
+                                for span in scopeSpan.get("spans", []):
+                                    # trace에서는 scopespan 안에 attribute가 따로 있음
+                                    for attribute in span.get("attributes", []):
+                                        parsed_info = {
+                                            "service.name": service_name,
+                                            "service.code": service_code,
+                                            "os.type": os_type,
+                                            "traceId": span.get("traceId"),
+                                            "spanId": span.get("spanId"),
+                                            "name": span.get("name"),
+                                            "http.status_code": None,
+                                            "rpc.grpc.status_code": None,
+                                            "exception.message": None,
+                                            "exception.stacktrace": None,
+                                            "exception.stacktrace.short": None,
+                                            "http.url": None,
+                                            "rpc.method": None,
+                                            "startTimeUnixNano": span.get("startTimeUnixNano"),
+                                            "endTimeUnixNano": span.get("endTimeUnixNano")
+                                        }
 
-                                    # log_parser에서 for scope_log in resource_log.get("scopeLogs", []):
-                        for scopeSpan in resource.get("scopeSpans", []):
-                            for span in scopeSpan.get("spans", []):
+                                        try:
+                                            if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
+                                                parsed_info["http.status_code"] = attribute["value"]["intValue"]
+                                            if attribute["key"] == "rpc.grpc.status_code":
+                                                parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
+                                            if attribute["key"] == "http.url":
+                                                parsed_info["http.url"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "rpc.method":
+                                                parsed_info["rpc.method"] = attribute["value"]["stringValue"]
+                                        except KeyError as e:
+                                            logging.ERROR(f"Key is not found: {e}")
+                                            continue
+                                    # event 발생 시 event key 내에 exception.message와 exception.stacktrace가 따로 있음
+                                    for event in span.get("events", []):
+                                        for attribute in event.get("attributes", []):
+                                            if attribute["key"] == "exception.message":
+                                                parsed_info["exception.message"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "exception.stacktrace":
+                                                parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
+                                                # 두 번째 \n 전까지만 가져오기, 중간에 \n 존재 시 삭제
+                                                parsed_info["exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2])
 
-                                parsed_info = {
-                                    "service.name": service_name,
-                                    "service.code": service_code,
-                                    "os.type": os_type,
-                                    "traceId": span.get("traceId"),
-                                    "spanId": span.get("spanId"),
-                                    "name": span.get("name"),
-                                    "http.status_code": None,
-                                    "rpc.grpc.status_code": None,
-                                    "exception.message": None,
-                                    "exception.stacktrace": None,
-                                    "http.url": None,
-                                    "rpc.method": None,
-                                    "startTimeUnixNano": span.get("startTimeUnixNano"),
-                                    "endTimeUnixNano": span.get("endTimeUnixNano")
-                                }
+                                    # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
+                                    parsing_trace_data_list.append(parsed_info)
 
-                                # trace에서는 scopespan 안에 attribute가 따로 있음
-                                for attribute in span.get("attributes", []):
-                                    try:
-                                        if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
-                                            parsed_info["http.status_code"] = attribute["value"]["intValue"]
-                                        if attribute["key"] == "rpc.grpc.status_code":
-                                            parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
-                                        if attribute["key"] == "http.url":
-                                            parsed_info["http.url"] = attribute["value"]["stringValue"]
-                                        if attribute["key"] == "rpc.method":
-                                            parsed_info["rpc.method"] = attribute["value"]["stringValue"]
-                                    except KeyError as e:
-                                        logging.ERROR(f"Key is not found: {e}")
-                                        continue
+                    except json.JSONDecodeError as e:
+                        logging.ERROR(f"Error parsing line: {e}")
 
-                                # event 발생 시 event key 내에 exception.message와 exception.stacktrace가 따로 있음
-                                for event in span.get("events", []):
-                                    for attribute in event.get("attributes", []):
-                                        if attribute["key"] == "exception.message":
-                                            parsed_info["exception.message"] = attribute["value"]["stringValue"]
-                                        if attribute["key"] == "exception.stacktrace":
-                                            parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
+                    print("parsing_trace_data_list\n")
+                    print(parsing_trace_data_list)
+                    print(len(parsing_trace_data_list))
 
-                                # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
-                                parsing_trace_data_list.append(parsed_info)
+                    # 마지막으로 읽은 위치를 업데이트
+                    if file_name == "filtered_span.json":
+                        # 파일 포인터를 마지막 읽은 위치로 이동
+                        filter_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장
 
-                except json.JSONDecodeError as e:
-                    logging.ERROR(f"Error parsing line: {e}")
+                    else:
+                        original_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장
 
-                self.process_original_trace(main_dict, span, parsing_trace_data_list)
-                logging.info("================ original_span 파싱 end ================\n")
-                logging.info(f"* original_idx: {current_index}")
-                file_idx.idx["original_span"] = current_index + 1
-                logging.info("* original_span_parsed_end_dictionary:", trace_id.main_dict)
-                time.sleep(0.5)
+                    logging.info("============ trace 파싱 end ===========\n")
+                    print(parsing_trace_data_list)
+
+                    logging.info("============ db 삽입 start===========\n")
+
+                    # Redis 클라이언트 설정
+                    r = redis.Redis(host='100.83.227.59', port=16379, db=2, password='redis1234!')
+
+                    for log in parsing_trace_data_list:
+                        trace_id = log['traceId']
+
+                        # redis에 저장할 key 값 설정
+                        key_store_key = f"key_store:{trace_id}"
+
+                        if file_name == "filtered_span.json":
+                            # 해시 키는 traceId로 설정
+                            hash_key = f"filtered_trace_hash:{trace_id}"
+
+                        else:
+                            # 해시 키는 traceId로 설정
+                            hash_key = f"original_trace_hash:{trace_id}"
+
+                        # # 현재 데이터를 JSON 형식으로 변환
+                        # log_json = json.dumps(log)
+
+                        # parsing_data_log 필드가 존재하는지 확인하고, 없으면 리스트로 초기화
+                        existing_logs = r.hget(hash_key, 'parsing_data_trace')
+                        if existing_logs:
+                            existing_logs_list = json.loads(existing_logs)
+                        else:
+                            existing_logs_list = []
+
+                        # 새로운 로그를 리스트에 추가
+                        existing_logs_list.append(log)
+                        print("existing_logs")
+                        print(existing_logs_list)
+                        # Redis에 업데이트된 리스트 저장 (HSET으로 해시 업데이트)
+                        r.hset(hash_key, "parsing_data_trace", json.dumps(existing_logs_list))
+                        r.hset(key_store_key, "status", "confirm")
+
+                    # Redis에 저장된 데이터 확인 (예시)
+                    for log in parsing_trace_data_list:
+
+                        trace_id = log['traceId']
+
+                        if file_name == "filtered_span.json":
+                            # 해시 키는 traceId로 설정
+                            hash_key = f"filtered_trace_hash:{trace_id}"
+
+                        else:
+                            # 해시 키는 traceId로 설정
+                            hash_key = f"original_trace_hash:{trace_id}"
+
+                        print(f"Redis Key: {hash_key}")
+                        print(r.hget(hash_key, "parsing_data_trace"))
+                        print(r.hget(hash_key, "parsing_data_trace").decode("utf-8"))
+
+                        logging.info("============ db 삽입 end===========\n")

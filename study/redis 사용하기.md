@@ -1,4 +1,31 @@
+#서버 예시 데이터 조회 방법
+## 순서
+### 1. db 접속
+```
+redis-cli -h 127.0.0.1 -p 16379
+auth redis1234!
+```
+### 2. db 선택
+```
+select 2
+```
+### 3. 해시 데이터 조회
+```
+keys * # 추후 scan 등 다른 명령어로 조회 필요
+hget filtered_log_hash:ed8b4191838daec751003df550476f1d parsing_data_log
+hget original_log_hash:origin_ed8b4191838daec751003df550476f1d parsing_data_log
+hget filtered_trace_hash:3c7829d88f923d64d55339655779a249 parsing_data_trace
+hget filtered_trace_hash:origin_3c7829d88f923d64d55339655779a249 parsing_data_trace
+```
 
+### 4. 키 데이터 조회
+```
+SCAN 0 MATCH key_store:* COUNT 100
+hgetall key_store:ed8b4191838daec751003df550476f1d
+```
+
+
+# redis 기본 명령어
 ## 데이터베이스 변경
 - 초기값은 0으로 설정되어 있음
 - select 0

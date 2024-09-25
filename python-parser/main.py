@@ -30,6 +30,8 @@ logging.info("**************** main.py start ****************")
 while True:
     parser_batch.filtered_log_parsing.logparser()
     parser_batch.original_log_parsing.logparser()
+    parser_batch.filtered_trace_parsing.traceparser()
+    parser_batch.original_trace_parsing.traceparser()
 
     time.sleep(1)
 
