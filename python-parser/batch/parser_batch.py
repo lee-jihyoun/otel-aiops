@@ -1,33 +1,26 @@
-import time, datetime
+import datetime
 import json_parser.log_parser as log_parser
-import json_parser.trace_parser as trace_parser
-import variables.file_idx as file_idx
-import logging, threading
+import logging
 
-def main():
-    while True:
-        # 경로 설정(local에서 테스트 시)
-        input_path = '../data/servertest/'
+# 경로 설정(local에서 테스트 시)
+input_path = '../data/servertest/'
 
-        # 경로 설정(서버에서 테스트 시)
-        # input_path = '/opt/spring-otel-listener-run/'
+# 경로 설정(서버에서 테스트 시)
+# input_path = '/opt/spring-otel-listener-run/'
 
-        logging.info("**************** 로그 파싱 시작 ****************")
-        filtered_log = 'filtered_logs.json'
-        original_log = 'original_logs.json'
+logging.info("**************** 로그 파싱 시작 ****************")
+filtered_log = 'filtered_logs.json'
+original_log = 'original_logs.json'
 
-        filtered_log_idx = file_idx.idx.get('filtered_logs')
-        original_log_idx = file_idx.idx.get('original_logs')
-        logging.info(f"* filtered_log_idx: {filtered_log_idx}")
-        logging.info(f"* original_log_idx: {original_log_idx}")
+# thread로 돌려야 함
+filtered_log_parsing = log_parser.LogParsing(input_path=input_path,
+                                             file_name=filtered_log)
+# thread로 돌려야 함
+original_log_parsing = log_parser.LogParsing(input_path=input_path,
+                                             file_name=original_log)
 
-        # thread로 돌려야 함
-        log_parsing = log_parser.LogParsing(input_path=input_path,
-                                            file_name=filtered_log,
-                                            file_idx=filtered_log_idx)
+logging.info(f"================ 로그 파싱 end: {datetime.datetime.now()} ================")
 
-        log_parsing.logparser()
-        logging.info(f"================ 로그 파싱 end: {datetime.datetime.now()} ================")
         #
         # logging.info("**************** 트레이스 파싱 시작 ****************")
         # filtered_span = 'filtered_span.json'
@@ -46,4 +39,3 @@ def main():
         #
         # trace_parsing.filtered_trace_parser()
         # logging.info(f"**************** 트레이스 파싱 end: {datetime.datetime.now()} ****************")
-        time.sleep(0.5)

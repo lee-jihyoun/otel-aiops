@@ -4,7 +4,6 @@ import psycopg2  # pip install psycopg2-binary
 import re
 import requests
 import json
-import variables.trace_id as trace_id
 import logging
 
 # 로그 설정
@@ -28,8 +27,9 @@ logging.basicConfig(
 
 logging.info("**************** main.py start ****************")
 
-thread1 = threading.Thread(target=parser_batch.main)  # 각 batch를 실행할 스레드를 생성
-thread2 = threading.Thread(target=api_batch.main)
+thread1 = threading.Thread(target=parser_batch.filtered_log_parsing.logparser)  # 각 batch를 실행할 스레드를 생성
+# thread2 = threading.Thread(target=parser_batch.original_log_parsing.logparser)  # 각 batch를 실행할 스레드를 생성
+# thread2 = threading.Thread(target=api_batch.main)
 
 thread1.start()  # 스레드를 시작 (동시에 실행)
 # thread2.start()  # 스레드를 시작 (동시에 실행)
