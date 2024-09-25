@@ -15,7 +15,7 @@ keys * # 추후 scan 등 다른 명령어로 조회 필요
 hget filtered_log_hash:ed8b4191838daec751003df550476f1d parsing_data_log
 hget original_log_hash:origin_ed8b4191838daec751003df550476f1d parsing_data_log
 hget filtered_trace_hash:3c7829d88f923d64d55339655779a249 parsing_data_trace
-hget filtered_trace_hash:origin_3c7829d88f923d64d55339655779a249 parsing_data_trace
+hget original_trace_hash:origin_3c7829d88f923d64d55339655779a249 parsing_data_trace
 ```
 
 ### 4. 키 데이터 조회
