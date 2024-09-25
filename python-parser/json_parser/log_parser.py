@@ -106,10 +106,10 @@ class LogParsing:
                 # 마지막으로 읽은 위치를 업데이트
                 if file_name == "filtered_logs.json":
                     # 파일 포인터를 마지막 읽은 위치로 이동
-                    filter_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장
+                    filter_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장 (다음 위치 + 줄바꿈 고려해서 +2)
 
                 else:
-                    original_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장
+                    original_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장 (다음 위치 + 줄바꿈 고려해서 +2)
 
                 logging.info("============ log 파싱 end ===========\n")
                 print(parsing_log_data_list)
