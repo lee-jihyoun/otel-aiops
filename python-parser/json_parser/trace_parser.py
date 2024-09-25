@@ -2,8 +2,6 @@ import json, itertools, datetime
 import time
 
 from util.datetime_util import change_timenano_format
-import variables.trace_id as trace_id
-import variables.file_idx as file_idx
 import logging
 
 
