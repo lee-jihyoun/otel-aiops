@@ -227,6 +227,23 @@ hset original_trace_hash:b123 "parsing_data_trace" "origin_trace_parsing_result"
 2. retry가 잘 되는가?
 테스트 1. retry가 2번 이상일때(2~) insert 되는가? (완료)
 테스트 2. retry가 1번일때 한번 더 수행되는가? (완료)
+
+3. 조합해보기
+테스트 1. origin_trace 빼고 hash가 조회되어야 하며, complete_hash에서 a123은 filter_log, filter_trace를 가져야 함.(완료)
+    hset key_store:a123 "retry" 0
+    hset filter_log_hash:a123 "parsing_data_log" "filter_log_parsing_result"
+    hset filter_trace_hash:a123 "parsing_data_trace" "filter_trace_parsing_result"
+    hset original_log_hash:a123 "parsing_data_log" "origin_log_parsing_result"
+    hset original_trace_hash:b123 "parsing_data_trace" "origin_trace_parsing_result"
+
+테스트 2. complete_hash에서 a123은 filter_log, filter_trace, b123은 filter_log, origin_trace를 가져야 함. (완료)
+    hset key_store:a123 "retry" 0
+    hset key_store:b123 "retry" 0
+    hset filter_log_hash:a123 "parsing_data_log" "filter_log_parsing_result"
+    hset filter_log_hash:b123 "parsing_data_log" "filter_log_parsing_result"
+    hset filter_trace_hash:a123 "parsing_data_trace" "filter_trace_parsing_result"
+    hset original_log_hash:a123 "parsing_data_log" "origin_log_parsing_result"
+    hset original_trace_hash:b123 "parsing_data_trace" "origin_trace_parsing_result"
  
 
 '''

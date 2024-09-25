@@ -47,13 +47,20 @@ def add_complete_hash(key, log, trace):
         "parsing_data_log": log,
         "parsing_data_trace": trace
     })
-    print("* complete_hash에 추가:\n", key, ":", r.hgetall(complete_key))
+    # 결과 확인
+    complete_hash = r.hgetall(complete_key)
+    complete_hash_dict = {}
+    for field, value in complete_hash.items():
+        field = field.decode('utf-8')
+        value = value.decode('utf-8')
+        complete_hash_dict[field] = value
+    print("* complete_hash에 추가 ===> ", key, ":", complete_hash_dict)
 
 
 # # Redis 클라이언트 설정
 r = redis.Redis(host='100.83.227.59', port=16379, db=0, password='redis1234!')
 
-# key_store에 있는 key 조회
+# key 조회
 key_list = get_full_key_list("*key_store*")
 filter_log_key_list = get_key_list("*filter_log_hash*")
 filter_trace_key_list = get_key_list("*filter_trace_hash*")
@@ -62,8 +69,8 @@ original_trace_key_list = get_key_list("*original_trace_hash*")
 
 for full_key in key_list:
     key = full_key.split(":")[1]
-    print("\n* 현재 key:", key)
-
+    print("\n***** 현재 key:", key)
+    print("* 현재 키를 가진 hash 조회:")
     filter_log = get_parsing_data("filter_log_hash", key)
     filter_trace = get_parsing_data("filter_trace_hash", key)
     original_log = get_parsing_data("original_log_hash", key)
