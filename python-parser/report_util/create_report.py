@@ -132,17 +132,19 @@ class CreateReport:
                     error_content,
                     error_create_time,
                     error_location,
+                    exception_stacktrace_short,
                     error_cause,
                     error_solution,
                     trace_id,
                     service_impact)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                     error_report["service_code"],
                     error_report["error_name"],
                     error_report["error_content"],
                     error_report["error_create_time"],
                     error_report["error_location"],
+                    error_report["exception_stacktrace_short"],
                     error_report["error_cause"],
                     error_report["error_solution"],
                     error_report["trace_id"],
@@ -180,6 +182,7 @@ class CreateReport:
         error_create_time = content["오류내용"]["발생 시간"]
         error_content = content["오류내용"]["오류 내용"]
         error_location = content["분석결과"]["오류 발생 위치"]
+        exception_stacktrace_short = content["분석결과"]["exception.stacktrace.short"]
         error_cause = content["분석결과"]["오류 근본 원인"]
         service_impact = content["분석결과"]["서비스 영향도"]
         error_solution = content["후속조치"]["조치방안"]
@@ -189,6 +192,7 @@ class CreateReport:
         error_report["error_create_time"] = error_create_time
         error_report["error_content"] = error_content
         error_report["error_location"] = error_location
+        error_report["exception_stacktrace_short"] = exception_stacktrace_short
         error_report["error_cause"] = error_cause
         error_report["service_impact"] = service_impact
         error_report["error_solution"] = error_solution
