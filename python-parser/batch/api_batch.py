@@ -2,7 +2,6 @@ import time
 import logging
 
 from report_util.create_report import CreateReport
-import variables.trace_id as trace_id
 
 # cd otel_aiops\python-parser
 # python -m batch.api_batch
