@@ -1,305 +1,179 @@
 import json, itertools, datetime
 from util.datetime_util import change_timenano_format
-import variables.trace_id as trace_id
-import variables.file_idx as file_idx
-import logging
+import logging, redis, time
 
+filter_last_position = 0
+original_last_position = 0
 
 class LogParsing:
 
-    def __init__(self, input_path, filtered_file_name, original_file_name, filtered_idx, original_idx):
+    def __init__(self, input_path, file_name):
 
         self.input_path = input_path
-        self.filtered_file_name = filtered_file_name
-        self.original_file_name = original_file_name
-        self.filtered_idx = filtered_idx
-        self.original_idx = original_idx
+        self.file_name = file_name
 
-    def process_filtered_log(self, main_dict, log_record, parsed_log):
-
-        print(parsed_log)
-        # 상태가 trace인가?
-        logging.info("상태가 trace인가?\n")
-        logging.info(f"* main_dict: {main_dict}")
-        trace_status_entries = {key: value for key, value in main_dict.items() if
-                                isinstance(value, dict) and value.get('status') == 'trace'}
-
-        # main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (N)
-        # main_dict에 존재하는 경우 필터링 -> original_logs
-        if len(trace_status_entries) > 0:
-
-            # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
-            if log_record["traceId"] in trace_status_entries:
-                logging.info("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
-                if matching_log:
-                    parsed_log["traceId"] = log_record["traceId"]
-                    main_dict[log_record["traceId"]]["status"] = "confirm"
-                    main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
-
-            else:
-                logging.info("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
-                self.original_logparser()
-                # pass
-
-            # 파싱된 로그에 trace ID가 있는가? (Y)
-            if "traceId" in log_record and log_record["traceId"] != "":
-                logging.info("파싱된 로그에 trace ID가 있는가? (Y)\n")
-
-                # main_dict에 key가 있는가? (N)
-                if log_record["traceId"] not in main_dict:
-                    logging.info("main_dict에 key가 있는가? (N)\n")
-                    for co_parsed_log in parsed_log:
-                        co_parsed_log["traceId"] = log_record["traceId"]
-
-                        main_dict[log_record["traceId"]] = {"status": "log",
-                                                            "parsing_data_log": parsed_log,
-                                                            "parsing_data_trace": "",
-                                                            "retry": 0,
-                                                            "mail": "N"}
-                    logging.info(f"* main_dict: {main_dict}")
-
-                # main_dict에 key가 있는가? (Y)
-                else:
-                    logging.info("# main_dict에 key가 있는가? (Y)\n")
-                    logging.info(f"* main_dict: {main_dict}")
-
-                    matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
-                    if matching_log:
-                        parsed_log["traceId"] = log_record["traceId"]
-                        main_dict[log_record["traceId"]]["status"] = "confirm"
-                        main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
-
-            # 파싱된 로그에 trace ID가 있는가? (N)
-            else:
-                logging.info("# 파싱된 로그에 trace ID가 있는가? (N)\n")
-                pass
-
-        # main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)
-        # main_dict에 존재하지 않은 경우 필터링
-        elif len(trace_status_entries) > 0 and log_record["traceId"] in trace_status_entries:
-            logging.info("main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)\n")
-
-            # 파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)
-            if log_record["traceId"] in trace_status_entries:
-                logging.info("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (Y)\n")
-                matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
-                if matching_log:
-                    parsed_log["traceId"] = log_record["traceId"]
-                    main_dict[log_record["traceId"]]["status"] = "confirm"
-                    main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
-
-            else:
-                logging.info("파싱된 로그와 딕셔너리에 있는 trace ID값이 일치 하는가 (N)\n")
-                self.original_logparser()
-                # pass
-
-        # main_dict에 상태값이 trace인가 (N)
-        else:
-            logging.info("main_dict에 상태값이 trace인가 (N)\n")
-
-            # 파싱된 로그에 trace ID가 있는가? (Y)
-            if "traceId" in log_record and log_record["traceId"] != "":
-                logging.info("파싱된 로그에 trace ID가 있는가? (Y)\n")
-
-                # main_dict에 key가 있는가? (N)
-                if log_record["traceId"] not in main_dict:
-                    logging.info("main_dict에 key가 있는가? (N)\n")
-
-                    for co_parsed_log in parsed_log:
-                        co_parsed_log["traceId"] = log_record["traceId"]
-
-                        main_dict[log_record["traceId"]] = {"status": "log",
-                                                            "parsing_data_log": parsed_log,
-                                                            "parsing_data_trace": "",
-                                                            "retry": 0,
-                                                            "mail": "N"}
-
-                        logging.info(f"* main_dict: {main_dict}")
-
-                # main_dict에 key가 있는가? (Y)
-                else:
-                    logging.info("# main_dict에 key가 있는가? (Y)\n")
-                    matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
-                    if matching_log:
-                        parsed_log["traceId"] = log_record["traceId"]
-                        main_dict[log_record["traceId"]]["status"] = "confirm"
-                        main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
-
-                    pass
-
-            # 파싱된 로그에 trace ID가 있는가? (N)
-            else:
-                logging.info("# 파싱된 로그에 trace ID가 있는가? (N)\n")
-                pass
-
-    def process_original_log(self, main_dict, log_record, parsed_log):
-        # 상태가 trace인가?
-        logging.info("상태가 trace인가?\n")
-        trace_status_entries = {key: value for key, value in main_dict.items() if
-                                isinstance(value, dict) and value.get('status') == 'trace'}
-
-        # main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)
-        if len(trace_status_entries) > 0:
-            logging.info("main_dict에 상태값이 trace인가 (trace_status_entries 내에 main_dict가 존재하는가) (Y)\n")
-
-            # 원문로그에 해당 trace id 가 있는가 (Y)
-            if log_record["traceId"] in trace_status_entries:
-                logging.info("원문로그에 해당 trace id 가 있는가 (Y)\n")
-                matching_log = [data for data in parsed_log if data.get("traceId") == log_record["traceId"]]
-                if matching_log:
-                    parsed_log["traceId"] = log_record["traceId"]
-                    main_dict[log_record["traceId"]]["status"] = "confirm"
-                    main_dict[log_record["traceId"]]["parsing_data_log"] = matching_log
-
-            else:
-                # main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가
-                logging.info("main_dict에 있는 해당 키의 리트라이 횟수가 3 미만인가 (Y)\n")
-                # trace_status_entries에서 retry 값을 1씩 증가
-                for trace_id, trace_info in trace_status_entries.items():
-                    if trace_info.get("retry", 0) < 3:  # retry가 3 미만일 때만 증가
-                        trace_info["retry"] += 1
-                        logging.info(f"Trace ID: {trace_id}, Retry 증가: {trace_info['retry']}")
-                    else:
-                        trace_info["status"] = 'confirm'
-                        logging.info(f"Trace ID: {trace_id}, Retry 횟수가 이미 3에 도달")
-
-    def filtered_logparser(self):
+    def logparser(self):
         input_path = self.input_path
-        file_name = self.filtered_file_name
-        idx = self.filtered_idx
+        file_name = self.file_name
 
+        global filter_last_position, original_last_position
         parsing_log_data_list = []
 
         with open(input_path + file_name, "r") as log_file:
-            for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
-                main_dict = trace_id.main_dict
+            if file_name == "filtered_logs.json":
+                # 파일 포인터를 마지막 읽은 위치로 이동
+                log_file.seek(filter_last_position)
+            else:
+                log_file.seek(original_last_position)
+
+            logging.info("===========================")
+            logging.info(log_file)
+
+            while True:
+                line = log_file.readline()  # 한 줄씩 읽기
+                logging.info("===========================")
+                logging.info(line)
+
+                if not line:  # 더 이상 읽을 데이터가 없으면
+                    logging.info("데이터가 없습니다")
+                    break  # 루프를 종료
 
                 # # 디버깅할 때 사용..
                 # print('* 아무 글자나 입력:')
                 # input()
+                else:
+                    logging.info(f"================ filtered_log 파싱 start: {datetime.datetime.now()} ================")
 
-                logging.info(f"================ filtered_log 파싱 start: {datetime.datetime.now()} ================")
+                    try:
+                        log_data = json.loads(line.strip())
+                        change_timenano_format(log_data)  # 시간 전처리 적용
+                        for resource_log in log_data.get('resourceLogs', []):
+                            for scope_log in resource_log.get("scopeLogs", []):
+                                for log_record in scope_log.get("logRecords", []):
+                                    parsed_info = {
+                                        "container.id": None,
+                                        "os.description": None,
+                                        "process.command_line": None,
+                                        "service.name": None,
+                                        "service.code": None,
+                                        "telemetry.sdk.language": None,
+                                        "logRecords_severityText": None,
+                                        "logRecords_body_stringValue": None,
+                                        "traceId": None,
+                                        "observedTimeUnixNano": None,  # 새로운 시간 필드 추가
+                                    }
+                                    if "resource" in resource_log and "attributes" in resource_log["resource"]:
+                                        for attribute in resource_log["resource"]["attributes"]:
+                                            if attribute["key"] == "container.id":
+                                                parsed_info["container.id"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "os.description":
+                                                parsed_info["os.description"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "process.command_line":
+                                                parsed_info["process.command_line"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "service.name":
+                                                parsed_info["service.name"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "service.code":
+                                                parsed_info["service.code"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "telemetry.sdk.language":
+                                                parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
 
-                try:
-                    log_data = json.loads(line.strip())
-                    change_timenano_format(log_data)  # 시간 전처리 적용
-                    for resource_log in log_data.get('resourceLogs', []):
-                        parsed_info = {
-                            "container.id": None,
-                            "os.description": None,
-                            "process.command_line": None,
-                            "service.name": None,
-                            "service.code": None,
-                            "telemetry.sdk.language": None,
-                            "logRecords_severityText": None,
-                            "logRecords_body_stringValue": None,
-                            "traceId": None,
-                            "observedTimeUnixNano": None,  # 새로운 시간 필드 추가
-                        }
+                                    if "observedTimeUnixNano" in log_record:
+                                        parsed_info["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
+                                    if "severityText" in log_record:
+                                        parsed_info["logRecords_severityText"] = log_record["severityText"]
+                                    if "body" in log_record and "stringValue" in log_record["body"]:
+                                        parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
+                                    if "traceId" in log_record:
+                                        parsed_info["traceId"] = log_record["traceId"]
+                                        logging.info(parsed_info)
 
-                        if "resource" in resource_log and "attributes" in resource_log["resource"]:
-                            for attribute in resource_log["resource"]["attributes"]:
-                                if attribute["key"] == "container.id":
-                                    parsed_info["container.id"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "os.description":
-                                    parsed_info["os.description"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "process.command_line":
-                                    parsed_info["process.command_line"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "service.name":
-                                    parsed_info["service.name"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "service.code":
-                                    parsed_info["service.code"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "telemetry.sdk.language":
-                                    parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
+                                    # traceid가 비어 있을 경우에는 log_record에 저장하지 않음
+                                    if "traceId" in log_record and log_record["traceId"]:
+                                        parsing_log_data_list.append(parsed_info)
 
-                        for scope_log in resource_log.get("scopeLogs", []):
-                            for log_record in scope_log.get("logRecords", []):
-                                print("log_record")
-                                print(log_record)
-                                if "observedTimeUnixNano" in log_record:
-                                    parsed_info["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
-                                if "severityText" in log_record:
-                                    parsed_info["logRecords_severityText"] = log_record["severityText"]
-                                if "body" in log_record and "stringValue" in log_record["body"]:
-                                    parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
+                    except json.JSONDecodeError as e:
+                        logging.ERROR(f"Error parsing line: {e}")
 
-                            parsing_log_data_list.append(parsed_info)
+                logging.info("**************************")
+                logging.info("parsing_log_data_list\n")
+                logging.info(parsing_log_data_list)
+                logging.info("**************************")
 
-                except json.JSONDecodeError as e:
-                    logging.ERROR(f"Error parsing line: {e}")
+            # 마지막으로 읽은 위치를 업데이트
+            if file_name == "filtered_logs.json":
+                # 파일 포인터를 마지막 읽은 위치로 이동
+                filter_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장 (다음 위치 + 줄바꿈 고려해서 +2)
 
-                self.process_filtered_log(main_dict, log_record, parsing_log_data_list)
-                logging.info("============ filtered log 파싱 end ===========\n")
-                logging.info(f"* filtered_idx: {current_index}")
-                file_idx.idx["filtered_logs"] = current_index + 1
-                logging.info(f"* filter_log_parsed_end_dictionary: {trace_id.main_dict}")
+            else:
+                original_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장 (다음 위치 + 줄바꿈 고려해서 +2)
 
-    def original_logparser(self):
-        input_path = self.input_path
-        file_name = self.original_file_name
-        idx = self.original_idx
+            logging.info("============ log 파싱 end ===========\n")
+            logging.info(parsing_log_data_list)
 
-        parsing_log_data_list = []
+            return parsing_log_data_list
 
-        with open(input_path + file_name, "r") as log_file:
-            for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
-                main_dict = trace_id.main_dict
+    def redis_insert(self):
 
-                # # 디버깅할 때 사용 ..
-                # print('* 아무 글자나 입력:')
-                # input()
+        file_name = self.file_name
 
-                logging.info(f"================ original_log 파싱 start: {datetime.datetime.now()} ================")
+        logging.info("============ db 삽입 start===========\n")
+        # Redis 클라이언트 설정
+        r = redis.Redis(host='100.83.227.59', port=16379, db=1, password='redis1234!')
 
-                try:
-                    log_data = json.loads(line.strip())
-                    change_timenano_format(log_data)  # 시간 전처리 적용
-                    for resource_log in log_data.get('resourceLogs', []):
-                        parsed_info = {
-                            "container.id": None,
-                            "os.description": None,
-                            "process.command_line": None,
-                            "service.name": None,
-                            "service.code": None,
-                            "telemetry.sdk.language": None,
-                            "logRecords_severityText": None,
-                            "logRecords_body_stringValue": None,
-                            "traceId": None,
-                            "observedTimeUnixNano": None,  # 새로운 시간 필드 추가
-                        }
-
-                        if "resource" in resource_log and "attributes" in resource_log["resource"]:
-                            for attribute in resource_log["resource"]["attributes"]:
-                                if attribute["key"] == "container.id":
-                                    parsed_info["container.id"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "os.description":
-                                    parsed_info["os.description"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "process.command_line":
-                                    parsed_info["process.command_line"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "service.name":
-                                    parsed_info["service.name"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "service.code":
-                                    parsed_info["service.code"] = attribute["value"]["stringValue"]
-                                if attribute["key"] == "telemetry.sdk.language":
-                                    parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
-
-                        for scope_log in resource_log.get("scopeLogs", []):
-                            for log_record in scope_log.get("logRecords", []):
-                                if "observedTimeUnixNano" in log_record:
-                                    parsed_info["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
-                                if "severityText" in log_record:
-                                    parsed_info["logRecords_severityText"] = log_record["severityText"]
-                                if "body" in log_record and "stringValue" in log_record["body"]:
-                                    parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
-
-                            parsing_log_data_list.append(parsed_info)
-
-                except json.JSONDecodeError as e:
-                    logging.ERROR(f"Error parsing line: {e}")
-
-                self.process_original_log(main_dict, log_record, parsing_log_data_list)
-                logging.info("============ original log 파싱 end ===========\n")
-                logging.info(f"* original_idx: {current_index}")
-                file_idx.idx["original_logs"] = current_index + 1
-                logging.info(f"* original_parsed_end_dictionary: {trace_id.main_dict}")
+        parsing_log_data_list = self.logparser()
+        print(1)
+        logging.info("*****************")
+        logging.info("parsing_log_data_list\n")
+        logging.info(parsing_log_data_list)
+        logging.info("**************************")        #
+        # for log in parsing_log_data_list:
+        #     trace_id = log['traceId']
+        #
+        #     # redis에 저장할 key 값 설정
+        #     key_store_key = f"key_store:{trace_id}"
+        #
+        #     if file_name == "filtered_logs.json":
+        #         # 해시 키는 traceId로 설정
+        #         hash_key = f"filtered_log_hash:{trace_id}"
+        #
+        #     else:
+        #         # 해시 키는 traceId로 설정
+        #         hash_key = f"original_log_hash:{trace_id}"
+        #
+        #     # # 현재 데이터를 JSON 형식으로 변환
+        #     # log_json = json.dumps(log)
+        #
+        #     # parsing_data_log 필드가 존재하는지 확인하고, 없으면 리스트로 초기화
+        #     existing_logs = r.hget(hash_key, 'parsing_data_log')
+        #     if existing_logs:
+        #         existing_logs_list = json.loads(existing_logs)
+        #     else:
+        #         existing_logs_list = []
+        #
+        #     # 새로운 로그를 리스트에 추가
+        #     existing_logs_list.append(log)
+        #
+        #     logging.info("existing_logs")
+        #     logging.info(existing_logs_list)
+        #     # Redis에 업데이트된 리스트 저장 (HSET으로 해시 업데이트)
+        #     r.hset(hash_key, "parsing_data_log", json.dumps(existing_logs_list))
+        #     r.hset(key_store_key, "retry", "0")
+        #
+        # # Redis에 저장된 데이터 확인 (예시)
+        # for log in parsing_log_data_list:
+        #
+        #     trace_id = log['traceId']
+        #
+        #     if file_name == "filtered_logs.json":
+        #         # 해시 키는 traceId로 설정
+        #         hash_key = f"filtered_log_hash:{trace_id}"
+        #
+        #     else:
+        #         # 해시 키는 traceId로 설정
+        #         hash_key = f"original_log_hash:{trace_id}"
+        #
+        #     logging.info(f"Redis Key: {hash_key}")
+        #     logging.info(r.hget(hash_key, "parsing_data_log"))
+        #     logging.info(r.hget(hash_key, "parsing_data_log").decode("utf-8"))
+        #
+        #     logging.info("============ db 삽입 end===========\n")

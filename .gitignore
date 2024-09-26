@@ -87,4 +87,5 @@ ENV/
 env.bak/
 venv.bak/
 /python-parser/.idea/**
+/python-parser/python-parser.log
 /distributed-system/board-system/start_agent_springboot_mac.sh
