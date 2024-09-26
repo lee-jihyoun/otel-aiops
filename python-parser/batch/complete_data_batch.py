@@ -5,7 +5,7 @@ import json
 
 
 def db_connection():
-    return redis.Redis(host='100.83.227.59', port=16379, db=0, password='redis1234!')
+    return redis.Redis(host='100.83.227.59', port=16379, db=3, password='redis1234!')
 
 
 def get_hash_key_list(r, hash_info):
@@ -53,6 +53,8 @@ def add_complete_hash(r, key, log, trace):
         "parsing_data_log": log,
         "parsing_data_trace": trace
     })
+    # complete_key_store(list)에도 넣어줌
+    r.rpush("complete_key_store", key)
     # 결과 확인
     complete_hash = r.hgetall(complete_key)
     complete_hash_dict = {}
@@ -68,9 +70,9 @@ def main():
     # Redis 클라이언트 설정
     r = db_connection()
     # key 조회
-    key_list = get_hash_key_list(r, "*key_store*")
-    filtered_log_key_list = get_key_list(r, "*filtered_log_hash*")
-    filtered_trace_key_list = get_key_list(r, "*filtered_trace_hash*")
+    key_list = get_hash_key_list(r, "key_store*")
+    filtered_log_key_list = get_key_list(r, "filtered_log_hash*")
+    filtered_trace_key_list = get_key_list(r, "filtered_trace_hash*")
 
     for hash_key in key_list:
         key = hash_key.split(":")[1]
@@ -91,7 +93,7 @@ def main():
         elif key not in filtered_log_key_list and key in filtered_trace_key_list:
             print("(조건) filtered_log_hash에는 키가 없고, filtered_trace_hash에는 키가 있는가?")
             print("(결과) yes\n")
-            original_log_key_list = get_key_list(r, "*original_log_hash*")
+            original_log_key_list = get_key_list(r, "original_log_hash*")
             if key in original_log_key_list:
                 print("(조건) original_log_hash에 키가 있는가?")
                 print("(결과) yes\n")
@@ -107,7 +109,7 @@ def main():
         elif key in filtered_log_key_list and key not in filtered_trace_key_list:
             print("(조건) filtered_log_hash에는 키가 있고, filtered_trace_hash에는 키가 없는가?")
             print("(결과) yes")
-            original_trace_key_list = get_key_list(r, "*original_trace_hash*")
+            original_trace_key_list = get_key_list(r, "original_trace_hash*")
             if key in original_trace_key_list:
                 print("(조건) original_trace_hash에 키가 있는가?")
                 print("(결과) yes\n")
@@ -115,7 +117,6 @@ def main():
                 if result:
                     original_trace = get_parsing_data(r, "original_trace_hash", key)
                     add_complete_hash(r, key, filtered_log, original_trace)
-
             else:
                 print("(조건) original_trace_hash에 키가 있는가?")
                 print("(결과) no\n")
@@ -125,4 +126,7 @@ def main():
             print("(결과) no. 해당 키가 original_log, original_trace 결과만 존재하므로 insert하지 않습니다.\n")
             continue
 
-        time.sleep(180) # 3분
+    time.sleep(180) # 3분
+
+
+# main()
