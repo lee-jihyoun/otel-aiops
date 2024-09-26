@@ -1,3 +1,5 @@
+import logging
+
 import psycopg2  # pip install psycopg2-binary
 import requests
 import json
@@ -77,13 +79,13 @@ class CreateReport:
 
 
     # DB에서 error_history 읽어오기
-    def select_error_history(self, service_code, exception_stacktrace):
+    def select_error_history(self, service_code, exception_stacktrace_short):
         with self.db_connection() as conn, conn.cursor() as cur:
             read_query = f"""
                 SELECT * FROM error_history AS eh
                 WHERE eh.create_time > now() - '1 day'::interval
                 AND eh.service_code = '{service_code}'
-                AND eh.exception_stacktrace = '{exception_stacktrace}'
+                AND eh.exception_stacktrace_short = '{exception_stacktrace_short}'
             """
             cur.execute(read_query)
             result = cur.fetchall()
@@ -94,13 +96,13 @@ class CreateReport:
         error_report_dict ={}
         # 여기서 단위서비스코드, 오류내용, 시간 세개 조건으로 추가해야함
         for key, value in complete_dict.items():
-            result = self.select_error_history(value["service_code"], value["exception_stacktrace"])
+            result = self.select_error_history(value["service_code"], value["exception_stacktrace_short"])
             # print(type(result))
             # 비교 데이터 데이터 없음
             if len(result)==0 :
                 error_report_dict[key] = value
             else:
-                print('* DB insert 실패. 중복된 exception.stacktrace가 존재합니다.')
+                logging.info('* DB insert 실패. 중복된 exception.stacktrace.short가 존재합니다.')
         return error_report_dict
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
@@ -113,15 +115,15 @@ class CreateReport:
             db_data["trace_id"] = key
             self.save_error_report(db_data)
             self.save_error_history(value)
-            print("* DB insert 완료")
+            logging.info("* DB insert 완료")
 
     # error_history 테이블에 데이터 추가
     def save_error_history(self, error_report):
         with self.db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
-                INSERT INTO error_history (service_code, exception_stacktrace)
+                INSERT INTO error_history (service_code, exception_stacktrace_short)
                 VALUES (%s, %s)
-            ''', (error_report["service_code"], error_report["exception_stacktrace"]))
+            ''', (error_report["service_code"], error_report["exception_stacktrace_short"]))
 
     def save_error_report(self, error_report):
         with self.db_connection() as conn, conn.cursor() as cur:
@@ -132,19 +134,17 @@ class CreateReport:
                     error_content,
                     error_create_time,
                     error_location,
-                    exception_stacktrace_short,
                     error_cause,
                     error_solution,
                     trace_id,
                     service_impact)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                     error_report["service_code"],
                     error_report["error_name"],
                     error_report["error_content"],
                     error_report["error_create_time"],
                     error_report["error_location"],
-                    error_report["exception_stacktrace_short"],
                     error_report["error_cause"],
                     error_report["error_solution"],
                     error_report["trace_id"],
@@ -166,8 +166,6 @@ class CreateReport:
         # service_code : 서비스코드
         # exception_stacktrace : 오류로그 두줄
         complete_dict={}
-
-
         for key, value in main_dict.items():
             if value["mail"] == "N" and value["status"] == "complete":
                 complete_dict[key] = value
@@ -175,28 +173,40 @@ class CreateReport:
 
     # Database insert 데이터로 변환
     def make_db_data(self, clean_response):
-        content = clean_response['data']['content']
-        error_report = {}
-        service_code = content["기본정보"]["서비스코드"]
-        error_name = content["오류내용"]["오류 이름"]
-        error_create_time = content["오류내용"]["발생 시간"]
-        error_content = content["오류내용"]["오류 내용"]
-        error_location = content["분석결과"]["오류 발생 위치"]
-        exception_stacktrace_short = content["분석결과"]["exception.stacktrace.short"]
-        error_cause = content["분석결과"]["오류 근본 원인"]
-        service_impact = content["분석결과"]["서비스 영향도"]
-        error_solution = content["후속조치"]["조치방안"]
+        retry = 0
+        max_retry = 3
+        while retry < max_retry:
+            try:
+                content = clean_response['data']['content']
+                error_report = {}
+                service_code = content["기본정보"]["서비스코드"]
+                error_name = content["오류내용"]["오류 이름"]
+                error_create_time = content["오류내용"]["발생 시간"]
+                error_content = content["오류내용"]["오류 내용"]
+                error_location = content["분석결과"]["오류 발생 위치"]
+                exception_stacktrace_short = content["분석결과"]["exception.stacktrace.short"]
+                error_cause = content["분석결과"]["오류 근본 원인"]
+                service_impact = content["분석결과"]["서비스 영향도"]
+                error_solution = content["후속조치"]["조치방안"]
 
-        error_report["service_code"] = service_code
-        error_report["error_name"] = error_name
-        error_report["error_create_time"] = error_create_time
-        error_report["error_content"] = error_content
-        error_report["error_location"] = error_location
-        error_report["exception_stacktrace_short"] = exception_stacktrace_short
-        error_report["error_cause"] = error_cause
-        error_report["service_impact"] = service_impact
-        error_report["error_solution"] = error_solution
-        return error_report
+                error_report["service_code"] = service_code
+                error_report["error_name"] = error_name
+                error_report["error_create_time"] = error_create_time
+                error_report["error_content"] = error_content
+                error_report["error_location"] = error_location
+                error_report["exception_stacktrace_short"] = exception_stacktrace_short
+                error_report["error_cause"] = error_cause
+                error_report["service_impact"] = service_impact
+                error_report["error_solution"] = error_solution
+                logging.info(f"* error_report: \n{error_report}")
+                return error_report
+
+            except KeyError as e:
+                logging.info(f"* ffreesia 응답에 key가 없어 오류가 발생했습니다.: {e} \n 다시 시도합니다.")
+                retry += 1
+
+        logging.info("* 데이터 생성에 실패했습니다.")
+        return None
 
     # log data에 포함된 {} 기호 전처리
     def remove_json_value(self, value):

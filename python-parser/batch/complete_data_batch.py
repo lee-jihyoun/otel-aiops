@@ -3,7 +3,7 @@ import json
 
 
 def db_connection():
-    return redis.Redis(host='100.83.227.59', port=16379, db=0, password='redis1234!')
+    return redis.Redis(host='100.83.227.59', port=16379, db=2, password='redis1234!')
 
 
 def get_hash_key_list(r, hash_info):
@@ -27,9 +27,10 @@ def get_key_list(r, hash_info):
 def get_parsing_data(r, hash_info, key):
     hash_key = hash_info + ":" + key
     parsing_data = r.hvals(hash_key)
+    # byte 타입을 str로 디코딩
     parsing_data_list = [key.decode('utf-8') for key in parsing_data]
     parsing_data_json = json.dumps(parsing_data_list)
-    print("*", hash_info, "의 파싱 데이터:", parsing_data_json)
+    print("*", hash_info, "의 파싱 데이터:", parsing_data_json, "\n")
     return parsing_data_json
 
 
@@ -53,10 +54,11 @@ def add_complete_hash(r, key, log, trace):
     # 결과 확인
     complete_hash = r.hgetall(complete_key)
     complete_hash_dict = {}
-    for field, value in complete_hash.items():
-        field = field.decode('utf-8')
-        value = value.decode('utf-8')
-        complete_hash_dict[field] = value
+    fields_sort = ["parsing_data_log", "parsing_data_trace"]
+    for field in fields_sort:
+        value = complete_hash.get(field.encode('utf-8'))
+        if value:
+            complete_hash_dict[field] = value.decode('utf-8')
     print("\n(성공) complete_hash에 추가 ===>\n", key, ":", complete_hash_dict)
 
 
@@ -65,14 +67,14 @@ def process_complete_hash():
     r = db_connection()
     # key 조회
     key_list = get_hash_key_list(r, "*key_store*")
-    filter_log_key_list = get_key_list(r, "*filter_log_hash*")
-    filter_trace_key_list = get_key_list(r, "*filter_trace_hash*")
+    filter_log_key_list = get_key_list(r, "*filtered_log_hash*")
+    filter_trace_key_list = get_key_list(r, "*filtered_trace_hash*")
 
     for hash_key in key_list:
         key = hash_key.split(":")[1]
         print("\n-------------- 현재 key(", key, ")가 포함된 hash 정보 --------------")
-        filter_log = get_parsing_data(r, "filter_log_hash", key)
-        filter_trace = get_parsing_data(r, "filter_trace_hash", key)
+        filter_log = get_parsing_data(r, "filtered_log_hash", key)
+        filter_trace = get_parsing_data(r, "filtered_trace_hash", key)
 
         # key의 retry 필드 값을 1 증가(최초 시작: 1)
         r.hincrby(hash_key, "retry", 1)
@@ -122,3 +124,4 @@ def process_complete_hash():
             continue
 
 
+# TODO: timesleep은 안에서 걸고, main에서는 스레드로 실행
