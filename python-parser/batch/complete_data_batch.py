@@ -1,9 +1,11 @@
+import time
+
 import redis
 import json
 
 
 def db_connection():
-    return redis.Redis(host='100.83.227.59', port=16379, db=2, password='redis1234!')
+    return redis.Redis(host='100.83.227.59', port=16379, db=0, password='redis1234!')
 
 
 def get_hash_key_list(r, hash_info):
@@ -62,32 +64,32 @@ def add_complete_hash(r, key, log, trace):
     print("\n(성공) complete_hash에 추가 ===>\n", key, ":", complete_hash_dict)
 
 
-def process_complete_hash():
+def main():
     # Redis 클라이언트 설정
     r = db_connection()
     # key 조회
     key_list = get_hash_key_list(r, "*key_store*")
-    filter_log_key_list = get_key_list(r, "*filtered_log_hash*")
-    filter_trace_key_list = get_key_list(r, "*filtered_trace_hash*")
+    filtered_log_key_list = get_key_list(r, "*filtered_log_hash*")
+    filtered_trace_key_list = get_key_list(r, "*filtered_trace_hash*")
 
     for hash_key in key_list:
         key = hash_key.split(":")[1]
         print("\n-------------- 현재 key(", key, ")가 포함된 hash 정보 --------------")
-        filter_log = get_parsing_data(r, "filtered_log_hash", key)
-        filter_trace = get_parsing_data(r, "filtered_trace_hash", key)
+        filtered_log = get_parsing_data(r, "filtered_log_hash", key)
+        filtered_trace = get_parsing_data(r, "filtered_trace_hash", key)
 
         # key의 retry 필드 값을 1 증가(최초 시작: 1)
         r.hincrby(hash_key, "retry", 1)
 
-        if key in filter_log_key_list and key in filter_trace_key_list:
-            print("\n(조건) filter_log_hash, filter_trace_hash에 모두 key가 있는가?")
+        if key in filtered_log_key_list and key in filtered_trace_key_list:
+            print("\n(조건) filtered_log_hash, filtered_trace_hash에 모두 key가 있는가?")
             print("(결과) yes\n")
             result = is_retry_over_2(r, hash_key)
             if result:
-                add_complete_hash(r, key, filter_log, filter_trace)
+                add_complete_hash(r, key, filtered_log, filtered_trace)
 
-        elif key not in filter_log_key_list and key in filter_trace_key_list:
-            print("(조건) filter_log_hash에는 키가 없고, filter_trace_hash에는 키가 있는가?")
+        elif key not in filtered_log_key_list and key in filtered_trace_key_list:
+            print("(조건) filtered_log_hash에는 키가 없고, filtered_trace_hash에는 키가 있는가?")
             print("(결과) yes\n")
             original_log_key_list = get_key_list(r, "*original_log_hash*")
             if key in original_log_key_list:
@@ -96,14 +98,14 @@ def process_complete_hash():
                 result = is_retry_over_2(r, hash_key)
                 if result:
                     original_log = get_parsing_data(r, "original_log_hash", key)
-                    add_complete_hash(r, key, original_log, filter_trace)
+                    add_complete_hash(r, key, original_log, filtered_trace)
             else:
                 print("(조건) original_log_hash에 키가 있는가?")
                 print("(결과) no\n")
                 continue
 
-        elif key in filter_log_key_list and key not in filter_trace_key_list:
-            print("(조건) filter_log_hash에는 키가 있고, filter_trace_hash에는 키가 없는가?")
+        elif key in filtered_log_key_list and key not in filtered_trace_key_list:
+            print("(조건) filtered_log_hash에는 키가 있고, filtered_trace_hash에는 키가 없는가?")
             print("(결과) yes")
             original_trace_key_list = get_key_list(r, "*original_trace_hash*")
             if key in original_trace_key_list:
@@ -112,16 +114,15 @@ def process_complete_hash():
                 result = is_retry_over_2(r, hash_key)
                 if result:
                     original_trace = get_parsing_data(r, "original_trace_hash", key)
-                    add_complete_hash(r, key, filter_log, original_trace)
+                    add_complete_hash(r, key, filtered_log, original_trace)
 
             else:
                 print("(조건) original_trace_hash에 키가 있는가?")
                 print("(결과) no\n")
                 continue
         else:
-            print("(조건) filter_log_hash에는 키가 있고, filter_trace_hash에는 키가 없는가?")
+            print("(조건) filtered_log_hash에는 키가 있고, filtered_trace_hash에는 키가 없는가?")
             print("(결과) no. 해당 키가 original_log, original_trace 결과만 존재하므로 insert하지 않습니다.\n")
             continue
 
-
-# TODO: timesleep은 안에서 걸고, main에서는 스레드로 실행
+        time.sleep(180) # 3분
