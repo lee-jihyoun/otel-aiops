@@ -1,2 +1,15 @@
 server:
   port: 13030
+spring:
+  data :
+    redis:
+      host: localhost
+      port: 16379
+      password: 'redis1234!'
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+      timeout: 60000
+
