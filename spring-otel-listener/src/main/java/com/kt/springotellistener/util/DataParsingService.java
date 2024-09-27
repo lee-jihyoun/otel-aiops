@@ -1,10 +1,6 @@
 package com.kt.springotellistener.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.opentelemetry.proto.logs.v1.LogsData;
-import io.opentelemetry.proto.metrics.v1.MetricsData;
-import io.opentelemetry.proto.trace.v1.TracesData;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -100,8 +96,6 @@ public class DataParsingService {
             parsingData = new String(decompressedBody, StandardCharsets.UTF_8);
             Map<String,Object> map = dataUtil.parseJsonToMap(parsingData);
             logParsingList =  parseResourceLogs(map);
-//            String log = dataUtil.convertMapToJson(logParsingList);
-//            fileUtil.saveToFile("parsing_log.json", log);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -242,24 +236,25 @@ public class DataParsingService {
 
                         // span -> attributes에서 필요한 값을 추출
                         List<Map<String, Object>> spanAttributes = (List<Map<String, Object>>) span.get("attributes");
-
-                        for (Map<String, Object> attribute : spanAttributes) {
-                            try {
-                                if ("http.status_code".equals(attribute.get("key")) && ((Map)attribute.get("value")).containsKey("intValue")) {
-                                    parsedInfo.put("http.status_code", ((Map)attribute.get("value")).get("intValue"));
+                        if (spanAttributes != null && !spanAttributes.isEmpty()) {
+                            for (Map<String, Object> attribute : spanAttributes) {
+                                try {
+                                    if ("http.status_code".equals(attribute.get("key")) && ((Map) attribute.get("value")).containsKey("intValue")) {
+                                        parsedInfo.put("http.status_code", ((Map) attribute.get("value")).get("intValue"));
+                                    }
+                                    if ("rpc.grpc.status_code".equals(attribute.get("key"))) {
+                                        parsedInfo.put("rpc.grpc.status_code", ((Map) attribute.get("value")).get("intValue"));
+                                    }
+                                    if ("http.url".equals(attribute.get("key"))) {
+                                        parsedInfo.put("http.url", ((Map) attribute.get("value")).get("stringValue"));
+                                    }
+                                    if ("rpc.method".equals(attribute.get("key"))) {
+                                        parsedInfo.put("rpc.method", ((Map) attribute.get("value")).get("stringValue"));
+                                    }
+                                } catch (Exception e) {
+                                    System.err.println("Error parsing attribute: " + e.getMessage());
+                                    continue;
                                 }
-                                if ("rpc.grpc.status_code".equals(attribute.get("key"))) {
-                                    parsedInfo.put("rpc.grpc.status_code", ((Map)attribute.get("value")).get("intValue"));
-                                }
-                                if ("http.url".equals(attribute.get("key"))) {
-                                    parsedInfo.put("http.url", ((Map)attribute.get("value")).get("stringValue"));
-                                }
-                                if ("rpc.method".equals(attribute.get("key"))) {
-                                    parsedInfo.put("rpc.method", ((Map)attribute.get("value")).get("stringValue"));
-                                }
-                            } catch (Exception e) {
-                                System.err.println("Error parsing attribute: " + e.getMessage());
-                                continue;
                             }
                         }
 
@@ -268,18 +263,19 @@ public class DataParsingService {
                         if (events != null && !events.isEmpty()) {
                             for (Map<String, Object> event : events) {
                                 List<Map<String, Object>> eventAttributes = (List<Map<String, Object>>) event.get("attributes");
+                                if (eventAttributes != null && !eventAttributes.isEmpty()) {
+                                    for (Map<String, Object> attribute : eventAttributes) {
+                                        if ("exception.message".equals(attribute.get("key"))) {
+                                            parsedInfo.put("exception.message", ((Map) attribute.get("value")).get("stringValue"));
+                                        }
+                                        if ("exception.stacktrace".equals(attribute.get("key"))) {
+                                            String stacktrace = (String) ((Map) attribute.get("value")).get("stringValue");
+                                            parsedInfo.put("exception.stacktrace", stacktrace);
 
-                                for (Map<String, Object> attribute : eventAttributes) {
-                                    if ("exception.message".equals(attribute.get("key"))) {
-                                        parsedInfo.put("exception.message", ((Map) attribute.get("value")).get("stringValue"));
-                                    }
-                                    if ("exception.stacktrace".equals(attribute.get("key"))) {
-                                        String stacktrace = (String) ((Map) attribute.get("value")).get("stringValue");
-                                        parsedInfo.put("exception.stacktrace", stacktrace);
-
-                                        // 두 번째 줄까지만 파싱하여 저장
-                                        String shortStackTrace = String.join(" ", Arrays.asList(stacktrace.split("\n")).subList(0, 2));
-                                        parsedInfo.put("exception.stacktrace.short", shortStackTrace);
+                                            // 두 번째 줄까지만 파싱하여 저장
+                                            String shortStackTrace = String.join(" ", Arrays.asList(stacktrace.split("\n")).subList(0, 2));
+                                            parsedInfo.put("exception.stacktrace.short", shortStackTrace);
+                                        }
                                     }
                                 }
                             }

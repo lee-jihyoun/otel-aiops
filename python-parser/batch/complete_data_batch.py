@@ -5,7 +5,7 @@ import json
 
 
 def db_connection():
-    return redis.Redis(host='100.83.227.59', port=16379, db=3, password='redis1234!')
+    return redis.Redis(host='127.0.0.1', port=16379, db=0, password='redis1234!')
 
 
 def get_hash_key_list(r, hash_info):
@@ -32,8 +32,14 @@ def get_parsing_data(r, hash_info, key):
     # byte 타입을 str로 디코딩
     parsing_data_list = [key.decode('utf-8') for key in parsing_data]
     parsing_data_json = json.dumps(parsing_data_list)
+
+    # temp_list = r.lrange(hash_key, 0, -1)
+    # temp_list = [item.decode('utf-8') for item in temp_list]
+
+    # print("*", hash_info, "의 파싱 데이터:", temp_list, "\n")
     print("*", hash_info, "의 파싱 데이터:", parsing_data_json, "\n")
     return parsing_data_json
+    # return temp_list
 
 
 def is_retry_over_2(r, hash_key):

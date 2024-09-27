@@ -5,9 +5,7 @@ import com.kt.springotellistener.vo.MyData;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @AllArgsConstructor
 @RestController
@@ -39,17 +37,23 @@ public class RedisTestController {
 
     // 데이터 저장
     //    @PostMapping("/save")
-    // 데이터 저장 엔드포인트
+    // 데이터 저장
     @PostMapping("/save")
     public String saveData(@RequestBody MyData myData) {
         redisService.saveData(myData.getId(), myData.getData());
         return "Data saved for ID: " + myData.getId();
     }
 
-    // 데이터 조회 엔드포인트
-    @GetMapping("/get/{id}")
-    public List<Object> getData(@PathVariable String id) {
-        return redisService.getData(id);
+    // 데이터 조회
+    @GetMapping("/get/list/{id}")
+    public List<Object> getListData(@PathVariable String id) {
+        return redisService.getListData(id);
+    }
+
+    // 데이터 조회
+    @GetMapping("/get/hash/{id}")
+    public Object getHashData(@PathVariable String id) {
+        return redisService.getHashData(id);
     }
 
 }

@@ -35,4 +35,15 @@ public class DataUtil {
         }
         return json;
     }
+
+    public String convertListToString(List<Map<String, Object>> list){
+        ObjectMapper objectMapper = new ObjectMapper();
+        String resultString="";
+        try{
+            resultString= objectMapper.writeValueAsString(list);
+        }catch (Exception e){
+
+        }
+        return resultString;
+    }
 }
