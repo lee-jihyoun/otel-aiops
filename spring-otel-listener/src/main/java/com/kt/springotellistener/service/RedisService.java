@@ -1,16 +1,35 @@
 package com.kt.springotellistener.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.kt.springotellistener.util.DataUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
+
+@AllArgsConstructor
 @Service
 public class RedisService {
 
-    @Autowired
+
     private RedisTemplate<String, Object> redisTemplate;
+
+    DataUtil dataUtil;
+
+    public void saveToRedis(String hashKey, List<Map<String,Object>> dataList){
+        hashKey += dataList.get(0).get("traceId").toString();
+        for(Map<String,Object> map : dataList){
+            String data = dataUtil.convertMapToJson(map);
+            redisTemplate.opsForList().rightPush(hashKey,data);
+        }
+
+    }
+
+
 
     // String 값을 저장 (set)
     public void setValue(String key, String value) {
