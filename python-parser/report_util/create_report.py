@@ -61,25 +61,28 @@ class CreateReport:
         return response
 
     # 보낼 JSON 데이터의 message 생성
-    def create_message(self, log_data, span_data):
-        global template
+    def create_message(self, log, trace):
         # 템플릿을 그대로 사용
-        data = template[:].replace("{{error_log}}", log_data)
-        data = data.replace("{{error_span}}", span_data)
+        global template
+        # list -> str로 변환
+        log = json.dumps(log)
+        trace = json.dumps(trace)
+
+        data = template[:].replace("{{error_log}}", log)
+        data = data.replace("{{error_span}}", trace)
         data = {"message": data}
         return json.dumps(data)
 
     # 오류 리포트 생성
-    def create_error_report(self, log_data, span_data):
-        json_data = self.create_message(log_data, span_data)
+    def create_error_report(self, log, trace):
+        json_data = self.create_message(log, trace)
         result = self.call_freesia_api(json_data)
         # print(result.text)
         return result.text
 
-
-
     # DB에서 error_history 읽어오기
     def select_error_history(self, service_code, exception_stacktrace_short):
+        print("* select 하려는 service_code:", service_code)
         with self.db_connection() as conn, conn.cursor() as cur:
             read_query = f"""
                 SELECT * FROM error_history AS eh
@@ -91,31 +94,45 @@ class CreateReport:
             result = cur.fetchall()
         return result
 
-    # DB에서의 error_history와 완료 목록을 비교
-    def compare_db_dict(self, complete_dict):
-        error_report_dict ={}
-        # 여기서 단위서비스코드, 오류내용, 시간 세개 조건으로 추가해야함
-        for key, value in complete_dict.items():
-            result = self.select_error_history(value["service_code"], value["exception_stacktrace_short"])
-            # print(type(result))
-            # 비교 데이터 데이터 없음
-            if len(result)==0 :
-                error_report_dict[key] = value
-            else:
-                logging.info('* DB insert 실패. 중복된 exception.stacktrace.short가 존재합니다.')
-        return error_report_dict
+    # DB에서의 error_history와 완료 목록을 비교(중복 체크)
+    def is_duplicate_error(self, key, trace_data):
+        logging.info("* 중복된 오류가 있었는지 확인합니다.")
+        duplicate_cnt = 0
+        for trace in trace_data:
+            # str -> list로 변환
+            trace_list = json.loads(trace)
+            # dict에 접근
+            for trace_dict in trace_list:
+                # TODO: service_code를 잡을때 exception.stacktrace.short가 겹치는 부분의 code는 F10011 / freesia 결과로 잡히는 code는 CA1003 -> error_report, error_history에는 CA1002으로 들어가니까 중복체크를 못함.
+                service_code = trace_dict.get("service.code")
+                exception_stacktrace_short = trace_dict.get("exception.stacktrace.short")
+                # print(exception_stacktrace_short)
+                result = self.select_error_history(service_code, exception_stacktrace_short)
+                if len(result) != 0:
+                    duplicate_cnt += 1
+
+        if duplicate_cnt > 0:
+            logging.info("* 중복 오류가 있습니다. 오류 보고서를 생성할 수 없습니다")
+            return True
+        else:
+            logging.info("* 중복 오류가 없습니다. 오류 보고서를 생성합니다.")
+            return False
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
-    def create_and_save_error_report(self, error_report_dict):
-        for key, value in error_report_dict.items():
-            value["parsing_data_log"] = self.remove_json_value(value["parsing_data_log"])
-            response = self.create_error_report(value["parsing_data_log"], value["parsing_data_trace"])
-            clean_result = self.make_clean_markdown_json(response)
-            db_data = self.make_db_data(clean_result)
+    def create_and_save_error_report(self, key, log, trace):
+        response = self.create_error_report(log, trace)
+        clean_result = self.make_clean_markdown_json(response)
+        db_data = self.make_db_data(clean_result)
+        if db_data is not None:
             db_data["trace_id"] = key
+            logging.info(f"* freesia 오류보고서:\n {db_data}")
             self.save_error_report(db_data)
-            self.save_error_history(value)
+            self.save_error_history(db_data)
             logging.info("* DB insert 완료")
+            return "success"
+        else:
+            logging.info("* DB insert 실패")
+            return "fail"
 
     # error_history 테이블에 데이터 추가
     def save_error_history(self, error_report):
@@ -151,30 +168,10 @@ class CreateReport:
                     error_report["service_impact"]
             ))
 
-    # 리포트 대상 데이터 출력
-    # 전역변수 main_dcit를 사용하려고 했는데,, 순환 참조.
-    def findCompleteData(self, main_dict):
-        # status
-        #     log : 로그파싱 완료 상태
-        #     trace : 트레이스 파싱 완료 상태
-        #     confirm : 1차 파싱 완료 상태 (이상태에서 한번 더 실행하면 complete 로 변경됨)
-        #     complete : 2차 파싱 완료 상태 (모든 데이터 파싱 완료 상태)
-        # parsing_data_log : 파싱된 로그
-        # parsing_data_trace : 파싱된 트레이스
-        # retry : 리트라이횟수
-        # mail : 메일 발송 여부
-        # service_code : 서비스코드
-        # exception_stacktrace : 오류로그 두줄
-        complete_dict={}
-        for key, value in main_dict.items():
-            if value["mail"] == "N" and value["status"] == "complete":
-                complete_dict[key] = value
-        return complete_dict
-
-    # Database insert 데이터로 변환
+    # DB insert 하기 위한 데이터로 변환
     def make_db_data(self, clean_response):
         retry = 0
-        max_retry = 3
+        max_retry = 5
         while retry < max_retry:
             try:
                 content = clean_response['data']['content']
@@ -198,14 +195,14 @@ class CreateReport:
                 error_report["error_cause"] = error_cause
                 error_report["service_impact"] = service_impact
                 error_report["error_solution"] = error_solution
-                logging.info(f"* error_report: \n{error_report}")
                 return error_report
 
             except KeyError as e:
-                logging.info(f"* ffreesia 응답에 key가 없어 오류가 발생했습니다.: {e} \n 다시 시도합니다.")
+                logging.info(f"* freesia 응답에 key가 없어 오류가 발생했습니다.: {e}")
+                logging.info(f"* 다시 시도합니다.")
                 retry += 1
 
-        logging.info("* 데이터 생성에 실패했습니다.")
+        logging.info("* freesia 데이터 생성에 실패했습니다.")
         return None
 
     # log data에 포함된 {} 기호 전처리
