@@ -53,7 +53,9 @@ def add_complete_hash(r, key, log, trace):
         "parsing_data_log": log,
         "parsing_data_trace": trace
     })
-    # complete_key_store(list)에도 넣어줌
+    # complete_hash expire 설정(15분)
+    r.expire(complete_key, 900)
+    # complete_key_store(list 타입)에도 넣어줌
     r.rpush("complete_key_store", key)
     # 결과 확인
     complete_hash = r.hgetall(complete_key)
