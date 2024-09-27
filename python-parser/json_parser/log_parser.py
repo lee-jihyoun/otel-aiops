@@ -94,86 +94,91 @@ class LogParsing:
                     except json.JSONDecodeError as e:
                         logging.ERROR(f"Error parsing line: {e}")
 
-                logging.info("**************************")
-                logging.info("parsing_log_data_list\n")
+                    logging.info("**************************")
+                    logging.info("parsing_log_data_list\n")
+                    logging.info(parsing_log_data_list)
+                    logging.info("**************************")
+
+                    # 마지막으로 읽은 위치를 업데이트
+                    if file_name == "filtered_logs.json":
+                        # 파일 포인터를 마지막 읽은 위치로 이동
+                        filter_last_position = log_file.tell()+1  # 현재 파일 포인터의 위치를 저장 (다음 위치 + 줄바꿈 고려해서 +2)
+
+                    else:
+                        original_last_position = log_file.tell()+1  # 현재 파일 포인터의 위치를 저장 (다음 위치 + 줄바꿈 고려해서 +2)
+
+                logging.info("============ log 파싱 end ===========\n")
                 logging.info(parsing_log_data_list)
-                logging.info("**************************")
-
-            # 마지막으로 읽은 위치를 업데이트
-            if file_name == "filtered_logs.json":
-                # 파일 포인터를 마지막 읽은 위치로 이동
-                filter_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장 (다음 위치 + 줄바꿈 고려해서 +2)
-
-            else:
-                original_last_position = log_file.tell()+2  # 현재 파일 포인터의 위치를 저장 (다음 위치 + 줄바꿈 고려해서 +2)
-
-            logging.info("============ log 파싱 end ===========\n")
-            logging.info(parsing_log_data_list)
 
             return parsing_log_data_list
 
     def redis_insert(self):
 
-        file_name = self.file_name
+        while True:
 
-        logging.info("============ db 삽입 start===========\n")
-        # Redis 클라이언트 설정
-        r = redis.Redis(host='100.83.227.59', port=16379, db=1, password='redis1234!')
+            file_name = self.file_name
+            parsing_log_data_list = self.logparser()
 
-        parsing_log_data_list = self.logparser()
-        print(1)
-        logging.info("*****************")
-        logging.info("parsing_log_data_list\n")
-        logging.info(parsing_log_data_list)
-        logging.info("**************************")        #
-        # for log in parsing_log_data_list:
-        #     trace_id = log['traceId']
-        #
-        #     # redis에 저장할 key 값 설정
-        #     key_store_key = f"key_store:{trace_id}"
-        #
-        #     if file_name == "filtered_logs.json":
-        #         # 해시 키는 traceId로 설정
-        #         hash_key = f"filtered_log_hash:{trace_id}"
-        #
-        #     else:
-        #         # 해시 키는 traceId로 설정
-        #         hash_key = f"original_log_hash:{trace_id}"
-        #
-        #     # # 현재 데이터를 JSON 형식으로 변환
-        #     # log_json = json.dumps(log)
-        #
-        #     # parsing_data_log 필드가 존재하는지 확인하고, 없으면 리스트로 초기화
-        #     existing_logs = r.hget(hash_key, 'parsing_data_log')
-        #     if existing_logs:
-        #         existing_logs_list = json.loads(existing_logs)
-        #     else:
-        #         existing_logs_list = []
-        #
-        #     # 새로운 로그를 리스트에 추가
-        #     existing_logs_list.append(log)
-        #
-        #     logging.info("existing_logs")
-        #     logging.info(existing_logs_list)
-        #     # Redis에 업데이트된 리스트 저장 (HSET으로 해시 업데이트)
-        #     r.hset(hash_key, "parsing_data_log", json.dumps(existing_logs_list))
-        #     r.hset(key_store_key, "retry", "0")
-        #
-        # # Redis에 저장된 데이터 확인 (예시)
-        # for log in parsing_log_data_list:
-        #
-        #     trace_id = log['traceId']
-        #
-        #     if file_name == "filtered_logs.json":
-        #         # 해시 키는 traceId로 설정
-        #         hash_key = f"filtered_log_hash:{trace_id}"
-        #
-        #     else:
-        #         # 해시 키는 traceId로 설정
-        #         hash_key = f"original_log_hash:{trace_id}"
-        #
-        #     logging.info(f"Redis Key: {hash_key}")
-        #     logging.info(r.hget(hash_key, "parsing_data_log"))
-        #     logging.info(r.hget(hash_key, "parsing_data_log").decode("utf-8"))
-        #
-        #     logging.info("============ db 삽입 end===========\n")
+            logging.info("*****************")
+            logging.info("parsing_log_data_list\n")
+            logging.info(parsing_log_data_list)
+            logging.info("**************************")
+
+            if parsing_log_data_list != []:
+
+                logging.info("============ db 삽입 start===========\n")
+                # Redis 클라이언트 설정
+                r = redis.Redis(host='100.83.227.59', port=16379, db=1, password='redis1234!')
+
+                for log in parsing_log_data_list:
+                    trace_id = log['traceId']
+
+                    # redis에 저장할 key 값 설정
+                    key_store_key = f"key_store:{trace_id}"
+
+                    if file_name == "filtered_logs.json":
+                        # 해시 키는 traceId로 설정
+                        hash_key = f"filtered_log_hash:{trace_id}"
+
+                    else:
+                        # 해시 키는 traceId로 설정
+                        hash_key = f"original_log_hash:{trace_id}"
+
+                    # # 현재 데이터를 JSON 형식으로 변환
+                    # log_json = json.dumps(log)
+
+                    # parsing_data_log 필드가 존재하는지 확인하고, 없으면 리스트로 초기화
+                    existing_logs = r.hget(hash_key, 'parsing_data_log')
+                    if existing_logs:
+                        existing_logs_list = json.loads(existing_logs)
+                    else:
+                        existing_logs_list = []
+
+                    # 새로운 로그를 리스트에 추가
+                    existing_logs_list.append(log)
+                    logging.info("existing_logs")
+                    logging.info(existing_logs_list)
+
+                    # Redis에 업데이트된 리스트 저장 (HSET으로 해시 업데이트)
+                    r.hset(hash_key, "parsing_data_log", json.dumps(existing_logs_list))
+                    r.hset(key_store_key, "retry", "0")
+
+                # Redis에 저장된 데이터 확인 (예시) # for문만큼 확인
+                for log in parsing_log_data_list:
+
+                    trace_id = log['traceId']
+
+                    if file_name == "filtered_logs.json":
+                        # 해시 키는 traceId로 설정
+                        hash_key = f"filtered_log_hash:{trace_id}"
+
+                    else:
+                        # 해시 키는 traceId로 설정
+                        hash_key = f"original_log_hash:{trace_id}"
+
+                    logging.info(f"Redis Key: {hash_key}")
+                    logging.info(r.hget(hash_key, "parsing_data_log"))
+                    logging.info(r.hget(hash_key, "parsing_data_log").decode("utf-8"))
+                    logging.info("\n")
+
+                logging.info("============ db 삽입 end===========\n")
