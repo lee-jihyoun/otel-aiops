@@ -16,11 +16,13 @@ public class RedisTestController {
     @GetMapping("/set")
     public String setValue() {
         redisService.setValue("myKey", "myValue");
+        System.out.println("###set in");
         return "Value set";
     }
 
     @GetMapping("/get")
     public String getValue() {
+        System.out.println("### get in");
         return redisService.getValue("myKey");
     }
 
