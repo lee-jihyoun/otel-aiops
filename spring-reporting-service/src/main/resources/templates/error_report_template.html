@@ -2,22 +2,28 @@
 <html lang="kr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>오류 리포트</title>
+    <title>Gen.AI 오류 보고서</title>
     <style>
+        <style>
         body { font-family: Arial, sans-serif; }
-        h2 { color: #2C3E50; }
+        h2 {
+            color: #2C3E50;
+            margin-bottom: 10px;
+            border-top: 1px solid #848484; /* 구분선 추가 */
+            padding-top: 10px; /* 구분선과 텍스트 사이에 여백 추가 */
+        }
         p { font-size: 14px; }
         pre { background-color: #F4F4F4; padding: 10px; border-radius: 5px; }
     </style>
 </head>
 <body>
+<h1>Gen.AI 오류 보고서</h1>
+<p><b>오류 발생 시간:</b> <span th:text="${#temporals.format(created_time, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+
 <!-- 기본정보 -->
 <h2>기본정보</h2>
-<b>서비스명(영문)</b>
-<pre th:text="${service_name_en}"></pre>
-
-<b>서비스명(한글)</b>
-<pre th:text="${service_name_kr}"></pre>
+<b>서비스명</b> <!-- 한글명(영문명) -->
+<pre th:text="${service_name_kr} + ' (' + ${service_name_en} + ')'"></pre>
 
 <b>서비스코드</b>
 <pre th:text="${service_code}"></pre>
@@ -29,9 +35,6 @@
 <h2>오류내용</h2>
 <b>오류 이름</b>
 <pre th:text="${error_name}"></pre>
-
-<b>발생 시간</b>
-<pre th:text="${created_time}"></pre>
 
 <b>오류 내용</b>
 <pre th:text="${error_content}"></pre>
