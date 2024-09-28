@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -52,9 +53,13 @@ public class ErrorReportScheduler {
                     String serviceCode = serviceInfo.getServiceCode(); // ServiceInfo에서 serviceCode 가져옴
                     // user_info 테이블에서 service_code로 사용자 목록 조회
                     List<UserInfo> users = userInfoRepository.findByServiceInfo(serviceInfo);
+                    //날짜 조회
+                    LocalDate today = LocalDate.now();
+                    int month = today.getMonthValue();
+                    int day = today.getDayOfMonth();
                     for (UserInfo user : users) {
                         // 메일 발송
-                        mailService.sendEmail(user.getEmail(), "오류 리포트", errorReportService.templateModel(errorReport));
+                        mailService.sendEmail(user.getEmail(), "Gen.AI 오류보고서(" + month + "월 " + day + "일)", errorReportService.templateModel(errorReport));
                         MailSendInfo mailSendInfo = new MailSendInfo();
                         mailSendInfo.setReceiverEmail(user.getEmail());
                         mailSendInfo.setErrorReport(errorReport); // ErrorReport 객체를 직접 설정

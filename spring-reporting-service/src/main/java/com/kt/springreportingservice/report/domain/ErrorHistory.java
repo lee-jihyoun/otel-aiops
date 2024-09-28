@@ -21,9 +21,12 @@ public class ErrorHistory {
     @JoinColumn(name = "service_code", referencedColumnName = "service_code")
     private ServiceInfo serviceInfo;
 
-    @Column(name = "exception_stacktrace", length = 500)
-    private String exceptionStacktrace;
+    @Column(name = "exception_stacktrace_short", length = 500)
+    private String exceptionStacktraceShort;
 
     @Column(name = "create_time")
     private LocalDateTime createTime;
+
+    @Column(name ="cnt")
+    private int cnt;
 }
