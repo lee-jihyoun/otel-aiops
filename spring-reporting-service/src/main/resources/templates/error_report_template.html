@@ -4,25 +4,43 @@
     <meta charset="UTF-8">
     <title>Gen.AI 오류 보고서</title>
     <style>
-        <style>
-        body { font-family: Arial, sans-serif; }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #2C3E50;
+        }
         h2 {
             color: #2C3E50;
             margin-bottom: 10px;
-            border-top: 1px solid #848484; /* 구분선 추가 */
-            padding-top: 10px; /* 구분선과 텍스트 사이에 여백 추가 */
+            border-top: 0.5px solid #D8D8D8; /* 구분선 추가 */
+            padding-top: 10px; /* 구분선과 텍스트 사이의 여백 */
         }
-        p { font-size: 14px; }
-        pre { background-color: #F4F4F4; padding: 10px; border-radius: 5px; }
+        b {
+            color: #6E6E6E; /* 회색으로 변경 */
+            margin-top: 10px; /* 제목과 내용 사이의 여백 */
+            display: inline; /* 블록으로 만들지 않고 한 줄로 유지 */
+        }
+        pre {
+            background-color: #F4F4F4;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px; /* 내용 간의 여백 */
+            white-space: pre-wrap; /* 긴 텍스트 줄 바꿈 */
+        }
+        p {
+            font-size: 14px;
+            margin-bottom: 15px; /* 문단 간의 여백 */
+        }
     </style>
 </head>
 <body>
 <h1>Gen.AI 오류 보고서</h1>
-<p><b>오류 발생 시간:</b> <span th:text="${#temporals.format(created_time, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+<p><b>오류 발생 시간: </b><span th:text="${#temporals.format(created_time, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
 
 <!-- 기본정보 -->
 <h2>기본정보</h2>
-<b>서비스명</b> <!-- 한글명(영문명) -->
+<b>서비스명</b>
 <pre th:text="${service_name_kr} + ' (' + ${service_name_en} + ')'"></pre>
 
 <b>서비스코드</b>
@@ -44,10 +62,8 @@
 <b>서비스 영향도</b>
 <pre th:text="${service_impact}"></pre>
 
-
 <b>오류 발생 위치</b>
 <pre th:text="${error_location}"></pre>
-
 
 <b>오류 근본 원인</b>
 <pre th:text="${error_cause}"></pre>
