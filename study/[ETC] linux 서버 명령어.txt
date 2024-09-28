@@ -35,6 +35,37 @@ firewall-cmd --list-all
 
 
 [ spring-reporting-service 실행 ]
+※ war 파일로 배포하는 설정은 다른 브랜치에 있음
+※ 브랜치 변경 후 진행해야 하니 아래의 순서 참고
+
+## 톰캣 중지
+	su - tomcat
+	cd /opt/apache-tomcat-10.1.30/bin
+	./shutdown.sh
+
+※여기서부턴 다시 root
+## 현재 브랜치 확인
+	git branch
+
+## 원격 브랜치 업데이트
+	git remote update
+
+## 원격 브랜치 확인
+	git branch -r
+	※ main_war 가 있는지 확인
+
+## 원격 브랜치 체크아웃
+	git checkout -f origin/main_war
+
+## 브랜치 이동
+	git checkout main_war
+
+## 브랜치 머지 (main 브랜치를 main_war에 머지)
+	git merge main
+
+## 빌드 권한 설정
+	chmod 755 -R /opt/otel-aiops/spring-reporting-service
+
 ## 빌드
     cd /opt/otel-aiops/spring-reporting-service
     ./gradlew assemble
@@ -54,9 +85,11 @@ firewall-cmd --list-all
     cd /opt/apache-tomcat-10.1.30/bin
     ./startup.sh
 
-# 톰캣 중지
-	cd /opt/apache-tomcat-10.1.30/bin/
-	./shutdown.sh
+## 계정 변경
+	exit
+
+## 깃 디렉토리 브랜치 main으로 변경
+	git checkout -f origin/main
 
 
 
