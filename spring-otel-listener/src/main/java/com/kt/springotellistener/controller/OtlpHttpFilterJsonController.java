@@ -31,14 +31,14 @@ public class OtlpHttpFilterJsonController {
     @PostMapping("/v1/traces")
     public ResponseEntity<String> receiveTraces(@RequestBody byte[] body) {
         List<Map<String,Object>> traceList = dataParsingService.jsonTracesDataParsing(body,"filtered_span");
-        redisService.saveToRedis("filtered_trace",traceList);
+        redisService.saveToRedisHash("filtered_trace",traceList);
         return new ResponseEntity<>("OTLP Data received successfully", HttpStatus.OK);
     }
 
     @PostMapping("/v1/logs")
     public ResponseEntity<String> receiveLogs(@RequestBody byte[] body) {
         List<Map<String,Object>> logList = dataParsingService.jsonLogsDataParsing(body,"filtered_logs");
-        redisService.saveToRedis("filtered_log",logList);
+        redisService.saveToRedisHash("filtered_log",logList);
         return new ResponseEntity<>("OTLP Logs received successfully", HttpStatus.OK);
     }
 
