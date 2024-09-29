@@ -140,18 +140,24 @@ class CreateReport:
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
     def create_and_save_error_report(self, key, log, trace):
         response = self.create_error_report(log, trace)
-        clean_result = self.make_clean_markdown_json(response)
-        db_data = self.make_db_data(clean_result)
-        if db_data is not None:
-            db_data["trace_id"] = key
-            logging.info(f"* freesia 오류보고서:\n {db_data}")
-            self.save_error_report(db_data)
-            self.save_error_history(db_data)
-            logging.info("* DB insert 완료")
-            return "success"
+        # str -> dict로 변환
+        response = json.loads(response)
+        response_code = response.get("code")
+        if response_code == "9999":
+            logging.info("* freeesia 응답 코드가 9999입니다. ")
         else:
-            logging.info("* DB insert 실패")
-            return "fail"
+            clean_result = self.make_clean_markdown_json(response)
+            db_data = self.make_db_data(clean_result)
+            if db_data is not None:
+                db_data["trace_id"] = key
+                logging.info(f"* freesia 오류보고서:\n {db_data}")
+                self.save_error_report(db_data)
+                self.save_error_history(db_data)
+                logging.info("* DB insert 완료")
+                return "success"
+            else:
+                logging.info("* DB insert 실패")
+                return "fail"
 
     # def create_and_save_error_report_after_check(self, key, log, trace):
     #     response = self.create_error_report(log, trace)
