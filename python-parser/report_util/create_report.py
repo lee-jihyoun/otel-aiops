@@ -1,4 +1,5 @@
 import logging
+from json import JSONDecodeError
 import psycopg2  # pip install psycopg2-binary
 import requests
 import json
@@ -67,9 +68,17 @@ class CreateReport:
     # 오류 리포트 생성
     def create_error_report(self, log, trace):
         json_data = self.create_message(log, trace)
-        result = self.call_freesia_api(json_data)
-        # print(result.text)
-        return result.text
+        response = self.call_freesia_api(json_data)
+        # str -> dict로 변환
+        try:
+            response_check = json.loads(response)
+            response_code = response_check.get("code")
+            if response_code == "9999":
+                logging.info("* freeesia 응답 코드가 9999입니다. ")
+            else:
+                return response.text
+        except TypeError as e:
+            logging.error(f"* freesia API가 비정상 응답입니다. TypeError: {e}")
 
     # DB에서 error_history 읽어오기
     def select_error_history(self, service_code, exception_stacktrace_short):
@@ -85,29 +94,48 @@ class CreateReport:
             result = cur.fetchall()
         return result
 
+    def is_exists_key_from_error_report(self, key):
+        with self.db_connection() as conn, conn.cursor() as cur:
+            read_query = f"""
+                SELECT EXISTS
+                (SELECT trace_id FROM error_report AS er
+                WHERE er.trace_id = '{key}')
+            """
+            cur.execute(read_query)
+            result = cur.fetchall()
+        return result
+
     # DB에서의 error_history와 완료 목록을 비교(중복 체크)
     def is_duplicate_error(self, trace_data):
         logging.info("* 중복된 오류가 있었는지 확인합니다.")
         duplicate_cnt = 0
-        for trace in trace_data:
-            # str -> list로 변환
-            trace_list = json.loads(trace)
-            # dict에 접근
-            for trace_dict in trace_list:
-                service_code = trace_dict.get("service.code")
-                exception_stacktrace_short = trace_dict.get("exception.stacktrace.short")
-                # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
-                result = self.select_error_history(service_code, exception_stacktrace_short)
-                if len(result) != 0:
-                    self.increase_error_history_cnt(service_code, exception_stacktrace_short)
-                    duplicate_cnt += 1
+        try:
+            for trace in trace_data:
+                # str -> list로 변환
+                if trace is None:
+                    logging.info("* trace가 없습니다.")
+                    return False
+                else:
+                    trace_list = json.loads(trace)
+                    # dict에 접근
+                    for trace_dict in trace_list:
+                        service_code = trace_dict.get("service.code")
+                        exception_stacktrace_short = trace_dict.get("exception.stacktrace.short")
+                        # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
+                        result = self.select_error_history(service_code, exception_stacktrace_short)
+                        if len(result) != 0:
+                            self.increase_error_history_cnt(service_code, exception_stacktrace_short)
+                            duplicate_cnt += 1
 
-        if duplicate_cnt > 0:
-            logging.info("* 중복 오류가 있습니다. 오류 보고서를 생성할 수 없습니다")
-            return True
-        else:
-            logging.info("* 중복 오류가 없습니다. 오류 보고서를 생성합니다.")
-            return False
+            if duplicate_cnt > 0:
+                logging.info("* 중복 오류가 있습니다. 오류 보고서를 생성할 수 없습니다")
+                return True
+            else:
+                logging.info("* 중복 오류가 없습니다. 오류 보고서를 생성합니다.")
+                return False
+
+        except JSONDecodeError as e:
+            logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
 
     # DB에서의 error_history와 완료 목록을 비교(중복 체크)
     # def is_duplicate_error_after_check(self, freesia_response):
@@ -135,29 +163,23 @@ class CreateReport:
                 WHERE service_code = %s
                 AND exception_stacktrace_short = %s
             ''',
-                        (service_code, exception_stacktrace_short))
+            (service_code, exception_stacktrace_short))
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
-    def create_and_save_error_report(self, key, log, trace):
+    def is_success_create_and_save_error_report(self, key, log, trace):
         response = self.create_error_report(log, trace)
-        # str -> dict로 변환
-        response = json.loads(response)
-        response_code = response.get("code")
-        if response_code == "9999":
-            logging.info("* freeesia 응답 코드가 9999입니다. ")
+        clean_result = self.make_clean_markdown_json(response)
+        db_data = self.make_db_data(clean_result)
+        if db_data is not None:
+            db_data["trace_id"] = key
+            self.save_error_report(db_data)
+            self.save_error_history(db_data)
+            logging.info(f"* freesia 오류보고서:\n {db_data}")
+            logging.info("* DB insert 완료")
+            return True
         else:
-            clean_result = self.make_clean_markdown_json(response)
-            db_data = self.make_db_data(clean_result)
-            if db_data is not None:
-                db_data["trace_id"] = key
-                logging.info(f"* freesia 오류보고서:\n {db_data}")
-                self.save_error_report(db_data)
-                self.save_error_history(db_data)
-                logging.info("* DB insert 완료")
-                return "success"
-            else:
-                logging.info("* DB insert 실패")
-                return "fail"
+            logging.info("* DB insert 실패")
+            return False
 
     # def create_and_save_error_report_after_check(self, key, log, trace):
     #     response = self.create_error_report(log, trace)
@@ -249,7 +271,7 @@ class CreateReport:
                 return error_report
 
             except KeyError as e:
-                logging.info(f"* freesia 응답에 key가 없어 오류가 발생했습니다.: {e}")
+                logging.error(f"* freesia 응답에 key가 없어 오류가 발생했습니다.: {e}")
                 retry += 1
                 logging.info(f"* {retry}번째 다시 시도합니다.")
 
