@@ -21,6 +21,18 @@ def get_complete_parsing_data(r, key):
         print(f"* TypeError: {e}")
 
 
+def delete_key(r, key):
+    if key is not None:
+        all_hash = ["complete_hash", "complete_key_store", "key_store", "filtered_log_hash", "filtered_trace_hash", "original_log_hash", "original_trace_hash", "fail_key_store"]
+        try:
+            for hash in all_hash:
+                del_key = hash + ":" + key
+                r.delete(del_key)
+        except KeyError as e:
+            print(e)
+
+
+
 def process_creating_report(r, report, key):
     # complete_hash에서 key에 해당하는 파싱 데이터 꺼내기
     log, trace = get_complete_parsing_data(r, key)
@@ -29,7 +41,11 @@ def process_creating_report(r, report, key):
     if is_duplicate is False:
         # 오류리포트 생성 및 저장
         result = report.create_and_save_error_report(key, log, trace)
-        if result == "fail":
+        if result == "success":
+            # DB insert 성공 시 모든 hash에서 키 삭제
+            print(f"* DB insert에 성공하여 모든 hash에서 {key}를 삭제합니다.")
+            delete_key(r, key)
+        elif result == "fail":
             # 메일 발송 실패하면 fail_key_store에 rpush
             r.rpush("fail_key_store", key)
             logging.info(f"* fail_key_store에 추가된 키 {key}")
@@ -45,6 +61,7 @@ def main():
         logging.info(f"************* api_batch start *************")
 
         # complete_key_store에서 key 꺼내기
+        logging.info(f"* 현재 complete_key_store의 길이: {r.llen('complete_key_store')}")
         complete_key = r.lpop("complete_key_store")
         if complete_key is not None:
             logging.info(f"* --------------- 현재 complete_key는 {complete_key} ---------------")

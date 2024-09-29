@@ -3,7 +3,6 @@ from batch import parser_batch, api_batch, complete_data_batch
 import logging, time
 from util.logging_config import setup_logging
 
-setup_logging()
 logging.info("**************** main.py start ****************")
 
 # 데이터 파싱

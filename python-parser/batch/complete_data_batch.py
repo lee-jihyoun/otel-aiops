@@ -38,7 +38,7 @@ def is_retry_over_2(r, hash_key):
         print("(결과) yes. retry는", retry)
         return True
     else:
-        print("(결과)] no. retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
+        print("(결과) no. retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
 
 
 def add_complete_hash(r, key, log, trace):
@@ -59,7 +59,7 @@ def add_complete_hash(r, key, log, trace):
         value = complete_hash.get(field)
         if value:
             complete_hash_dict[field] = value
-    # print("\n(성공) complete_hash에 추가 ==================>\n", key, ":", complete_hash_dict)
+    print("\n(성공) >>>>>>>>>> complete_hash에 추가 <<<<<<<<<<\n", key, ":", complete_hash_dict)
 
 
 def main():
