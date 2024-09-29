@@ -47,16 +47,16 @@ public class ErrorReportScheduler {
         List<ErrorReport> errorReports = errorReportRepository.findByErrorReportSendYn("N"); // 'N'인 데이터만 조회
 
         if (!errorReports.isEmpty()) {
+            //날짜 조회
+            LocalDate today = LocalDate.now();
+            int month = today.getMonthValue();
+            int day = today.getDayOfMonth();
             for (ErrorReport errorReport : errorReports) {
                 try {
                     ServiceInfo serviceInfo = errorReport.getServiceInfo(); // ServiceInfo 객체를 가져옴
                     String serviceCode = serviceInfo.getServiceCode(); // ServiceInfo에서 serviceCode 가져옴
                     // user_info 테이블에서 service_code로 사용자 목록 조회
                     List<UserInfo> users = userInfoRepository.findByServiceInfo(serviceInfo);
-                    //날짜 조회
-                    LocalDate today = LocalDate.now();
-                    int month = today.getMonthValue();
-                    int day = today.getDayOfMonth();
                     for (UserInfo user : users) {
                         // 메일 발송
                         mailService.sendEmail(user.getEmail(), "Gen.AI 오류보고서(" + month + "월 " + day + "일)", errorReportService.templateModel(errorReport));

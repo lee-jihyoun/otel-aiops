@@ -59,8 +59,11 @@ public class ErrorReportService {
     }
 
     public String formatContent(String content) {
-        // 정규식: 숫자+점(예: 1. 2. 3.) 뒤에 줄바꿈을 추가
-        return content.replaceAll("(\\d+\\. )", "\n\n$1");
+        // 1번은 제외, 2번 이상 숫자 앞에 줄바꿈 2번 추가
+        content = content.replaceAll("(?<!\\d)([2-9]\\d*\\. )", "\n\n\n$1");
+        // : - 또는 . - 패턴일 때 - 앞에 줄바꿈 추가
+        content = content.replaceAll("([.:]\\s?)(-)", "$1\n\n$2");
+        return content;
     }
 
 }
