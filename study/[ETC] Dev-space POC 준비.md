@@ -1,9 +1,197 @@
 
+[ Keycloak 테스트 ]
 # 키클락 다운로드
 	- Dev-space 사용 버전 : 13.0.0
 	https://github.com/keycloak/keycloak/releases/tag/13.0.1
 	https://github.com/keycloak/keycloak/releases/tag/13.0.0
 
+    - windows 버전
+    https://github.com/keycloak/keycloak/releases/download/13.0.0/keycloak-13.0.0.zip
+    - linux 버전
+    https://github.com/keycloak/keycloak/releases/download/13.0.0/keycloak-13.0.0.tar.gz
+
+# keycloak opentelemetry 참고 링크
+    https://github.com/jangaraj/keycloak-with-opentelemetry
+    https://keycloak.discourse.group/t/using-opentracing-with-keycloak-x-18-0-0/15409/2
+    https://www.keycloak.org/keycloak-benchmark/kubernetes-guide/latest/util/otel
+    ※ 13버전에선 답이 없음
+
+
+
+
+# Keycloak 실행
+    1. 다운받은 파일 압축 풀기
+
+    2. 키클락 실행
+    경로 : keycloak-13.0.0\bin
+    파일명 : standalone.bat
+
+    3. 키클락 접속
+    URl : http://localhost:8080/auth/
+
+    4. 관리자 비번 설정
+    ID / PW : admin / admin
+
+# keycloak에 opentelemetry agent 추가 - Windows
+
+    1. 오픈텔레메트리 agent 파일 복사
+    경로 : keycloak-13.0.0\bin
+
+    2. keycloak 의 standalone.bat 파일 수정
+    상단의 setlocal 여기 밑에 추가했음
+    =====================================================================
+    setlocal
+
+
+    set JAVA_OPTS=%JAVA_OPTS% -javaagent:"opentelemetry-javaagent.jar"
+    set JAVA_OPTS=%JAVA_OPTS% -Dotel.resource.attributes=service.name=keycloak-service,service.namespace=KEYCLOAK,service.code=KC1001
+    set OTEL_METRIC_EXPORT_INTERVAL=1000
+    set OTEL_TRACES_EXPORTER=otlp
+    set OTEL_METRICS_EXPORTER=otlp
+    set OTEL_LOGS_EXPORTER=otlp
+    set OTEL_SERVICE_NAME=keycloak-service
+    set OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:9999
+    set OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://127.0.0.1:9999
+    set OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://127.0.0.1:9999
+    set OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://127.0.0.1:9999
+    set OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+    =====================================================================
+
+    3. 수집 확인
+
+
+# keycloak에 opentelemetry agent 추가 - linux
+
+    ※ 리눅스의 경우에는 standalone.sh 파일보다 standalone.conf 파일 수정을 권장함
+    ※ standalone.sh 파일을 수정해도 안된다는 말은 아님
+    ※ standalone.sh 파일을 보면 아래와 같이 standalone.conf 파일의 설정을 읽어오고있음
+    =====================================================================
+    # Read an optional running configuration file
+    if [ "x$RUN_CONF" = "x" ]; then
+    RUN_CONF="$DIRNAME/standalone.conf"
+    =====================================================================
+
+    1. Linux 에 keycloak 설치
+		wget https://github.com/keycloak/keycloak/releases/download/13.0.0/keycloak-13.0.0.tar.gz
+	
+	2. 압축 해제
+		tar -zxvf keycloak-13.0.0.tar.gz
+	
+	3. keycloak 실행 포트 변경
+		※ 이건 부득이 하게 테스트 환경에서 8080 포트를 사용할수 없어서 변경함
+		경로 : keycloak-13.0.0/standalone/configuration
+		파일명 : standalone.xml
+		- 변경 전
+		=====================================================================
+		<socket-binding name="http" port="${jboss.http.port:8080}"/>
+		=====================================================================
+
+		- 변경 후
+		=====================================================================
+		<socket-binding name="http" port="${jboss.http.port:18080}"/>
+		=====================================================================
+	
+	4. keycloak 외부 접속 허용
+		※ 리눅스 서버내에서 UI를 사용할수 없어 외부에서 접속할꺼니 필수로 해야함
+		경로 : keycloak-13.0.0/standalone/configuration
+		파일명 : standalone.xml
+		- 변경 전
+		=====================================================================
+		<interfaces>
+			<interface name="management">
+				<inet-address value="${jboss.bind.address.management:127.0.0.1}"/>
+			</interface>
+			<interface name="public">
+				<inet-address value="${jboss.bind.address:127.0.0.1}"/>
+			</interface>
+		</interfaces>
+
+		=====================================================================
+
+		- 변경 후 
+		=====================================================================
+		<interfaces>
+			<interface name="management">
+				<inet-address value="${jboss.bind.address.management:0.0.0.0}"/>
+			</interface>
+			<interface name="public">
+				<inet-address value="${jboss.bind.address:0.0.0.0}"/>
+			</interface>
+		<interfaces>
+
+		=====================================================================
+	5. keycloak 실행
+		cd keycloak-13.0.0/bin
+		./standalone.sh
+
+	6. 방화벽 확인
+		firewall-cmd --list-all
+		※ 18080 포트가 추가안되어있으면 추가할것
+		firewall-cmd --permanent --zone=public --add-port=18080/tcp
+		firewall-cmd --reload
+	7. SELinux에 포트 추가 및 확인
+		semanage port -a -t http_cache_port_t -p tcp 18080
+		semanage port -l |grep 18080
+
+	8. 외부에서 접속 시도
+		http://192.168.55.125:18080/auth/
+	
+	9. keycloak에 opentelemetry-javaagent 추가
+		cp opentelemetry-javaagent.jar /keycloak-13.0.0/bin/opentelemetry-javaagent.jar
+	
+	10. standalone.conf 파일 수정
+	제일 하단에 추가
+    =====================================================================
+	JAVA_OPTS="$JAVA_OPTS -javaagent:opentelemetry-javaagent.jar"
+	JAVA_OPTS="$JAVA_OPTS -Dotel.resource.attributes=service.name=keycloak-service,service.namespace=KEYCLOAK,service.code=KC1001"
+	export OTEL_METRIC_EXPORT_INTERVAL=1000
+	export OTEL_TRACES_EXPORTER=otlp
+	export OTEL_METRICS_EXPORTER=otlp
+	export OTEL_LOGS_EXPORTER=otlp
+	export OTEL_SERVICE_NAME=keycloak-service
+	export OTEL_EXPORTER_OTLP_ENDPOINT=http://192.168.55.184:9999
+	export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://192.168.55.184:9999
+	export OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=http://192.168.55.184:9999
+	export OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=http://192.168.55.184:9999
+	export OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+    =====================================================================
+
+	11. keycloak 실행
+		cd keycloak-13.0.0/bin
+		./standalone.sh
+
+	12. 오류발생
+		22:39:00,283 ERROR [stderr] (OkHttp http://192.168.55.184:9999/...) [otel.javaagent 2024-09-29 22:39:00:283 +0900] [OkHttp http://192.168.55.184:9999/...] WARN io.opentelemetry.exporter.internal.grpc.GrpcExporter - Failed to export metrics. Server responded with gRPC status code 2. Error message: Failed to connect to /192.168.55.184:9999
+		22:39:00,844 ERROR [stderr] (OkHttp http://192.168.55.184:9999/...) [otel.javaagent 2024-09-29 22:39:00:844 +0900] [OkHttp http://192.168.55.184:9999/...] WARN io.opentelemetry.exporter.internal.grpc.GrpcExporter - Failed to export logs. Server responded with gRPC status code 2. Error message: Failed to connect to /192.168.55.184:9999
+		※ 이거 오픈텔레메트리 콜렉터 오류, receivers에다가 127.0.0.1을 넣어놔서 해당 IP로만 접근이 가능했음
+		※ 외부에서 접속하려면 0.0.0.0 으로 해야함
+		- 변경 전
+		=====================================================================
+		receivers:
+		  otlp:
+			protocols:
+			  grpc:
+				endpoint: 127.0.0.1:9999
+			  http:
+				endpoint: 127.0.0.1:4318
+
+		=====================================================================
+		
+		- 변경 후
+		=====================================================================
+		receivers:
+		  otlp:
+			protocols:
+			  grpc:
+				endpoint: 0.0.0.0:9999
+			  http:
+				endpoint: 0.0.0.0:4318
+
+		=====================================================================
+
+	13. 수집 확인
+
+[ Jenkins 테스트 ]
 # Jenkins 다운로드
 	- Dev-space 사용 버전 : 2.289.1
 	https://updates.jenkins.io/download/war/
@@ -209,7 +397,31 @@
 
 		10. 안됨 걍 답이없음
 
+# Jenkins 최신 버전에 시도
+    ※ 기존 설치한 젠킨스 삭제
+    ※ 제어판 삭제 , Program data 삭제
 
-# Jenkins 오픈텔레메트리 설정
+    1. Jenkins 다운로드
+    
+    2. Jenkins 설치
+    ※ 아무 문제 없이 설치됨, 플러그인들도 다 설치가 알아서 됨 인증서 오류 안남
+    
+    3. 플러그인에서 OpenTelemetry 설치
+    
+    4. Jenkins 재시작
+
+    5. 젠킨스관리 - 시스템 으로 이동
+        OpenTelemetry 항목이 새로 생겼음
+
+    6. OpenTelemetry 항목에 정보 입력
+        OTLP Endpoint : http://127.0.0.1:9999
+    
+    7. 정상적으로 잘 수집됨..
+
+
+
+# Jenkins 오픈텔레메트리 플러그인
     ※ 플러그인 최신버전이면 될거같은데 불가능함
+    https://github.com/jenkinsci/opentelemetry-plugin/blob/main/docs/setup-and-configuration.md
 	https://docs.newrelic.com/kr/docs/infrastructure/other-infrastructure-integrations/monitoring-jenkins-ot/
+
