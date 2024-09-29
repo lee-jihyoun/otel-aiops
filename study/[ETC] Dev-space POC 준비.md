@@ -161,10 +161,14 @@
 		./standalone.sh
 
 	12. 오류발생
+        =====================================================================
 		22:39:00,283 ERROR [stderr] (OkHttp http://192.168.55.184:9999/...) [otel.javaagent 2024-09-29 22:39:00:283 +0900] [OkHttp http://192.168.55.184:9999/...] WARN io.opentelemetry.exporter.internal.grpc.GrpcExporter - Failed to export metrics. Server responded with gRPC status code 2. Error message: Failed to connect to /192.168.55.184:9999
 		22:39:00,844 ERROR [stderr] (OkHttp http://192.168.55.184:9999/...) [otel.javaagent 2024-09-29 22:39:00:844 +0900] [OkHttp http://192.168.55.184:9999/...] WARN io.opentelemetry.exporter.internal.grpc.GrpcExporter - Failed to export logs. Server responded with gRPC status code 2. Error message: Failed to connect to /192.168.55.184:9999
+        =====================================================================
 		※ 이거 오픈텔레메트리 콜렉터 오류, receivers에다가 127.0.0.1을 넣어놔서 해당 IP로만 접근이 가능했음
 		※ 외부에서 접속하려면 0.0.0.0 으로 해야함
+        
+        collector config 파일 수정
 		- 변경 전
 		=====================================================================
 		receivers:
@@ -199,6 +203,94 @@
 	- 윈도우용 다운로드
 	https://get.jenkins.io/windows-stable/2.289.1/jenkins.msi
 
+
+# Jenkins 설치
+	버전 : 2.289.1
+	1. Jenkins 다운로드
+		URL : https://updates.jenkins.io/download/war/2.289.1/jenkins.war
+	
+	2. Jenkins 설치
+
+	3. 아래의 메시지 출력됨
+		=====================================================================
+		Offline
+		This Jenkins instance appears to be offline.
+		=====================================================================
+		스킵 누르고 아무 플러그인도 설치하지 않고 실행
+
+	4. Jenkins 중지
+
+	5. 플러그인 추가
+		경로 : C:\ProgramData\Jenkins\.jenkins\plugins
+		파일명 : skip-certificate-check.hpi
+		참고링크 : https://sweet0828.tistory.com/16
+		참고링크 : https://nevido.tistory.com/580
+
+		아래의 링크에서 skip-certificate-check.hpi 다운로드
+		※ 1.1버전은 2.346.3 버전이상이므로 1.0 버전 다운로드
+		https://updates.jenkins-ci.org/download/plugins/skip-certificate-check/
+		https://updates.jenkins-ci.org/download/plugins/skip-certificate-check/1.0/skip-certificate-check.hpi	
+
+	6. UpdateCenter 변경
+		경로 : C:\ProgramData\Jenkins\.jenkins
+		파일명 : hudson.model.UpdateCenter.xml
+		수정내용 :  https 를 http 로 변경
+		=====================================================================
+		<?xml version='1.1' encoding='UTF-8'?>
+		<sites>
+		  <site>
+			<id>default</id>
+			<url>http://updates.jenkins.io/update-center.json</url>
+		  </site>
+		</sites>
+		=====================================================================	
+
+	7. 설치 완료
+
+	8. Jenkins에 opentelemetry 추가
+		경로 :C:\Program Files\Jenkins
+	
+	9. Jenkins 설정 변경
+	경로 : C:\Program Files\Jenkins
+	파일명 : jenkins.xml
+
+	- 변경 전
+	=====================================================================
+	<arguments>-Xrs -Xmx256m -Dhudson.lifecycle=hudson.lifecycle.WindowsServiceLifecycle -jar "C:\Program Files\Jenkins\jenkins.war" --httpPort=7070 --webroot="%ProgramData%\Jenkins\war"</arguments>
+	=====================================================================
+
+	- 변경 후
+	=====================================================================
+	<arguments>
+	-Xrs 
+	-Xmx256m 
+	-Dhudson.lifecycle=hudson.lifecycle.WindowsServiceLifecycle
+	-javaagent:"opentelemetry-javaagent.jar"
+	-Dotel.resource.attributes=service.name=jenkins-service,service.namespace=JENKINS,service.code=JK1001
+	-Dotel.metrics.export.interval=1000
+	-Dotel.traces.exporter=otlp
+	-Dotel.metrics.exporter=otlp
+	-Dotel.logs.exporter=otlp
+	-Dotel.service.name=JENKINS
+	-Dotel.exporter.otlp.endpoint=http://127.0.0.1:9999
+	-Dotel.exporter.otlp.traces.endpoint=http://127.0.0.1:9999
+	-Dotel.exporter.otlp.metrics.endpoint=http://127.0.0.1:9999
+	-Dotel.exporter.otlp.logs.endpoint=http://127.0.0.1:9999
+	-Dotel.exporter.otlp.protocol=grpc
+	-jar "C:\Program Files\Jenkins\jenkins.war"
+	--httpPort=7070
+	--webroot="%ProgramData%\Jenkins\war"
+	</arguments>
+	=====================================================================
+
+
+	10. Jenkins 재기동
+	
+	11. 수집 확인
+
+
+※ 아래부터는 이것저것 테스트해본 내용임
+----------------------------------------------------------
 
 # Jenkins 버전 교체
 	※ 아래 방법 안됨 혹시나 해봣는데 Dependency errors 한가득임
@@ -299,8 +391,9 @@
 # Jenkins에 오픈텔레메트리 에이전트 추가
 
 	# 1안 - jenkins.xml 파일 수정
-
-	※ 안됨 뭐가문젠지 보려고 하는데 windows 에서는 로그가 안남음
+    ※ 2024.09.29 1안 작동함
+	※ 2024.09.28 안됨 뭐가문젠지 보려고 하는데 windows 에서는 로그가 안남음
+    ※ 2024.09.28에 안됐던 이유는 설정파일에 수정을 잘못해서 발생한것으로 추정됨
 	=====================================================================
 	<arguments>
 	-Xrs 
@@ -397,7 +490,7 @@
 
 		10. 안됨 걍 답이없음
 
-# Jenkins 최신 버전에 시도
+# Jenkins 최신 버전에 시도 (2.462.2)
     ※ 기존 설치한 젠킨스 삭제
     ※ 제어판 삭제 , Program data 삭제
 
