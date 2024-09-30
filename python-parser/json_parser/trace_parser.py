@@ -176,6 +176,7 @@ class TraceParsing:
                     # Redis에 업데이트된 리스트 저장 (HSET으로 해시 업데이트)
                     r.hset(hash_key, "parsing_data_trace", json.dumps(existing_logs_list))
                     r.hset(key_store_key, "retry", "0")
+                    r.expire(key_store_key, 60*15) # 60s * 15 = 15m
 
                 # Redis에 저장된 데이터 확인 (예시)
                 for log in parsing_trace_data_list:
