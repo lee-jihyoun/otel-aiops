@@ -1,6 +1,7 @@
 [
     {
-        "service.name": "adservice",
+        "service.name": "adservice", 
+        "service.code": "AD1002",
         "os.type": "linux",
         "traceId": "ed8b4191838daec751003df550476f1d",
         "spanId": "21154ad78808c30e",
@@ -15,7 +16,8 @@
         "endTimeUnixNano": "2024-08-21 22:45:58"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "ed8b4191838daec751003df550476f1d",
         "spanId": "0872d0d21ef88667",
@@ -30,7 +32,8 @@
         "endTimeUnixNano": "2024-08-21 22:45:58"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "ed8b4191838daec751003df550476f1d",
         "spanId": "2bb810665757cb8e",
@@ -45,7 +48,8 @@
         "endTimeUnixNano": "2024-08-21 22:45:58"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "ed8b4191838daec751003df550476f1d",
         "spanId": "51b8288e75a1dc75",
@@ -60,7 +64,8 @@
         "endTimeUnixNano": "2024-08-21 22:45:58"
     },
     {
-        "service.name": "loadgenerator",
+        "service.name": "loadgenerator", 
+        "service.code": "LO1009",
         "os.type": null,
         "traceId": "ed8b4191838daec751003df550476f1d",
         "spanId": "6ddb056265810bea",
@@ -75,7 +80,8 @@
         "endTimeUnixNano": "2024-08-21 22:45:58"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "8158abd05277a500eb4e995fedf276ea",
         "spanId": "e6aedd58aa057c7e",
@@ -90,7 +96,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:10"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "8158abd05277a500eb4e995fedf276ea",
         "spanId": "395e3f1173cc294b",
@@ -105,7 +112,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:10"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "8158abd05277a500eb4e995fedf276ea",
         "spanId": "c22327b034089e81",
@@ -120,7 +128,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:10"
     },
     {
-        "service.name": "loadgenerator",
+        "service.name": "loadgenerator", 
+        "service.code": "LO1009",
         "os.type": null,
         "traceId": "8158abd05277a500eb4e995fedf276ea",
         "spanId": "c58177084755b1ff",
@@ -135,7 +144,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:10"
     },
     {
-        "service.name": "adservice",
+        "service.name": "adservice", 
+        "service.code": "AD1002",
         "os.type": "linux",
         "traceId": "8158abd05277a500eb4e995fedf276ea",
         "spanId": "1724aad928796ca2",
@@ -150,7 +160,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:10"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "0b001f6ed9b5f43933748670d377ade9",
         "spanId": "4358f3b5e1568212",
@@ -165,7 +176,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:22"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "0b001f6ed9b5f43933748670d377ade9",
         "spanId": "328d8b56ab2eb178",
@@ -180,7 +192,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:22"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "0b001f6ed9b5f43933748670d377ade9",
         "spanId": "d686ec7f75694735",
@@ -195,7 +208,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:22"
     },
     {
-        "service.name": "adservice",
+        "service.name": "adservice", 
+        "service.code": "AD1002",
         "os.type": "linux",
         "traceId": "0b001f6ed9b5f43933748670d377ade9",
         "spanId": "28a27533b5abb5b2",
@@ -210,7 +224,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:22"
     },
     {
-        "service.name": "adservice",
+        "service.name": "adservice", 
+        "service.code": "AD1002",
         "os.type": "linux",
         "traceId": "10eea5e259ca7ea2733956ce9b0ca391",
         "spanId": "e498b8138a15bfbd",
@@ -225,7 +240,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:41"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "10eea5e259ca7ea2733956ce9b0ca391",
         "spanId": "2a29f718daceabb9",
@@ -240,7 +256,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:41"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "10eea5e259ca7ea2733956ce9b0ca391",
         "spanId": "7c6174e3ebe75397",
@@ -255,7 +272,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:41"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "10eea5e259ca7ea2733956ce9b0ca391",
         "spanId": "65029b2b60528bbf",
@@ -270,7 +288,8 @@
         "endTimeUnixNano": "2024-08-21 22:46:41"
     },
     {
-        "service.name": "adservice",
+        "service.name": "adservice", 
+        "service.code": "AD1002",
         "os.type": "linux",
         "traceId": "d2f14f9b665e00fbb35c2ad96650791e",
         "spanId": "ab9bee966fefe394",
@@ -285,7 +304,8 @@
         "endTimeUnixNano": "2024-08-21 22:47:31"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "d2f14f9b665e00fbb35c2ad96650791e",
         "spanId": "6ee330c777704fb2",
@@ -300,7 +320,8 @@
         "endTimeUnixNano": "2024-08-21 22:47:31"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "d2f14f9b665e00fbb35c2ad96650791e",
         "spanId": "976c766fd3496af5",
@@ -315,7 +336,8 @@
         "endTimeUnixNano": "2024-08-21 22:47:31"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "d2f14f9b665e00fbb35c2ad96650791e",
         "spanId": "9f6ddd0d0a4b77c4",
@@ -330,7 +352,8 @@
         "endTimeUnixNano": "2024-08-21 22:47:31"
     },
     {
-        "service.name": "adservice",
+        "service.name": "adservice", 
+        "service.code": "AD1002",
         "os.type": "linux",
         "traceId": "a3068c5690d7e955872ea04eb2f2859b",
         "spanId": "510b715ab6375846",
@@ -345,7 +368,8 @@
         "endTimeUnixNano": "2024-08-21 22:47:46"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "a3068c5690d7e955872ea04eb2f2859b",
         "spanId": "428b07968ae20727",
@@ -360,7 +384,8 @@
         "endTimeUnixNano": "2024-08-21 22:47:46"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "a3068c5690d7e955872ea04eb2f2859b",
         "spanId": "d242dc005baabd8f",
@@ -375,7 +400,8 @@
         "endTimeUnixNano": "2024-08-21 22:47:46"
     },
     {
-        "service.name": "frontend",
+        "service.name": "frontend", 
+        "service.code": "FR1008",
         "os.type": "linux",
         "traceId": "a3068c5690d7e955872ea04eb2f2859b",
         "spanId": "2179d960e903d030",
@@ -390,7 +416,8 @@
         "endTimeUnixNano": "2024-08-21 22:47:46"
     },
     {
-        "service.name": "loadgenerator",
+        "service.name": "loadgenerator", 
+        "service.code": "LO1009",
         "os.type": null,
         "traceId": "a3068c5690d7e955872ea04eb2f2859b",
         "spanId": "2ecda53ce636e5ce",
