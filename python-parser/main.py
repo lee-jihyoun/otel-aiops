@@ -1,7 +1,6 @@
 import threading
 from batch import parser_batch, api_batch, complete_data_batch
-import logging, time
-from util.logging_config import setup_logging
+import logging
 
 logging.info("**************** main.py start ****************")
 
