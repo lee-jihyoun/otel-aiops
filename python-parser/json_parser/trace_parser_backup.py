@@ -19,25 +19,26 @@ class TraceParsing:
         parsing_trace_data_list = [] # "a111", "b111"
 
         with open(input_path + file_name, "r") as log_file:
-            # logging.info("filter_last_position")
-            # logging.info(filter_last_position)
+            logging.info("filter_last_position")
+            logging.info(filter_last_position)
 
             if file_name == "filtered_span.json":
-                idx = filter_last_position
+                # 파일 포인터를 마지막 읽은 위치로 이동
+                log_file.seek(filter_last_position)
             else:
-                idx = original_last_position
+                log_file.seek(original_last_position)
 
-            for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
-
-                # logging.info("===========================")
-                # logging.info(line)
+            while True:
+                line = log_file.readline()  # 한 줄씩 읽기
+                logging.info("===========================")
+                logging.info(line)
 
                 if not line:  # 더 이상 읽을 데이터가 없으면
-                    # logging.info("데이터가 없습니다")
+                    logging.info("데이터가 없습니다")
                     break  # 루프를 종료
 
                 else:
-                    # logging.info(f"================ filtered_span 파싱 start: {datetime.datetime.now()} ================")
+                    logging.info(f"================ filtered_span 파싱 start: {datetime.datetime.now()} ================")
 
                     try:
                         span_data = json.loads(line.strip())
@@ -108,20 +109,20 @@ class TraceParsing:
                     except json.JSONDecodeError as e:
                         logging.ERROR(f"Error parsing line: {e}")
 
-                    # logging.info("parsing_trace_data_list\n")
-                    # logging.info(parsing_trace_data_list)
-                    # logging.info(len(parsing_trace_data_list))
+                    logging.info("parsing_trace_data_list\n")
+                    logging.info(parsing_trace_data_list)
+                    logging.info(len(parsing_trace_data_list))
 
                     # 마지막으로 읽은 위치를 업데이트
                     if file_name == "filtered_span.json":
                         # 파일 포인터를 마지막 읽은 위치로 이동
-                        filter_last_position = current_index + 1
+                        filter_last_position = log_file.tell()+1  # 현재 파일 포인터의 위치를 저장
 
                     else:
-                        original_last_position = current_index + 1
+                        original_last_position = log_file.tell()+1  # 현재 파일 포인터의 위치를 저장
 
-                    # logging.info("============ trace 파싱 end ===========\n")
-                    # logging.info(parsing_trace_data_list)
+                    logging.info("============ trace 파싱 end ===========\n")
+                    logging.info(parsing_trace_data_list)
 
                 return parsing_trace_data_list
 
@@ -132,17 +133,18 @@ class TraceParsing:
             file_name = self.file_name
             parsing_trace_data_list = self.traceparser()
 
-            # logging.info("**************************")
-            # logging.info("parsing_trace_data_list\n")
-            # logging.info(parsing_trace_data_list)
-            # logging.info("**************************")
+            logging.info("**************************")
+            logging.info("parsing_trace_data_list\n")
+            logging.info(parsing_trace_data_list)
+            logging.info("**************************")
 
             if parsing_trace_data_list != None:
 
-                # logging.info("============ db 삽입 start===========\n")
+                logging.info("============ db 삽입 start===========\n")
 
                 # Redis 클라이언트 설정
-                r = redis.Redis(host='100.83.227.59', port=16379, decode_responses=True, db=3, password='redis1234!')
+                r = redis.Redis(host='100.83.227.59', port=16379, db=1, password='redis1234!')
+
 
                 for log in parsing_trace_data_list:
                     trace_id = log['traceId']
@@ -170,8 +172,8 @@ class TraceParsing:
 
                     # 새로운 로그를 리스트에 추가
                     existing_logs_list.append(log)
-                    # logging.info("existing_logs")
-                    # logging.info(existing_logs_list)
+                    logging.info("existing_logs")
+                    logging.info(existing_logs_list)
 
                     # Redis에 업데이트된 리스트 저장 (HSET으로 해시 업데이트)
                     r.hset(hash_key, "parsing_data_trace", json.dumps(existing_logs_list))
@@ -190,9 +192,9 @@ class TraceParsing:
                         # 해시 키는 traceId로 설정
                         hash_key = f"original_trace_hash:{trace_id}"
 
-                    # logging.info(f"Redis Key: {hash_key}")
-                    # logging.info(r.hget(hash_key, "parsing_data_trace"))
-                    # logging.info(r.hget(hash_key, "parsing_data_trace").decode("utf-8"))
-                    # logging.info("\n")
+                    logging.info(f"Redis Key: {hash_key}")
+                    logging.info(r.hget(hash_key, "parsing_data_trace"))
+                    logging.info(r.hget(hash_key, "parsing_data_trace").decode("utf-8"))
+                    logging.info("\n")
 
-                # logging.info("============ db 삽입 end===========\n")
+                logging.info("============ db 삽입 end===========\n")
