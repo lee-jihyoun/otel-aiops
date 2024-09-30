@@ -21,9 +21,16 @@ def get_key_list(r, hash_info):
     print("(key 정보)", hash_info, "에 있는 key는", hash_key_list)
     return hash_key_list
 
-
 def get_parsing_data(r, hash_info, key):
     hash_key = hash_info + ":" + key
+
+    # # list 형식일 때
+    # parsing_data_list = r.lrange(hash_key, 0, -1)
+    # parsing_data_list = [item.decode('utf-8') for item in parsing_data_list]
+    # print("*", hash_info, "의 파싱 데이터:", parsing_data_list, "\n")
+    # return parsing_data_list
+
+    # hash 형식일 때
     parsing_data = r.hvals(hash_key)
     # str을 list로 변환
     parsing_data_json = json.dumps(parsing_data)
