@@ -103,7 +103,7 @@ class CreateReport:
             """
             cur.execute(read_query)
             result = cur.fetchall()
-        return result
+        return result[0][0]
 
     # DB에서의 error_history와 완료 목록을 비교(중복 체크)
     def is_duplicate_error(self, trace_data):
