@@ -3,7 +3,7 @@ server:
 spring:
   data :
     redis:
-      host: localhost
+      host: 100.83.227.59
       port: 16379
       password: 'redis1234!'
       lettuce:
@@ -12,4 +12,5 @@ spring:
           max-idle: 8
           min-idle: 0
       timeout: 60000
+      database: 3
 
