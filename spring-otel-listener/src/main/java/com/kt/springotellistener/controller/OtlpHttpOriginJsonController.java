@@ -30,7 +30,7 @@ public class OtlpHttpOriginJsonController {
     @PostMapping("/v1/traces")
     public ResponseEntity<String> receiveTraces(@RequestBody byte[] body) {
         List<Map<String,Object>> traceList = dataParsingService.jsonTracesDataParsing(body,"original_span");
-        redisService.saveToRedisHash("original_trace",traceList);
+        redisService.saveToRedis("original_trace",traceList);
         return new ResponseEntity<>("OTLP Data received successfully", HttpStatus.OK);
     }
 
@@ -44,7 +44,7 @@ public class OtlpHttpOriginJsonController {
     @PostMapping("/v1/logs")
     public ResponseEntity<String> receiveLogs(@RequestBody byte[] body) {
         List<Map<String,Object>> logList = dataParsingService.jsonLogsDataParsing(body,"original_logs");
-        redisService.saveToRedisHash("original_log",logList);
+        redisService.saveToRedis("original_log",logList);
         return new ResponseEntity<>("OTLP Logs received successfully", HttpStatus.OK);
     }
 

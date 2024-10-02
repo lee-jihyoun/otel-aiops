@@ -96,16 +96,16 @@ public class RedisService {
         String hash_key="";
         switch (key) {
             case "filtered_trace":
-                hash_key= "filtered_trace_hash";
+                hash_key= "filtered_trace_list";
             break;
             case "filtered_log":
-                hash_key= "filtered_log_hash";
+                hash_key= "filtered_log_list";
             break;
             case "original_trace":
-                hash_key= "original_trace_hash";
+                hash_key= "original_trace_list";
             break;
             case "original_log":
-                hash_key= "original_log_hash";
+                hash_key= "original_log_list";
             break;
         }
         return hash_key;
