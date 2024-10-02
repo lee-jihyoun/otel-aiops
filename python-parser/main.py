@@ -16,14 +16,14 @@ thread6 = threading.Thread(target=api_batch.main)
 
 
 # 데이터 파싱
-thread1.start()
-thread2.start()
-thread3.start()
-thread4.start()
+# thread1.start()
+# thread2.start()
+# thread3.start()
+# thread4.start()
 # complete_hash에 insert
 thread5.start()
 # mail 발송
-thread6.start()
+# thread6.start()
 
 
 # 데이터 파싱
