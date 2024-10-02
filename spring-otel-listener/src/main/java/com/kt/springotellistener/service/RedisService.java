@@ -28,12 +28,12 @@ public class RedisService {
         }
         for(Map<String,Object> map : dataList){
             String key =map.get("traceId").toString();
-            String hashKey = getKey(type) +":"+key;
+            String listKey = getKey(type) +":"+key;
             String key_store_key = "key_store:"+key;
             String data = dataUtil.convertMapToJson(map);
 
-            redisTemplate.opsForList().rightPush(hashKey,data);
-            redisTemplate.expire(hashKey, 900, TimeUnit.SECONDS);
+            redisTemplate.opsForList().rightPush(listKey,data);
+            redisTemplate.expire(listKey, 900, TimeUnit.SECONDS);
             if(type.equals("filtered_trace") || type.equals("filtered_log")){
                 redisTemplate.opsForHash().put(key_store_key, "retry" , "0");
             }
