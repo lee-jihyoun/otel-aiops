@@ -1,9 +1,10 @@
+import configparser
+import json
 import logging
+import re
 from json import JSONDecodeError
 import psycopg2  # pip install psycopg2-binary
 import requests
-import json
-import re
 
 # 전역 변수 설정
 url = "http://freesia.run:8080/openapi/v1/chat"
@@ -22,19 +23,22 @@ class CreateReport:
             template = f.read()
 
         # DB 연결 및 API 키 불러오기
-        with self.db_connection() as conn, conn.cursor() as cur:
+        with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             self.api_key = self.select_api_key(cur)
             headers["X-API-KEY"] = self.api_key
 
     # DB 연결 설정
-    def db_connection(self):
-        return psycopg2.connect(
-            host='100.83.227.59',
-            port=5532,
-            user='test_admin',
-            password='new1234!',
-            database='rnp'
-        )
+    def get_postgres_db_connection(self):
+        config = configparser.ConfigParser()
+        config.read('./config/db_config.ini')
+        host = config['postgres-DB']['DB_HOST']
+        port = config['postgres-DB']['DB_PORT']
+        db_name = config['postgres-DB']['DB_NM']
+        user = config['postgres-DB']['DB_USER']
+        pwd = config['postgres-DB']['DB_PWD']
+        conn = psycopg2.connect(host=host, port=port, user=user, password=pwd, database=db_name)
+        return conn
+
 
     # DB에서 API key 읽어오기
     def select_api_key(self, cursor):
@@ -81,21 +85,22 @@ class CreateReport:
             logging.error(f"* freesia API가 비정상 응답입니다. TypeError: {e}")
 
     # DB에서 error_history 읽어오기
-    def select_error_history(self, service_code, exception_stacktrace_short):
+    def is_exists_in_error_history(self, service_code, exception_stacktrace_short):
         # print("* select 하려는 service_code:", service_code)
-        with self.db_connection() as conn, conn.cursor() as cur:
+        with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             read_query = f"""
-                SELECT * FROM error_history AS eh
+                SELECT EXISTS
+                (SELECT seq FROM error_history AS eh
                 WHERE eh.create_time > now() - '1 day'::interval
                 AND eh.service_code = '{service_code}'
-                AND eh.exception_stacktrace_short = '{exception_stacktrace_short}'
+                AND eh.exception_stacktrace_short = '{exception_stacktrace_short}')
             """
             cur.execute(read_query)
             result = cur.fetchall()
-        return result
+        return result[0][0]
 
     def is_exists_key_from_error_report(self, key):
-        with self.db_connection() as conn, conn.cursor() as cur:
+        with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             read_query = f"""
                 SELECT EXISTS
                 (SELECT trace_id FROM error_report AS er
@@ -109,54 +114,48 @@ class CreateReport:
     def is_duplicate_error(self, trace_data):
         logging.info("* 중복된 오류가 있었는지 확인합니다.")
         duplicate_cnt = 0
-        try:
-            for trace in trace_data:
-                # str -> list로 변환
-                if trace is None:
-                    logging.info("* trace가 없습니다.")
-                    return False
-                else:
-                    trace_list = json.loads(trace)
-                    # dict에 접근
-                    for trace_dict in trace_list:
-                        service_code = trace_dict.get("service.code")
-                        exception_stacktrace_short = trace_dict.get("exception.stacktrace.short")
-                        # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
-                        result = self.select_error_history(service_code, exception_stacktrace_short)
-                        if len(result) != 0:
-                            self.increase_error_history_cnt(service_code, exception_stacktrace_short)
-                            duplicate_cnt += 1
-
-            if duplicate_cnt > 0:
-                logging.info("* 중복 오류가 있습니다. 오류 보고서를 생성할 수 없습니다")
-                return True
-            else:
-                logging.info("* 중복 오류가 없습니다. 오류 보고서를 생성합니다.")
+        for trace in trace_data:
+            # str -> list로 변환
+            if trace is None:
+                logging.info("* trace가 없습니다.")
                 return False
+            else:
+                trace_dict = eval(trace)
+                # dict -> JSON 문자열 변환
+                trace_json = json.dumps(trace_dict, indent=4)
+                try:
+                    trace_list = json.loads(trace_json)
+                except JSONDecodeError as e:
+                    # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
+                    logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
+                    continue
 
-        except JSONDecodeError as e:
-            logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
+                # 만약 trace_list가 리스트가 아니면 리스트로 강제 변환
+                if isinstance(trace_list, dict):
+                    trace_list = [trace_list]
+                elif not isinstance(trace_list, list):
+                    logging.error("* trace_list가 리스트도 아니고 딕셔너리도 아닙니다. 건너뜁니다.")
+                    continue
 
-    # DB에서의 error_history와 완료 목록을 비교(중복 체크)
-    # def is_duplicate_error_after_check(self, freesia_response):
-    #     logging.info("* 중복된 오류가 있었는지 확인합니다.")
-    #     # 원래꺼
-    #     # service_code = freesia_response["data"]["content"]["분석결과"]["서비스코드"]
-    #     # exception_stacktrace_short = freesia_response["data"]["content"]["기본정보"]["exception.stacktrace.short"]
-    #     # 임시 데이터
-    #     service_code = freesia_response["service_code"]
-    #     exception_stacktrace_short = freesia_response["exception_stacktrace_short"]
-    #     result = self.select_error_history(service_code, exception_stacktrace_short)
-    #     if len(result) != 0:
-    #         self.increase_error_history_cnt(service_code, exception_stacktrace_short)
-    #         logging.info("* 중복 오류가 있습니다. 오류 보고서를 생성할 수 없습니다")
-    #         return True
-    #     else:
-    #         logging.info("* 중복 오류가 없습니다. 오류 보고서를 생성합니다.")
-    #         return False
+                # dict에 접근
+                for trace_dict in trace_list:
+                    service_code = trace_dict.get("service.code")
+                    exception_stacktrace_short = trace_dict.get("exception.stacktrace.short")
+                    # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
+                    result = self.is_exists_in_error_history(service_code, exception_stacktrace_short)
+                    if result is True:
+                        self.increase_error_history_cnt(service_code, exception_stacktrace_short)
+                        duplicate_cnt += 1
+
+        if duplicate_cnt > 0:
+            logging.info("* 중복 오류가 있습니다. 오류 보고서를 생성할 수 없습니다")
+            return True
+        else:
+            logging.info("* 중복 오류가 없습니다. 오류 보고서를 생성합니다.")
+            return False
 
     def increase_error_history_cnt(self, service_code, exception_stacktrace_short):
-        with self.db_connection() as conn, conn.cursor() as cur:
+        with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
                 UPDATE error_history
                 SET cnt = cnt + 1
@@ -181,42 +180,16 @@ class CreateReport:
             logging.info("* DB insert 실패")
             return False
 
-    # def create_and_save_error_report_after_check(self, key, log, trace):
-    #     response = self.create_error_report(log, trace)
-    #     # str -> dict로 변환
-    #     response = json.loads(response)
-    #     response_code = response.get("code")
-    #     if response_code == "9999":
-    #         print("* freeesia 응답 코드가 9999입니다. ")
-    #     else:
-    #         clean_result = self.make_clean_markdown_json(response)
-    #         # clean_result = {'service_code': 'CA1003', 'error_name': 'grpc.oteldemo.CartService/GetCart', 'error_create_time': '2024-09-19 23:40:36', 'error_content': "Error when executing service method '{ServiceMethod}'.", 'error_location': '오류는 프론트엔드 서비스(frontend)에서 grpc.oteldemo.CartService/GetCart 메서드 실행 중 발생하였습니다. stacktrace에서 아래와 같은 에러가 발생하였습니다: Error: 13 INTERNAL: Received RST_STREAM with code 2 triggered by internal client error: Session closed with error code 2 at callErrorFromStatus (/app/node_modules/@grpc/grpc-js/build/src/call.js:31:19)', 'exception_stacktrace_short': 'Error: 13 INTERNAL: Received RST_STREAM with code 2 triggered by internal client error: Session closed with error code 2 at callErrorFromStatus (/app/node_modules/@grpc/grpc-js/build/src/call.js:31:19)', 'error_cause': '1. 프론트엔드 서비스에서 내부 클라이언트 오류로 인해 세션이 닫히면서 에러가 발생하였습니다. 2. 이는 cartservice에서 전파된 문제로, traceId(3c7829d88f923d64d55339655779a249)를 통해 확인할 수 있습니다.', 'service_impact': '장바구니 서비스의 오류로 인해 사용자는 장바구니 정보를 가져올 수 없으며, 이는 쇼핑몰의 기능에 심각한 영향을 미칠 수 있습니다.', 'error_solution': '1. **장바구니 서비스 설정 확인**: - 장바구니 서비스의 로그를 확인하여 내부 클라이언트 오류의 원인을 파악합니다. - 로그 파일은 /var/log/cartservice.log에 위치할 수 있습니다. - 아래 명령어를 사용하여 로그 파일을 확인합니다: tail -f /var/log/cartservice.log 2. **서비스 재시작**: - 문제를 해결한 후 장바구니 서비스를 재시작합니다. 아래 명령어를 사용하여 Docker 컨테이너를 재시작할 수 있습니다: docker restart cartservice 3. **로그 및 모니터링**: - 변경 후, Opentelemetry를 통해 로그와 메트릭을 모니터링하여 동일한 오류가 다시 발생하는지 확인합니다. - 특히, 장바구니 요청과 관련된 로그를 집중적으로 모니터링합니다. 4. **테스트 수행**: - 설정 변경 후 장바구니 기능이 정상적으로 작동하는지 테스트합니다. - 다양한 시나리오를 통해 장바구니 프로세스가 정상적으로 완료되는지 확인합니다.', 'trace_id': '3c7829d88f923d64d55339655779a249'}
-    #
-    #         is_duplicate = self.is_duplicate_error(clean_result)
-    #         if is_duplicate is False:
-    #             # 중복이 아닐 경우
-    #             db_data = self.make_db_data(clean_result)
-    #             if db_data is not None:
-    #                 db_data["trace_id"] = key
-    #                 logging.info(f"* freesia 오류보고서:\n {db_data}")
-    #                 self.save_error_report(db_data)
-    #                 self.save_error_history(db_data)
-    #                 logging.info("* DB insert 완료")
-    #                 return "success"
-    #             else:
-    #                 logging.info("* DB insert 실패")
-    #                 return "fail"
-
     # error_history 테이블에 데이터 추가
     def save_error_history(self, error_report):
-        with self.db_connection() as conn, conn.cursor() as cur:
+        with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
                 INSERT INTO error_history (service_code, exception_stacktrace_short)
                 VALUES (%s, %s)
             ''', (error_report["service_code"], error_report["exception_stacktrace_short"]))
 
     def save_error_report(self, error_report):
-        with self.db_connection() as conn, conn.cursor() as cur:
+        with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
                 INSERT INTO error_report (
                     service_code,

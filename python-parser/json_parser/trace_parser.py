@@ -1,15 +1,29 @@
-import json, itertools, datetime
+import configparser
+import itertools
+import json
+import logging
+import redis
 from util.datetime_util import change_timenano_format
-import logging, redis, time
 
 filter_last_position = 0
 original_last_position = 0
+
 
 class TraceParsing:
 
     def __init__(self, input_path, file_name):
         self.input_path = input_path
         self.file_name = file_name
+
+    def get_redis_db_connection(self):
+        config = configparser.ConfigParser()
+        config.read('./config/db_config.ini')
+        host = config['redis-DB']['DB_HOST']
+        port = config['redis-DB']['DB_PORT']
+        pwd = config['redis-DB']['DB_PWD']
+        db_num = config['redis-DB']['DB']
+        conn = redis.Redis(host=host, port=port, decode_responses=True, db=db_num, password=pwd)
+        return conn
 
     def traceparser(self):
         input_path = self.input_path
@@ -126,6 +140,8 @@ class TraceParsing:
                 return parsing_trace_data_list
 
     def redis_insert(self):
+        # Redis 클라이언트 설정
+        r = self.get_redis_db_connection()
 
         while True:
 
@@ -138,35 +154,30 @@ class TraceParsing:
             # logging.info("**************************")
 
             if parsing_trace_data_list != None:
-
                 # logging.info("============ db 삽입 start===========\n")
 
-                # Redis 클라이언트 설정
-                r = redis.Redis(host='100.83.227.59', port=16379, decode_responses=True, db=1, password='redis1234!')
-
                 # # list 형태로 저장
-                for log in parsing_trace_data_list:
-                    trace_id = log['traceId']
+                for trace in parsing_trace_data_list:
+                    trace_id = trace['traceId']
 
                     # redis에 저장할 key 값 설정
                     key_store_key = f"key_store:{trace_id}"
 
                     if file_name == "filtered_span.json":
-                        # 해시 키는 traceId로 설정
-                        hash_key = f"filtered_trace_list:{trace_id}"
+                        # 전체 키는 traceId로 설정
+                        full_key = f"filtered_trace_list:{trace_id}"
 
                     else:
-                        # 해시 키는 traceId로 설정
-                        hash_key = f"original_trace_list:{trace_id}"
+                        # 전체 키는 traceId로 설정
+                        full_key = f"original_trace_list:{trace_id}"
 
-                    log = str(log)
-                    logging.info(log)
+                    trace = str(trace)
 
-                    r.rpush(hash_key, log)
-                    r.expire(hash_key, 60 * 15)  # 60s * 15 = 15m
+                    r.rpush(full_key, trace)
+                    r.expire(full_key, 60 * 15)  # 60s * 15 = 15m
 
-                    logging.info(hash_key)
-                    logging.info(log)
+                    logging.info(f"* full_key: {full_key}")
+                    logging.info(f"* trace: {trace}")
                     r.hset(key_store_key, "retry", "0")
                     r.expire(key_store_key, 60 * 15)  # 60s * 15 = 15m
 
@@ -180,17 +191,17 @@ class TraceParsing:
                 #
                 #     if file_name == "filtered_span.json":
                 #         # 해시 키는 traceId로 설정
-                #         hash_key = f"filtered_trace_hash:{trace_id}"
+                #         full_key = f"filtered_trace_hash:{trace_id}"
                 #
                 #     else:
                 #         # 해시 키는 traceId로 설정
-                #         hash_key = f"original_trace_hash:{trace_id}"
+                #         full_key = f"original_trace_hash:{trace_id}"
                 #
                 #     # # 현재 데이터를 JSON 형식으로 변환
                 #     # log_json = json.dumps(log)
                 #
                 #     # parsing_data_log 필드가 존재하는지 확인하고, 없으면 리스트로 초기화
-                #     existing_logs = r.hget(hash_key, 'parsing_data_trace')
+                #     existing_logs = r.hget(full_key, 'parsing_data_trace')
                 #     if existing_logs:
                 #         existing_logs_list = json.loads(existing_logs)
                 #     else:
@@ -202,7 +213,7 @@ class TraceParsing:
                 #     # logging.info(existing_logs_list)
                 #
                 #     # Redis에 업데이트된 리스트 저장 (HSET으로 해시 업데이트)
-                #     r.hset(hash_key, "parsing_data_trace", json.dumps(existing_logs_list))
+                #     r.hset(full_key, "parsing_data_trace", json.dumps(existing_logs_list))
                 #     r.hset(key_store_key, "retry", "0")
                 #     r.expire(key_store_key, 60*15) # 60s * 15 = 15m
 
@@ -213,15 +224,15 @@ class TraceParsing:
                 #
                 #     if file_name == "filtered_span.json":
                 #         # 해시 키는 traceId로 설정
-                #         hash_key = f"filtered_trace_hash:{trace_id}"
+                #         full_key = f"filtered_trace_hash:{trace_id}"
                 #
                 #     else:
                 #         # 해시 키는 traceId로 설정
-                #         hash_key = f"original_trace_hash:{trace_id}"
+                #         full_key = f"original_trace_hash:{trace_id}"
                 #
-                #     # logging.info(f"Redis Key: {hash_key}")
-                #     # logging.info(r.hget(hash_key, "parsing_data_trace"))
-                #     # logging.info(r.hget(hash_key, "parsing_data_trace").decode("utf-8"))
+                #     # logging.info(f"Redis Key: {full_key}")
+                #     # logging.info(r.hget(full_key, "parsing_data_trace"))
+                #     # logging.info(r.hget(full_key, "parsing_data_trace").decode("utf-8"))
                 #     # logging.info("\n")
                 #
                 # # logging.info("============ db 삽입 end===========\n")

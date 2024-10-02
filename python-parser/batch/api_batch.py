@@ -1,8 +1,20 @@
-import time
+import configparser
+import json
 import logging
 import redis
-import json
+import time
 from report_util.create_report import CreateReport
+
+
+def get_redis_db_connection():
+    config = configparser.ConfigParser()
+    config.read('./config/db_config.ini')
+    host = config['redis-DB']['DB_HOST']
+    port = config['redis-DB']['DB_PORT']
+    pwd = config['redis-DB']['DB_PWD']
+    db_num = config['redis-DB']['DB']
+    conn = redis.Redis(host=host, port=port, decode_responses=True, db=db_num, password=pwd)
+    return conn
 
 
 def get_complete_parsing_data(r, key):
@@ -25,14 +37,14 @@ def get_complete_parsing_data(r, key):
 
 def delete_key(r, key):
     if key is not None:
-        all_hash = ["complete_hash", "complete_key_store", "key_store", "filtered_log_hash", "filtered_trace_hash", "original_log_hash", "original_trace_hash", "fail_key_store"]
+        all_store = ["complete_hash", "complete_key_store", "key_store", "filtered_log_list", "filtered_trace_list", "original_log_list", "original_trace_list", "fail_key_store"]
         try:
-            for hash in all_hash:
-                del_key = hash + ":" + key
+            for store in all_store:
+                del_key = store + ":" + key
                 r.delete(del_key)
-                logging.info(f"메일 발송을 성공하여 모든 hash에서 {key}를 삭제했습니다.")
+                logging.info(f"메일 발송을 성공하여 모든 hash와 list에서 {key}를 삭제했습니다.")
         except KeyError as e:
-            logging.error(f"* 모든 hash에서 key를 삭제하던 중 key가 없어 오류가 발생했습니다.: {e}")
+            logging.error(f"* 모든 hash와 list에서 key를 삭제하던 중 key가 없어 오류가 발생했습니다.: {e}")
 
 
 def process_creating_report(r, report, key):
@@ -51,8 +63,8 @@ def process_creating_report(r, report, key):
                 # 오류리포트 생성 및 저장
                 is_success = report.is_success_create_and_save_error_report(key, log, trace)
                 if is_success is True:
-                    # DB insert 성공 시 모든 hash에서 키 삭제
-                    logging.info(f"* DB insert에 성공하여 모든 hash에서 {key}를 삭제합니다.")
+                    # DB insert 성공 시 모든 hash와 list에서 키 삭제
+                    logging.info(f"* DB insert에 성공하여 모든 hash와 list에서 {key}를 삭제합니다.")
                     delete_key(r, key)
                 elif is_success is False:
                     # 메일 발송 실패하면 fail_key_store에 rpush
@@ -63,7 +75,7 @@ def process_creating_report(r, report, key):
 
 
 def main():
-    r = redis.Redis(host='100.83.227.59', port=16379, decode_responses=True, db=3, password='redis1234!')
+    r = get_redis_db_connection()
     # CreateReport 클래스 인스턴스 생성
     report = CreateReport()
     while True:
