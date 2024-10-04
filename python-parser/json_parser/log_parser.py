@@ -143,79 +143,32 @@ class LogParsing:
 
                 # # list 형태로 저장
                 for log in parsing_log_data_list:
-                    trace_id = log['traceId']
 
-                    # redis에 저장할 key 값 설정
-                    key_store_key = f"key_store:{trace_id}"
+                    trace_id = log['traceId']
+                    retry_count_store = "retry_count_store:" + trace_id
 
                     if file_name == "filtered_logs.json":
                         # 전체 키는 traceId로 설정
-                        full_key = "filtered_log_list:" + trace_id
+                        key_list = "filtered_log_list:" + trace_id
 
                     else:
                         # 전체 키는 traceId로 설정
-                        full_key = "original_log_list:" + trace_id
+                        key_list = "original_log_list:" + trace_id
 
                     log = str(log)
 
-                    r.rpush(full_key, log)
-                    r.expire(full_key, 60 * 15)  # 60s * 15 = 15m
+                    r.rpush(key_list, log)
+                    r.expire(key_list, 60 * 15)  # 60s * 15 = 15m
 
-                    logging.info(f"* full_key: {full_key}")
+                    logging.info(f"* key_list: {key_list}")
                     logging.info(f"* log: {log}")
-                    r.hset(key_store_key, "retry", "0")
-                    r.expire(key_store_key, 60 * 15)  # 60s * 15 = 15m
 
-                # for log in parsing_log_data_list:
-                #     trace_id = log['traceId']
-                #
-                #     # redis에 저장할 key 값 설정
-                #     key_store_key = f"key_store:{trace_id}"
-                #
-                #     if file_name == "filtered_logs.json":
-                #         # 해시 키는 traceId로 설정
-                #         full_key = f"filtered_log_hash:{trace_id}"
-                #
-                #     else:
-                #         # 해시 키는 traceId로 설정
-                #         full_key = f"original_log_hash:{trace_id}"
-                #
-                #     # # 현재 데이터를 JSON 형식으로 변환
-                #     # log_json = json.dumps(log)
-                #
-                #     # parsing_data_log 필드가 존재하는지 확인하고, 없으면 리스트로 초기화
-                #     existing_logs = r.hget(full_key, 'parsing_data_log')
-                #     if existing_logs:
-                #         existing_logs_list = json.loads(existing_logs)
-                #     else:
-                #         existing_logs_list = []
-                #
-                #     # 새로운 로그를 리스트에 추가
-                #     existing_logs_list.append(log)
-                #     # logging.info("existing_logs")
-                #     # logging.info(existing_logs_list)
-                #
-                #     # Redis에 업데이트된 리스트 저장 (HSET으로 해시 업데이트)
-                #     r.hset(full_key, "parsing_data_log", json.dumps(existing_logs_list))
-                #     r.hset(key_store_key, "retry", "0")
-                #     r.expire(key_store_key, 60*15) # 60s * 15 = 15m
+                    r.rpush("key_store", trace_id)
+                    r.expire("key_store", 60 * 15)  # 60s * 15 = 15m
 
-                # # Redis에 저장된 데이터 확인 (예시) # for문만큼 확인
-                # for log in parsing_log_data_list:
-                #
-                #     trace_id = log['traceId']
-                #
-                #     if file_name == "filtered_logs.json":
-                #         # 해시 키는 traceId로 설정
-                #         full_key = f"filtered_log_hash:{trace_id}"
-                #
-                #     else:
-                #         # 해시 키는 traceId로 설정
-                #         full_key = f"original_log_hash:{trace_id}"
-                #
-                #     # logging.info(f"Redis Key: {full_key}")
-                #     # logging.info(r.hget(full_key, "parsing_data_log"))
-                #     # logging.info(r.hget(full_key, "parsing_data_log").decode("utf-8"))
-                #     # logging.info("\n")
-                #
-                # # logging.info("============ db 삽입 end===========\n")
+                    logging.info(f"* key_store: {trace_id}")
+                    #
+                    # r.hset(retry_count_store, "retry", "0")
+                    # r.expire(retry_count_store, 60*15)
+                    #
+                    # logging.info(f"* retry_count_store: {retry_count_store}")
