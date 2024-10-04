@@ -75,7 +75,7 @@ class CreateReport:
         response = self.call_freesia_api(json_data)
         # str -> dict로 변환
         try:
-            response_check = json.loads(response)
+            response_check = response.json()
             response_code = response_check.get("code")
             if response_code == "9999":
                 logging.info("* freeesia 응답 코드가 9999입니다. ")

@@ -4,13 +4,13 @@ from util.datetime_util import change_timenano_format
 import os
 
 # 경로 설정
-log_file_name = "filtered_logs.json"
-span_file_name = "filtered_span.json"
+# log_file_name = "filtered_logs.json"
+# span_file_name = "filtered_span.json"
 
-# log_file_name = "original_logs.json"
-# span_file_name = "original_span.json"
+log_file_name = "original_logs.json"
+span_file_name = "original_span.json"
 
-folder_name = "adServiceFailure"
+folder_name = "data_test"
 
 log_file_path = "../../data" + "/" + folder_name+"/" + log_file_name
 span_file_path = "../../data" + "/" + folder_name+"/" + span_file_name
@@ -157,16 +157,34 @@ with open(test_trace, "r") as test_trace:
         for data in full_data:
             trace_id_list_trace.append(data["traceId"])
 
-print("* log의 길이:", len(trace_id_list_log), trace_id_list_log)
-print("* trace의 길이:", len(trace_id_list_trace), trace_id_list_trace)
+
+# # filtered 비교
+# print("* log의 길이:", len(trace_id_list_log), trace_id_list_log)
+# print("* trace의 길이:", len(trace_id_list_trace), trace_id_list_trace)
+#
+# # 교집합
+# intersection = list(set(trace_id_list_log) & set(trace_id_list_trace))
+# print("* 교집합의 길이:", len(intersection), intersection)
+#
+# # 차집합
+# log_complement = list(set(trace_id_list_log).difference(trace_id_list_trace))
+# trace_complement = list(set(trace_id_list_trace).difference(trace_id_list_log))
+#
+# print("* log에는 있는데 trace에는 없는 id:", log_complement)
+# print("* trace에는 있는데 loge에는 없는 id:", trace_complement)
+
+
+# # original 비교
+print("* log의 길이:", len(trace_id_list_log))
+print("* trace의 길이:", len(trace_id_list_trace))
 
 # 교집합
 intersection = list(set(trace_id_list_log) & set(trace_id_list_trace))
-print("* 교집합의 길이:", len(intersection), intersection)
+print("* 교집합의 길이:", len(intersection))
 
 # 차집합
 log_complement = list(set(trace_id_list_log).difference(trace_id_list_trace))
 trace_complement = list(set(trace_id_list_trace).difference(trace_id_list_log))
 
-print("* log에는 있는데 trace에는 없는 id:", log_complement)
-print("* trace에는 있는데 loge에는 없는 id:", trace_complement)
+print("* log에는 있는데 trace에는 없는 id 길이:", len(log_complement))
+print("* trace에는 있는데 loge에는 없는 id 길이:", len(trace_complement))
