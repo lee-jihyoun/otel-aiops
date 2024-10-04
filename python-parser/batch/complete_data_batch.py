@@ -30,12 +30,21 @@ def get_parsing_data(r, key_info, key):
     # return parsing_data_json
 
 
+def create_retry_count_store(r, retry_count_store):
+    r.hset(retry_count_store, "retry", "0")
+    r.expire(retry_count_store, 60*15)
+
+
 def is_retry_over_2(r, key):
     print("(조건) retry가 2 이상인가?")
+    retry_count_store = "retry_count_store:" + key
+    # retry_count_store에 해당 키가 없으면 새로 생성
+    if not r.exists(retry_count_store):
+        create_retry_count_store(r, retry_count_store)
+
     # retry_count_store에 저장된 key의 retry 필드 값을 1 증가(retry 초기값은 0)
-    full_key = "retry_count_store:" + key
-    r.hincrby(full_key, "retry", 1)
-    retry = int(r.hget(full_key, "retry"))
+    r.hincrby(retry_count_store, "retry", 1)
+    retry = int(r.hget(retry_count_store, "retry"))
     if retry >= 2:
         print("(결과) yes. retry는", retry)
         return True
