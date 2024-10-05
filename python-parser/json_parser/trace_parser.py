@@ -179,7 +179,8 @@ class TraceParsing:
                     logging.info(f"* full_key: {key_list}")
                     logging.info(f"* trace: {trace}")
 
-                    r.rpush("key_store", trace_id)
+                    r.sadd("key_store",trace_id)
+                    # r.rpush("key_store", trace_id)
                     r.expire("key_store", 60 * 15)  # 60s * 15 = 15m
 
                     logging.info(f"* key_store: {trace_id}")
