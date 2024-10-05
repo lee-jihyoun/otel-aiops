@@ -4,15 +4,17 @@ firewall-cmd --permanent --add-port=14040/tcp
 firewall-cmd --reload
 firewall-cmd --list-all
 
+[ docker 이미지 삭제 ]
+    docker rm -f $(docker ps -qa)
 
 [ docker 실행 ]
 	cd /opt/opentelemetry-demo
 	docker compose up --detach
 
-[ docker 이미지 삭제 ]
-    docker rm -f $(docker ps -qa)
-
-[ docker 실행 ]
+[ 캐시 지우고 docker 새로 실행 ]
+## Docker Compose를 사용해 이미지를 새로 빌드할 때 캐시를 사용하지 않고 빌드하는 명령(약 20분 소요됨) 4:41 ~
+    docker compose build --no-cache
+## docker 실행
     docker compose up --force-recreate --remove-orphans --detach
 
 
