@@ -36,7 +36,7 @@ public class RedisService {
             redisTemplate.expire(listKey, 900, TimeUnit.SECONDS);
             if(type.equals("filtered_trace") || type.equals("filtered_log")){
 
-                redisTemplate.opsForSet().add("set_key_store", key);
+                redisTemplate.opsForSet().add("key_store", key);
 //                redisTemplate.opsForList().rightPush("key_store",key);
 //                redisTemplate.opsForHash().put(key_store_key, "retry" , "0");
             }
