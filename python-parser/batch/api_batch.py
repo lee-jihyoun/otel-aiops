@@ -37,12 +37,14 @@ def get_complete_parsing_data(r, key):
 
 def delete_key(r, key):
     if key is not None:
-        all_store = ["complete_hash", "complete_key_store", "key_store", "filtered_log_list", "filtered_trace_list", "original_log_list", "original_trace_list", "fail_key_store"]
+        all_store = ["complete_hash", "complete_key_store", "filtered_log_list", "filtered_trace_list", "original_log_list", "original_trace_list", "fail_key_store"]
         try:
             for store in all_store:
                 del_key = store + ":" + key
                 r.delete(del_key)
                 logging.info(f"메일 발송을 성공하여 모든 hash와 list에서 {key}를 삭제했습니다.")
+            # key_store 삭제
+            r.srem("key_store", key)
         except KeyError as e:
             logging.error(f"* 모든 hash와 list에서 key를 삭제하던 중 key가 없어 오류가 발생했습니다.: {e}")
 
