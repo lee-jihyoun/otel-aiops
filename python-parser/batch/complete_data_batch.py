@@ -80,10 +80,12 @@ def main():
     r = get_redis_db_connection()
     while True:
         print("************* complete_data_batch start *************")
-        key_store_list = r.lrange("key_store", 0, -1)
-        print("key_store_list:", key_store_list)
+        key_store_set = r.smembers("key_store")
+        # print(type(set_values))
+        # key_store_list = r.lrange("key_store", 0, -1)
+        # print("key_store_list:", key_store_list)
         # key_store 리스트에서 key 꺼내기
-        for key in key_store_list:
+        for key in key_store_set:
             print("\n-------------- 현재 key(", key, ")가 포함된 hash 정보 --------------")
             filtered_log = get_parsing_data(r, "filtered_log_list", key)
             filtered_trace = get_parsing_data(r, "filtered_trace_list", key)
