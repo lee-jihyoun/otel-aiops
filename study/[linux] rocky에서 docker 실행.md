@@ -84,7 +84,7 @@ exit
 docker system prune -a -f
 
 ## 빌드 캐시 삭제
-docker buildx prune -f
+docker builder prune -f
 
 
 ## docker & spring-otel-listener 실행하기
