@@ -1,8 +1,8 @@
 ※ 모든 명령어 root로 실행
 [ 방화벽 포트 추가 ]
-firewall-cmd --permanent --add-port=14040/tcp
-firewall-cmd --reload
-firewall-cmd --list-all
+    firewall-cmd --permanent --add-port=14040/tcp
+    firewall-cmd --reload
+    firewall-cmd --list-all
 
 [ docker 이미지 삭제 ]
     docker rm -f $(docker ps -qa)
@@ -12,23 +12,24 @@ firewall-cmd --list-all
 	docker compose up --detach
 
 [ 캐시 지우고 docker 새로 실행 ]
-## Docker Compose를 사용해 이미지를 새로 빌드할 때 캐시를 사용하지 않고 빌드하는 명령(약 20분 소요됨) 4:41 ~
-    docker compose build --no-cache
-## docker 실행
-    docker compose up --force-recreate --remove-orphans --detach
+    ## Docker Compose를 사용해 이미지를 새로 빌드할 때 캐시를 사용하지 않고 빌드하는 명령(약 20분 소요됨) 4:41 ~
+        docker compose build --no-cache
+    ## docker 실행
+        docker compose up --force-recreate --remove-orphans --detach
+        docker compose up --build --force-recreate --remove-orphans --detach
 
 
 [ spring-otel-listener 빌드 ]
-## 권한변경
-	cd /opt/otel-aiops/
-	chmod -R 777 spring-otel-listener
+    ## 권한변경
+    cd /opt/otel-aiops/
+    chmod -R 777 spring-otel-listener
 
-## 빌드
-	cd /opt/otel-aiops/spring-otel-listener
-	./gradlew assemble
+    ## 빌드
+    cd /opt/otel-aiops/spring-otel-listener
+    ./gradlew assemble
 
-## 파일복사
-	cp /opt/otel-aiops/spring-otel-listener/build/libs/spring-otel-listener-0.0.1-SNAPSHOT.jar /opt/spring-otel-listener-run/spring-otel-listener-0.0.1-SNAPSHOT.jar
+    ## 파일복사
+    cp /opt/otel-aiops/spring-otel-listener/build/libs/spring-otel-listener-0.0.1-SNAPSHOT.jar /opt/spring-otel-listener-run/spring-otel-listener-0.0.1-SNAPSHOT.jar
 
 
 [ spring-otel-listener 실행 ]
@@ -37,66 +38,66 @@ firewall-cmd --list-all
 
 
 [ spring-reporting-service 실행 ]
-※ war 파일로 배포하는 설정은 다른 브랜치에 있음
-※ 브랜치 변경 후 진행해야 하니 아래의 순서 참고
+    ※ war 파일로 배포하는 설정은 다른 브랜치에 있음
+    ※ 브랜치 변경 후 진행해야 하니 아래의 순서 참고
 
-## 톰캣 중지
-	su - tomcat
-	cd /opt/apache-tomcat-10.1.30/bin
-	./shutdown.sh
+    ## 톰캣 중지
+        su - tomcat
+        cd /opt/apache-tomcat-10.1.30/bin
+        ./shutdown.sh
 
-※여기서부턴 다시 root
-## 현재 브랜치 확인
-	git branch
+    ※여기서부턴 다시 root
+    ## 현재 브랜치 확인
+        git branch
 
-## 원격 브랜치 업데이트
-	git remote update
+    ## 원격 브랜치 업데이트
+        git remote update
 
-## 원격 브랜치 확인
-	git branch -r
-	※ main_war 가 있는지 확인
+    ## 원격 브랜치 확인
+        git branch -r
+        ※ main_war 가 있는지 확인
 
-## 원격 브랜치 체크아웃
-	git checkout -f origin/main_war
+    ## 원격 브랜치 체크아웃
+        git checkout -f origin/main_war
 
-## 브랜치 이동
-	git checkout main_war
+    ## 브랜치 이동
+        git checkout main_war
 
-## 브랜치 머지 (main 브랜치를 main_war에 머지)
-	git merge main
+    ## 브랜치 머지 (main 브랜치를 main_war에 머지)
+        git merge main
 
-## 빌드 권한 설정
-	chmod 755 -R /opt/otel-aiops/spring-reporting-service
+    ## 빌드 권한 설정
+        chmod 755 -R /opt/otel-aiops/spring-reporting-service
 
-## 빌드
-    cd /opt/otel-aiops/spring-reporting-service
-    ./gradlew assemble
+    ## 빌드
+        cd /opt/otel-aiops/spring-reporting-service
+        ./gradlew assemble
 
-## 복사
-    cp /opt/otel-aiops/spring-reporting-service/build/libs/spring-reporting-service-0.0.1-SNAPSHOT.jar /opt/apache-tomcat-10.1.30/webapps/ROOT.war
+    ## 복사
+        cp /opt/otel-aiops/spring-reporting-service/build/libs/spring-reporting-service-0.0.1-SNAPSHOT.jar /opt/apache-tomcat-10.1.30/webapps/ROOT.war
 
-## 권한 변경
-    chown tomcat:tomcat /opt/apache-tomcat-10.1.30/webapps/ROOT.war
-    chmod 755 /opt/apache-tomcat-10.1.30/webapps/ROOT.war
+    ## 권한 변경
+        chown tomcat:tomcat /opt/apache-tomcat-10.1.30/webapps/ROOT.war
+        chmod 755 /opt/apache-tomcat-10.1.30/webapps/ROOT.war
 
-## 계정 변경
-    su - tomcat
+    ## 계정 변경
+        su - tomcat
 
-# 톰캣 실행
-    su - tomcat
-    cd /opt/apache-tomcat-10.1.30/bin
-    ./startup.sh
+    # 톰캣 실행
+        su - tomcat
+        cd /opt/apache-tomcat-10.1.30/bin
+        ./startup.sh
 
-## 계정 변경
-	exit
+    ## 계정 변경
+        exit
 
-## 깃 디렉토리 브랜치 main으로 변경
-	git checkout -f origin/main
+    ## 깃 디렉토리 브랜치 main으로 변경
+        git checkout -f origin/main
 
 
 
 --- 현재 사용하지 않음 ---
-    [ spring-reporting-service 빌드 ]
+[ spring-reporting-service 빌드 ]
     ## 권한변경
         cd /opt/otel-aiops/
         chmod -R 777 spring-reporting-service
