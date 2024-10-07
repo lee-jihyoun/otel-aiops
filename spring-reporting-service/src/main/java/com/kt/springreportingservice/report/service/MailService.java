@@ -81,6 +81,7 @@ public class MailService {
             helper.setSubject(subject); // 이메일 제목 설정
             helper.setText(text, true); // 본문 설정 (true: HTML 형식 사용)
         }catch (Exception e){
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
         mailSender.send(message); // 이메일 전송
