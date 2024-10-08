@@ -4,9 +4,12 @@ package com.kt.springreportingservice.report.controller;
 import com.kt.springreportingservice.report.domain.ErrorReport;
 import com.kt.springreportingservice.report.repository.ErrorReportRepository;
 //import com.kt.springreportingservice.report.repository.ErrorTestRepository;
+import com.kt.springreportingservice.report.service.ErrorTestService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,78 +22,56 @@ public class ErrorTestController {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-//    ErrorTestRepository errorTestRepository;
 
-    ErrorReportRepository errorReportRepository;
-
-    //없는 데이터베이스 조회 , InvalidDataAccessResourceUsageException
-//    @GetMapping("/error/test01")
-//    public void errorTest01() {
-//        errorTestRepository.findAll();
-//    }
+    ErrorTestService errorTestService;
 
     // 배열 생성 후 없는 인덱스 조회 , ArrayIndexOutOfBoundsException
-    @GetMapping("/error/test02")
-    public void errorTest02() {
-
-        String [] strings = {"1", "2", "3"};
-        try{
-            for(int i=0; i<=strings.length; i++) {
-                System.out.println(strings[i]);
-            }
-        }catch (Exception e) {
-            logger.info("###########/error/test02");
-        }
-
+    @GetMapping("/error/test01")
+    public void errorControllerTest01() {
+        errorTestService.errorTestService01();
     }
 
     //데이터 조회 후 없는 인덱스 조회 ,IndexOutOfBoundsException
-    @GetMapping("/error/test03")
-    public void errorTest03() {
-        List<ErrorReport> errorReports = errorReportRepository.findAll();
-
-        try{
-            for (int i=0;i<=errorReports.size();i++) {
-                System.out.println(errorReports.get(i));
-            }
-        }catch (Exception e) {
-            logger.error("###########/error/test03");
-        }
-
+    @GetMapping("/error/test02")
+    public void errorControllerTest02() {
+        errorTestService.errorTestService02();
     }
 
     //길이가 1인 컬럼에 긴 데이터 넣으려는 시도 , DataIntegrityViolationException
-    @GetMapping("/error/test04")
-    public void errorTest04() {
-        List<ErrorReport> errorReports = errorReportRepository.findAll();
-        try{
-            for(ErrorReport errorReport : errorReports) {
-                errorReport.setErrorReportSendYn("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
-                errorReportRepository.save(errorReport);
-            }
-        }catch (Exception e) {}
+    @GetMapping("/error/test03")
+    public void errorControllerTest03() {
+        errorTestService.errorTestService03();
     }
 
     //null인 데이터의 길이를 구함, NullPointerException
-    @GetMapping("/error/test05")
-    public void errorTest05() {
-        String nullString = null;
-        System.out.println(nullString.length());
+    @GetMapping("/error/test04")
+    public void errorControllerTest04() {
+        errorTestService.errorTestService04();
     }
 
     //String 타입을 Integer 타입으로 캐스팅 시도, ClassCastException
+    @GetMapping("/error/test05")
+    public void errorControllerTest05() {
+        errorTestService.errorTestService05();
+    }
+
+
     @GetMapping("/error/test06")
-    public void errorTest06() {
-        Object obj = new String("test");
-        Integer num = (Integer) obj;
+    public ResponseEntity<String> errorControllerTest06() {
+        errorTestService.errorTestService06();
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    //String타입을 Integer타입으로 변환 시도, NumberFormatException
     @GetMapping("/error/test07")
-    public void errorTest07() {
-        String invalidNumber = "abc";
-        Integer.parseInt(invalidNumber);  
+    public ResponseEntity<String> errorControllerTest07() {
+        errorTestService.errorTestService07();
+        return new ResponseEntity<>("", HttpStatus.OK);
     }
 
+    @GetMapping("/error/test08")
+    public ResponseEntity<String> errorControllerTest08() {
+        errorTestService.errorTestService08();
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 }
