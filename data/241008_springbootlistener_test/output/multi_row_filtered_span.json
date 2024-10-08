@@ -3,8 +3,8 @@
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "c905ee78609304c786d391c03bf4dc87",
-        "spanId": "e7ab078989eb88dc",
+        "traceId": "28ebb5b4e7b3065d3e4ca158832b39e1",
+        "spanId": "6ec7894b6029f831",
         "flags": 1,
         "name": "UPDATE rnp.error_report",
         "http.status_code": null,
@@ -14,15 +14,15 @@
         "exception.stacktrace.short": "org.postgresql.util.PSQLException: ERROR: value too long for type character varying(1) at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2725)",
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:32",
-        "endTimeUnixNano": "2024-10-08 22:16:32"
+        "startTimeUnixNano": "2024-10-08 23:03:16",
+        "endTimeUnixNano": "2024-10-08 23:03:16"
     },
     {
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "c905ee78609304c786d391c03bf4dc87",
-        "spanId": "144bda3304909d92",
+        "traceId": "28ebb5b4e7b3065d3e4ca158832b39e1",
+        "spanId": "86b35f501dc552b2",
         "flags": 1,
         "name": "Transaction.commit",
         "http.status_code": null,
@@ -32,15 +32,15 @@
         "exception.stacktrace.short": "jakarta.persistence.RollbackException: Error while committing the transaction at org.hibernate.internal.ExceptionConverterImpl.convertCommitException(ExceptionConverterImpl.java:67)",
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:32",
-        "endTimeUnixNano": "2024-10-08 22:16:32"
+        "startTimeUnixNano": "2024-10-08 23:03:16",
+        "endTimeUnixNano": "2024-10-08 23:03:16"
     },
     {
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "c905ee78609304c786d391c03bf4dc87",
-        "spanId": "81dbf29831933898",
+        "traceId": "28ebb5b4e7b3065d3e4ca158832b39e1",
+        "spanId": "4892cbac872bd392",
         "flags": 1,
         "name": "ErrorReportRepository.save",
         "http.status_code": null,
@@ -50,15 +50,15 @@
         "exception.stacktrace.short": "org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: value too long for type character varying(1)] [update error_report set create_time=?,error_cause=?,error_content=?,error_create_time=?,error_location=?,error_name=?,error_report_send_yn=?,error_solution=?,service_impact=?,service_code=?,trace_id=? where seq=?]; SQL [update error_report set create_time=?,error_cause=?,error_content=?,error_create_time=?,error_location=?,error_name=?,error_report_send_yn=?,error_solution=?,service_impact=?,service_code=?,trace_id=? where seq=?] at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:293)",
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:32",
-        "endTimeUnixNano": "2024-10-08 22:16:32"
+        "startTimeUnixNano": "2024-10-08 23:03:16",
+        "endTimeUnixNano": "2024-10-08 23:03:16"
     },
     {
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "95071bbca81be0160c46165157dfeeb1",
-        "spanId": "3b5b66fe16c4dcd4",
+        "traceId": "4169e701de091d92357e83fb788822d0",
+        "spanId": "dd7bf20a876e4dab",
         "flags": 1,
         "name": "GET /error/test05",
         "http.status_code": null,
@@ -68,15 +68,15 @@
         "exception.stacktrace.short": null,
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:35",
-        "endTimeUnixNano": "2024-10-08 22:16:35"
+        "startTimeUnixNano": "2024-10-08 23:03:21",
+        "endTimeUnixNano": "2024-10-08 23:03:21"
     },
     {
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "a895c4cb98f219b22a30786ca6e476e5",
-        "spanId": "05f8a86d7b3443d3",
+        "traceId": "771b156e0508f6d3a74387ebaab7c33d",
+        "spanId": "84f43fcf5643654e",
         "flags": 1,
         "name": "GET /error/test05",
         "http.status_code": null,
@@ -86,15 +86,15 @@
         "exception.stacktrace.short": null,
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:35",
-        "endTimeUnixNano": "2024-10-08 22:16:35"
+        "startTimeUnixNano": "2024-10-08 23:03:21",
+        "endTimeUnixNano": "2024-10-08 23:03:21"
     },
     {
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "73e81d25a43427f9882bdbadd039610f",
-        "spanId": "0fe91a06ca3b28d2",
+        "traceId": "60aa79c4896ae28ec3ca1a9c5d952a9c",
+        "spanId": "167cb68b3d9e7ea1",
         "flags": 1,
         "name": "GET /error/test06",
         "http.status_code": null,
@@ -104,15 +104,15 @@
         "exception.stacktrace.short": null,
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:37",
-        "endTimeUnixNano": "2024-10-08 22:16:37"
+        "startTimeUnixNano": "2024-10-08 23:03:23",
+        "endTimeUnixNano": "2024-10-08 23:03:23"
     },
     {
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "58e2a84b747c400b7594e33c3e4cf273",
-        "spanId": "224aada2ca2dab99",
+        "traceId": "66775dd60109f7275b8549ae5107d42c",
+        "spanId": "b131b659f7d75614",
         "flags": 1,
         "name": "GET /error/test06",
         "http.status_code": null,
@@ -122,15 +122,15 @@
         "exception.stacktrace.short": null,
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:37",
-        "endTimeUnixNano": "2024-10-08 22:16:37"
+        "startTimeUnixNano": "2024-10-08 23:03:23",
+        "endTimeUnixNano": "2024-10-08 23:03:23"
     },
     {
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "8000e97adacfe682b651b2ba2c585504",
-        "spanId": "048377fd9c837443",
+        "traceId": "4cf886bdbb2e667af538b9f2da449bed",
+        "spanId": "5337d1d14cfeaa5d",
         "flags": 1,
         "name": "GET /error/test08",
         "http.status_code": null,
@@ -140,15 +140,15 @@
         "exception.stacktrace.short": null,
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:41",
-        "endTimeUnixNano": "2024-10-08 22:16:41"
+        "startTimeUnixNano": "2024-10-08 23:03:28",
+        "endTimeUnixNano": "2024-10-08 23:03:28"
     },
     {
         "service.name": "spring-reporting-service",
         "service.code": "SL1001",
         "os.type": "windows",
-        "traceId": "d3f551bdd57ff490a8a4eded65428d80",
-        "spanId": "ac2accea32e06154",
+        "traceId": "a2fa6e1abb587864b13cb2510d551bf3",
+        "spanId": "3064b2f7dc640455",
         "flags": 1,
         "name": "GET /error/test08",
         "http.status_code": null,
@@ -158,7 +158,7 @@
         "exception.stacktrace.short": null,
         "http.url": null,
         "rpc.method": null,
-        "startTimeUnixNano": "2024-10-08 22:16:41",
-        "endTimeUnixNano": "2024-10-08 22:16:41"
+        "startTimeUnixNano": "2024-10-08 23:03:28",
+        "endTimeUnixNano": "2024-10-08 23:03:28"
     }
 ]

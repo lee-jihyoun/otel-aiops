@@ -9,8 +9,8 @@
         "logRecords_severityText": "ERROR",
         "logRecords_body_stringValue": "###########/error/test02",
         "flags": 1,
-        "traceId": "d481a275673014edac9aabca7cd1a40d",
-        "observedTimeUnixNano": "2024-10-08 22:16:31"
+        "traceId": "93f94ea5b0fec888c5ab08d7487fd733",
+        "observedTimeUnixNano": "2024-10-08 23:03:14"
     },
     {
         "container.id": null,
@@ -22,8 +22,8 @@
         "logRecords_severityText": "WARN",
         "logRecords_body_stringValue": "SQL Error: 0, SQLState: 22001",
         "flags": 1,
-        "traceId": "c905ee78609304c786d391c03bf4dc87",
-        "observedTimeUnixNano": "2024-10-08 22:16:32"
+        "traceId": "28ebb5b4e7b3065d3e4ca158832b39e1",
+        "observedTimeUnixNano": "2024-10-08 23:03:16"
     },
     {
         "container.id": null,
@@ -35,8 +35,8 @@
         "logRecords_severityText": "ERROR",
         "logRecords_body_stringValue": "ERROR: value too long for type character varying(1)",
         "flags": 1,
-        "traceId": "c905ee78609304c786d391c03bf4dc87",
-        "observedTimeUnixNano": "2024-10-08 22:16:32"
+        "traceId": "28ebb5b4e7b3065d3e4ca158832b39e1",
+        "observedTimeUnixNano": "2024-10-08 23:03:16"
     },
     {
         "container.id": null,
@@ -48,8 +48,8 @@
         "logRecords_severityText": "ERROR",
         "logRecords_body_stringValue": "###########/error/test04",
         "flags": 1,
-        "traceId": "f6c748a39abd108f32f0d9d64d512313",
-        "observedTimeUnixNano": "2024-10-08 22:16:33"
+        "traceId": "7c1ffb4e57bb551c8c6bd648158f29ac",
+        "observedTimeUnixNano": "2024-10-08 23:03:18"
     },
     {
         "container.id": null,
@@ -61,8 +61,8 @@
         "logRecords_severityText": "ERROR",
         "logRecords_body_stringValue": "Forwarding to error page from request [/error/test05] due to exception [class java.lang.String cannot be cast to class java.lang.Integer (java.lang.String and java.lang.Integer are in module java.base of loader 'bootstrap')]",
         "flags": 1,
-        "traceId": "95071bbca81be0160c46165157dfeeb1",
-        "observedTimeUnixNano": "2024-10-08 22:16:35"
+        "traceId": "4169e701de091d92357e83fb788822d0",
+        "observedTimeUnixNano": "2024-10-08 23:03:21"
     },
     {
         "container.id": null,
@@ -74,8 +74,8 @@
         "logRecords_severityText": "ERROR",
         "logRecords_body_stringValue": "Forwarding to error page from request [/error/test05] due to exception [class java.lang.String cannot be cast to class java.lang.Integer (java.lang.String and java.lang.Integer are in module java.base of loader 'bootstrap')]",
         "flags": 1,
-        "traceId": "a895c4cb98f219b22a30786ca6e476e5",
-        "observedTimeUnixNano": "2024-10-08 22:16:35"
+        "traceId": "771b156e0508f6d3a74387ebaab7c33d",
+        "observedTimeUnixNano": "2024-10-08 23:03:21"
     },
     {
         "container.id": null,
@@ -87,7 +87,7 @@
         "logRecords_severityText": "ERROR",
         "logRecords_body_stringValue": "###########/error/test07",
         "flags": 1,
-        "traceId": "ac06fefb0d63385916b81cb3863c7395",
-        "observedTimeUnixNano": "2024-10-08 22:16:39"
+        "traceId": "06a56a6d00d110a0342f7f58d0198061",
+        "observedTimeUnixNano": "2024-10-08 23:03:25"
     }
 ]
