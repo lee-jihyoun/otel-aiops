@@ -35,8 +35,8 @@ class LogParsing:
 
         with open(input_path + file_name, "r") as log_file:
 
-            # logging.info("===========================")
-            # logging.info(log_file)
+            # # logging.info("===========================")
+            # # logging.info(log_file)
 
             if file_name == "filtered_logs.json":
                 idx = filter_last_position
@@ -45,15 +45,15 @@ class LogParsing:
 
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
 
-                # logging.info("===========================")
-                # logging.info(line)
+                # # logging.info("===========================")
+                # # logging.info(line)
 
                 if not line:  # 더 이상 읽을 데이터가 없으면
-                    # logging.info("데이터가 없습니다")
+                    # # logging.info("데이터가 없습니다")
                     break  # 루프를 종료
 
                 else:
-                    # logging.info(f"================ filtered_log 파싱 start: {datetime.datetime.now()} ================")
+                    # # logging.info(f"================ filtered_log 파싱 start: {datetime.datetime.now()} ================")
 
                     try:
                         log_data = json.loads(line.strip())
@@ -96,7 +96,7 @@ class LogParsing:
                                         parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
                                     if "traceId" in log_record:
                                         parsed_info["traceId"] = log_record["traceId"]
-                                        # logging.info(parsed_info)
+                                        # # logging.info(parsed_info)
 
                                     # traceid가 비어 있을 경우에는 log_record에 저장하지 않음
                                     if "traceId" in log_record and log_record["traceId"]:
@@ -105,10 +105,10 @@ class LogParsing:
                     except json.JSONDecodeError as e:
                         logging.ERROR(f"Error parsing line: {e}")
 
-                    # logging.info("**************************")
-                    # logging.info("parsing_log_data_list\n")
-                    # logging.info(parsing_log_data_list)
-                    # logging.info("**************************")
+                    # # logging.info("**************************")
+                    # # logging.info("parsing_log_data_list\n")
+                    # # logging.info(parsing_log_data_list)
+                    # # logging.info("**************************")
 
                     # 마지막으로 읽은 위치를 업데이트
                     if file_name == "filtered_logs.json":
@@ -118,8 +118,8 @@ class LogParsing:
                     else:
                         original_last_position = current_index + 1
 
-                # logging.info("============ log 파싱 end ===========\n")
-                # logging.info(parsing_log_data_list)
+                # # logging.info("============ log 파싱 end ===========\n")
+                # # logging.info(parsing_log_data_list)
 
             return parsing_log_data_list
 
@@ -132,14 +132,14 @@ class LogParsing:
             file_name = self.file_name
             parsing_log_data_list = self.logparser()
 
-            # logging.info("*****************")
-            # logging.info("parsing_log_data_list\n")
-            # logging.info(parsing_log_data_list)
-            # logging.info("**************************")
+            # # logging.info("*****************")
+            # # logging.info("parsing_log_data_list\n")
+            # # logging.info(parsing_log_data_list)
+            # # logging.info("**************************")
 
             if parsing_log_data_list != []:
 
-                # logging.info("============ db 삽입 start===========\n")
+                # # logging.info("============ db 삽입 start===========\n")
 
                 # # list 형태로 저장
                 for log in parsing_log_data_list:
@@ -160,16 +160,16 @@ class LogParsing:
                     r.rpush(key_list, log)
                     r.expire(key_list, 60 * 15)  # 60s * 15 = 15m
 
-                    logging.info(f"* key_list: {key_list}")
-                    logging.info(f"* log: {log}")
+                    # logging.info(f"* key_list: {key_list}")
+                    # logging.info(f"* log: {log}")
 
                     r.sadd("key_store",trace_id)
                     # r.rpush("key_store", trace_id)
                     r.expire("key_store", 60 * 15)  # 60s * 15 = 15m
 
-                    logging.info(f"* key_store: {trace_id}")
+                    # logging.info(f"* key_store: {trace_id}")
                     #
                     # r.hset(retry_count_store, "retry", "0")
                     # r.expire(retry_count_store, 60*15)
                     #
-                    # logging.info(f"* retry_count_store: {retry_count_store}")
+                    # # logging.info(f"* retry_count_store: {retry_count_store}")
