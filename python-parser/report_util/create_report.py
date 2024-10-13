@@ -19,7 +19,7 @@ class CreateReport:
     def __init__(self):
         global template
         # 템플릿 파일을 읽어 초기화 시 한 번만 저장
-        with open("./prompt_template.txt", 'r', encoding='UTF8') as f:
+        with open("./prompt_template_dsquare.txt", 'r', encoding='UTF8') as f:
             template = f.read()
 
         # DB 연결 및 API 키 불러오기
