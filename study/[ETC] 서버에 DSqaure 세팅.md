@@ -38,7 +38,7 @@
     git clone https://github.com/100yeony/dsquare-backend.git
     git checkout develop
 
-# 권한 부여
+# 권한 부여(git pull 받을때마다 아래 명령어와 jar 파일 빌드 새로 해야함)
     cd /opt
     chmod -R 777 dsquare-backend/
 
@@ -49,3 +49,7 @@
 # jar 파일 실행
     cd /opt/dsquare-backend/build/libs
     JASYPT_ENCRYPTOR_PASSWORD=ktds.dsquare java -jar DSquare-User-0.0.1-SNAPSHOT.jar
+
+# 백그라운드로 실행
+	JASYPT_ENCRYPTOR_PASSWORD=ktds.dsquare nohup java -jar DSquare-User-0.0.1-SNAPSHOT.jar > output.log 2>&1 &
+

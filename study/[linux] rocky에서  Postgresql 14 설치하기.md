@@ -51,3 +51,47 @@
     psql에 접속하여 CREATE DATABASE 명령어를 통해 데이터베이스 생성이 가능합니다.
     dsquare라는 DB의 소유자는 postgres 인코딩 타입은 'UTF-8'
     create database dsquare with owner = postgres encoding = 'UTF8';
+
+# 특정 버전 삭제
+# 서비스 중지
+    systemctl stop postgresql-14
+
+# 14버전 패키지 목록 확인
+    rpm -qa | grep postgresql14
+
+# PostgreSQL 14 패키지 제거
+    dnf remove postgresql14* -y
+
+# 16 버전 시작
+    systemctl start postgresql-16
+    systemctl enable postgresql-16
+
+# 16버전에서 dsquare db 생성하기
+    sudo -u postgres psql -p 5532
+    create database dsquare with owner = postgres encoding = 'UTF8';
+
+    cd /var/lib/pgsql/data
+    vi pg_hba.conf
+    다음과 같이 dsquare를 추가 
+
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    
+    # "local" is for Unix domain socket connections only
+    local   all             all                                     peer
+    # IPv4 local connections:
+    #host    all             all             127.0.0.1/32            ident
+    #host   all             all             0.0.0.0                 md5
+    # IPv6 local connections:
+    host    all             all             ::1/128                 ident
+    # Allow replication connections from localhost, by a user with the
+    # replication privilege.
+    local   replication     all                                     peer
+    host    replication     all             127.0.0.1/32            ident
+    host    replication     all             ::1/128                 ident
+    host    all             rnp             0.0.0.0/0               md5
+    host    all             test_admin      0.0.0.0/0               md5
+    host    all             dsquare         0.0.0.0/0               md5
+
+
+# 재시작
+    systemctl restart postgresql
