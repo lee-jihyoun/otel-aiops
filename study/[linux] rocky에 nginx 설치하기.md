@@ -95,4 +95,19 @@ getsebool httpd_can_network_connect
 # nginx 재시작
 systemctl restart nginx
 
+---
+APP_BASE_URL 변경
+# URL 찾기
+grep  -rn 'http://dsquare.kro.kr' ./*
+
+# 찾은 위치에서 아래의 경로로 변경
+http://100.83.227.59
+
+# URL 위치들
+http://dsquare.kro.kr
+./js/2415.25b00c1c.js:1:
+
+./js/app.21f635f2.js:1:
+
+./js/chunk-vendors.752a9777.js:40:
 
