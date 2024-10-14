@@ -19,14 +19,14 @@ def get_parsing_data(r, key_info, key):
     key_ = key_info + ":" + key
     # # list 형식일 때
     parsing_data_list = r.lrange(key_, 0, -1)
-    print("*", key_, "의 파싱 데이터:", parsing_data_list, "\n")
+    # print("*", key_, "의 파싱 데이터:", parsing_data_list, "\n")
     return parsing_data_list
 
     # # hash 형식일 때
     # parsing_data = r.hvals(key_)
     # # str을 list로 변환
     # parsing_data_json = json.dumps(parsing_data)
-    # # print("*", key_, "의 파싱 데이터:", parsing_data_json, "\n")
+    # # # print("*", key_, "의 파싱 데이터:", parsing_data_json, "\n")
     # return parsing_data_json
 
 
@@ -36,7 +36,7 @@ def create_retry_count_store(r, retry_count_store):
 
 
 def is_retry_over_2(r, key):
-    print("(조건) retry가 2 이상인가?")
+    # print("(조건) retry가 2 이상인가?")
     retry_count_store = "retry_count_store:" + key
     # retry_count_store에 해당 키가 없으면 새로 생성
     if not r.exists(retry_count_store):
@@ -73,63 +73,63 @@ def add_complete_hash(r, key, log, trace):
         value = complete_hash.get(field)
         if value:
             complete_hash_dict[field] = value
-    print("\n(성공) >>>>>>>>>> complete_hash에 추가 <<<<<<<<<<\n", key, ":", complete_hash_dict)
+    # print("\n(성공) >>>>>>>>>> complete_hash에 추가 <<<<<<<<<<\n", key, ":", complete_hash_dict)
 
 
 def main():
     r = get_redis_db_connection()
     while True:
-        print("************* complete_data_batch start *************")
+        # print("************* complete_data_batch start *************")
         key_store_set = r.smembers("key_store")
-        # print(type(set_values))
+        # # print(type(set_values))
         # key_store_list = r.lrange("key_store", 0, -1)
-        # print("key_store_list:", key_store_list)
+        # # print("key_store_list:", key_store_list)
         # key_store 리스트에서 key 꺼내기
         for key in key_store_set:
-            print("\n-------------- 현재 key(", key, ")가 포함된 hash 정보 --------------")
+            # print("\n-------------- 현재 key(", key, ")가 포함된 hash 정보 --------------")
             filtered_log = get_parsing_data(r, "filtered_log_list", key)
             filtered_trace = get_parsing_data(r, "filtered_trace_list", key)
 
             # filtered_log, filtered_trace 둘다 존재
             if len(filtered_log) > 0 and len(filtered_trace) > 0:
-                print("\n(조건) filtered_log_list, filtered_trace_lst에 모두 key가 있는가?")
-                print("(결과) yes\n")
+                # print("\n(조건) filtered_log_list, filtered_trace_lst에 모두 key가 있는가?")
+                # print("(결과) yes\n")
                 result = is_retry_over_2(r, key)
                 if result:
                     add_complete_hash(r, key, filtered_log, filtered_trace)
 
             elif len(filtered_log) == 0 and len(filtered_trace) > 0:
-                print("(조건) filtered_log_list에는 키가 없고, filtered_trace_list에는 키가 있는가?")
-                print("(결과) yes\n")
+                # print("(조건) filtered_log_list에는 키가 없고, filtered_trace_list에는 키가 있는가?")
+                # print("(결과) yes\n")
                 original_log = get_parsing_data(r, "original_log_list", key)
                 if len(original_log) > 0:
-                    print("(조건) original_log_hash에 키가 있는가?")
-                    print("(결과) yes\n")
+                    # print("(조건) original_log_hash에 키가 있는가?")
+                    # print("(결과) yes\n")
                     result = is_retry_over_2(r, key)
                     if result:
                         add_complete_hash(r, key, original_log, filtered_trace)
                 else:
-                    print("(조건) original_log_hash에 키가 있는가?")
-                    print("(결과) no\n")
+                    # print("(조건) original_log_hash에 키가 있는가?")
+                    # print("(결과) no\n")
                     continue
 
             elif len(filtered_log) > 0 and len(filtered_trace) == 0:
-                print("(조건) filtered_log_list에는 키가 있고, filtered_trace_list에는 키가 없는가?")
-                print("(결과) yes")
+                # print("(조건) filtered_log_list에는 키가 있고, filtered_trace_list에는 키가 없는가?")
+                # print("(결과) yes")
                 original_trace = get_parsing_data(r, "original_trace_list", key)
                 if len(original_trace) > 0:
-                    print("(조건) original_trace_hash에 키가 있는가?")
-                    print("(결과) yes\n")
+                    # print("(조건) original_trace_hash에 키가 있는가?")
+                    # print("(결과) yes\n")
                     result = is_retry_over_2(r, key)
                     if result:
                         add_complete_hash(r, key, filtered_log, original_trace)
                 else:
-                    print("(조건) original_trace_hash에 키가 있는가?")
-                    print("(결과) no\n")
+                    # print("(조건) original_trace_hash에 키가 있는가?")
+                    # print("(결과) no\n")
                     continue
             else:
-                print("(조건) filtered_log_list에는 키가 있고, filtered_trace_list에는 키가 없는가?")
-                print("(결과) no. 해당 키가 original_log, original_trace 결과만 존재하므로 insert하지 않습니다.\n")
+                # print("(조건) filtered_log_list에는 키가 있고, filtered_trace_list에는 키가 없는가?")
+                # print("(결과) no. 해당 키가 original_log, original_trace 결과만 존재하므로 insert하지 않습니다.\n")
                 continue
 
         # time.sleep(180) # 3분
