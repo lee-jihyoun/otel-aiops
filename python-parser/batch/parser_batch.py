@@ -5,10 +5,10 @@ import json_parser.trace_parser as trace_parser
 
 
 # 경로 설정(local에서 테스트 시)
-input_path = '../data/servertest/'
+# input_path = '../data/servertest/'
 
 # 경로 설정(서버에서 테스트 시)
-# input_path = '/opt/spring-otel-listener-run/'
+input_path = '/opt/spring-otel-listener-run/'
 
 logging.info("**************** 로그 파싱 시작 ****************")
 filtered_log = 'filtered_logs.json'

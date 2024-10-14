@@ -33,8 +33,8 @@ class TraceParsing:
         parsing_trace_data_list = [] # "a111", "b111"
 
         with open(input_path + file_name, "r") as log_file:
-            # logging.info("filter_last_position")
-            # logging.info(filter_last_position)
+            # # logging.info("filter_last_position")
+            # # logging.info(filter_last_position)
 
             if file_name == "filtered_span.json":
                 idx = filter_last_position
@@ -43,15 +43,15 @@ class TraceParsing:
 
             for current_index, line in enumerate(itertools.islice(log_file, idx, None), start=idx):
 
-                # logging.info("===========================")
-                # logging.info(line)
+                # # logging.info("===========================")
+                # # logging.info(line)
 
                 if not line:  # 더 이상 읽을 데이터가 없으면
-                    # logging.info("데이터가 없습니다")
+                    # # logging.info("데이터가 없습니다")
                     break  # 루프를 종료
 
                 else:
-                    # logging.info(f"================ filtered_span 파싱 start: {datetime.datetime.now()} ================")
+                    # # logging.info(f"================ filtered_span 파싱 start: {datetime.datetime.now()} ================")
 
                     try:
                         span_data = json.loads(line.strip())
@@ -122,9 +122,9 @@ class TraceParsing:
                     except json.JSONDecodeError as e:
                         logging.ERROR(f"Error parsing line: {e}")
 
-                    # logging.info("parsing_trace_data_list\n")
-                    # logging.info(parsing_trace_data_list)
-                    # logging.info(len(parsing_trace_data_list))
+                    # # logging.info("parsing_trace_data_list\n")
+                    # # logging.info(parsing_trace_data_list)
+                    # # logging.info(len(parsing_trace_data_list))
 
                     # 마지막으로 읽은 위치를 업데이트
                     if file_name == "filtered_span.json":
@@ -134,8 +134,8 @@ class TraceParsing:
                     else:
                         original_last_position = current_index + 1
 
-                    # logging.info("============ trace 파싱 end ===========\n")
-                    # logging.info(parsing_trace_data_list)
+                    # # logging.info("============ trace 파싱 end ===========\n")
+                    # # logging.info(parsing_trace_data_list)
 
                 return parsing_trace_data_list
 
@@ -148,13 +148,13 @@ class TraceParsing:
             file_name = self.file_name
             parsing_trace_data_list = self.traceparser()
 
-            # logging.info("**************************")
-            # logging.info("parsing_trace_data_list\n")
-            # logging.info(parsing_trace_data_list)
-            # logging.info("**************************")
+            # # logging.info("**************************")
+            # # logging.info("parsing_trace_data_list\n")
+            # # logging.info(parsing_trace_data_list)
+            # # logging.info("**************************")
 
             if parsing_trace_data_list != None:
-                # logging.info("============ db 삽입 start===========\n")
+                # # logging.info("============ db 삽입 start===========\n")
 
                 # # list 형태로 저장
                 for trace in parsing_trace_data_list:
@@ -176,16 +176,16 @@ class TraceParsing:
                     r.rpush(key_list, trace)
                     r.expire(key_list, 60 * 15)  # 60s * 15 = 15m
 
-                    logging.info(f"* full_key: {key_list}")
-                    logging.info(f"* trace: {trace}")
+                    # logging.info(f"* full_key: {key_list}")
+                    # logging.info(f"* trace: {trace}")
 
                     r.sadd("key_store",trace_id)
                     # r.rpush("key_store", trace_id)
                     r.expire("key_store", 60 * 15)  # 60s * 15 = 15m
 
-                    logging.info(f"* key_store: {trace_id}")
+                    # logging.info(f"* key_store: {trace_id}")
                     #
                     # r.hset(retry_count_store, "retry", "0")
                     # r.expire(retry_count_store, 60*15)
                     #
-                    # logging.info(f"* retry_count_store: {retry_count_store}")
+                    # # logging.info(f"* retry_count_store: {retry_count_store}")
