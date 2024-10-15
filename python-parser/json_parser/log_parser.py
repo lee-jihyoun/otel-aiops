@@ -70,6 +70,10 @@ class LogParsing:
                                         "telemetry.sdk.language": None,
                                         "logRecords_severityText": None,
                                         "logRecords_body_stringValue": None,
+                                        "log.exception.message": None,
+                                        "log.exception.stacktrace": None,
+                                        "log.exception.stacktrace.short": None,
+                                        "log.exception.type": None,
                                         "traceId": None,
                                         "observedTimeUnixNano": None,  # 새로운 시간 필드 추가
                                     }
@@ -94,9 +98,19 @@ class LogParsing:
                                         parsed_info["logRecords_severityText"] = log_record["severityText"]
                                     if "body" in log_record and "stringValue" in log_record["body"]:
                                         parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
+                                    if "attributes" in log_record:
+                                        for attribute in log_record["attributes"]:
+                                            if attribute["key"] == "exception.message":
+                                                parsed_info["log.exception.message"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "exception.stacktrace":
+                                                parsed_info["log.exception.stacktrace"] = attribute["value"]["stringValue"]
+                                                parsed_info["log.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2])
+                                            if attribute["key"] == "exception.type":
+                                                parsed_info["log.exception.type"] = attribute["value"]["stringValue"]
                                     if "traceId" in log_record:
                                         parsed_info["traceId"] = log_record["traceId"]
                                         # # logging.info(parsed_info)
+
 
                                     # traceid가 비어 있을 경우에는 log_record에 저장하지 않음
                                     if "traceId" in log_record and log_record["traceId"]:
