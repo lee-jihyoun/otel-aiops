@@ -85,7 +85,7 @@ class CreateReport:
             logging.error(f"* freesia API가 비정상 응답입니다. TypeError: {e}")
 
     # DB에서 error_history 읽어오기
-    def is_exists_in_error_history(self, service_code, exception_stacktrace_short):
+    def is_exists_in_error_history(self, service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short):
         # print("* select 하려는 service_code:", service_code)
         with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             read_query = f"""
@@ -93,10 +93,12 @@ class CreateReport:
                 (SELECT seq FROM error_history AS eh
                 WHERE eh.create_time > now() - '1 day'::interval
                 AND eh.service_code = '{service_code}'
-                AND eh.exception_stacktrace_short = '{exception_stacktrace_short}')
+                AND eh.log_exception_stacktrace_short = '{log_exception_stacktrace_short}')
+                AND eh.trace_exception_stacktrace_short = '{trace_exception_stacktrace_short}')
             """
             cur.execute(read_query)
             result = cur.fetchall()
+
         return result[0][0]
 
     def is_exists_key_from_error_report(self, key):
@@ -111,41 +113,118 @@ class CreateReport:
         return result[0][0]
 
     # DB에서의 error_history와 완료 목록을 비교(중복 체크)
-    def is_duplicate_error(self, trace_data):
+    def is_duplicate_error(self, log_data, trace_data):
         logging.info("* 중복된 오류가 있었는지 확인합니다.")
+        # duplicate_cnt = 0
+        #
+        # for log in log_data:
+        #     # str -> list로 변환
+        #     if log is None:
+        #         logging.info("* log가 없습니다.")
+        #         return False
+        #     else:
+        #         log_dict = eval(log)
+        #         # dict -> JSON 문자열 변환
+        #         log_json = json.dumps(log_dict, indent=4)
+        #         try:
+        #             trace_list = json.loads(log_json)
+        #         except JSONDecodeError as e:
+        #             # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
+        #             logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
+        #             continue
+        #
+        #         # 만약 log_list가 리스트가 아니면 리스트로 강제 변환
+        #         if isinstance(log_list, dict):
+        #             log_list = [log_list]
+        #         elif not isinstance(log_list, list):
+        #             logging.error("* log_list가 리스트도 아니고 딕셔너리도 아닙니다. 건너뜁니다.")
+        #             continue
+        #
+        #         # dict에 접근
+        #         for log_dict in log_list:
+        #             service_code = log_dict.get("service.code")
+        #             trace_exception_stacktrace_short = log_dict.get("trace.exception.stacktrace.short")
+        #             # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
+        #             result = self.is_exists_in_error_history(service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short)
+        #             if result is True:
+        #                 self.increase_error_history_cnt(service_code, trace_exception_stacktrace_short)
+        #                 duplicate_cnt += 1
+        #
+        # for trace in trace_data:
+        #     # str -> list로 변환
+        #     if trace is None:
+        #         logging.info("* trace가 없습니다.")
+        #         return False
+        #     else:
+        #         trace_dict = eval(trace)
+        #         # dict -> JSON 문자열 변환
+        #         trace_json = json.dumps(trace_dict, indent=4)
+        #         try:
+        #             trace_list = json.loads(trace_json)
+        #         except JSONDecodeError as e:
+        #             # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
+        #             logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
+        #             continue
+        #
+        #         # 만약 trace_list가 리스트가 아니면 리스트로 강제 변환
+        #         if isinstance(trace_list, dict):
+        #             trace_list = [trace_list]
+        #         elif not isinstance(trace_list, list):
+        #             logging.error("* trace_list가 리스트도 아니고 딕셔너리도 아닙니다. 건너뜁니다.")
+        #             continue
+        #
+        #         # dict에 접근
+        #         for trace_dict in trace_list:
+        #             service_code = trace_dict.get("service.code")
+        #             trace_exception_stacktrace_short = trace_dict.get("trace.exception.stacktrace.short")
+        #             # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
+        #             result = self.is_exists_in_error_history(service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short)
+        #             if result is True:
+        #                 self.increase_error_history_cnt(service_code, trace_exception_stacktrace_short)
+        #                 duplicate_cnt += 1
+
+        combined_data = [
+            {'type': 'log', 'data': log_data},
+            {'type': 'trace', 'data': trace_data}
+        ]
+
         duplicate_cnt = 0
-        for trace in trace_data:
-            # str -> list로 변환
-            if trace is None:
-                logging.info("* trace가 없습니다.")
-                return False
-            else:
-                trace_dict = eval(trace)
-                # dict -> JSON 문자열 변환
-                trace_json = json.dumps(trace_dict, indent=4)
-                try:
-                    trace_list = json.loads(trace_json)
-                except JSONDecodeError as e:
-                    # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
-                    logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
-                    continue
 
-                # 만약 trace_list가 리스트가 아니면 리스트로 강제 변환
-                if isinstance(trace_list, dict):
-                    trace_list = [trace_list]
-                elif not isinstance(trace_list, list):
-                    logging.error("* trace_list가 리스트도 아니고 딕셔너리도 아닙니다. 건너뜁니다.")
-                    continue
+        for entry in combined_data:
+            for item in entry['data']:
+                if item is None:
+                    logging.info(f"* {entry['type']}가 없습니다.")
+                    return False
+                else:
+                    item_dict = eval(item)
+                    # dict -> JSON 문자열 변환
+                    item_json = json.dumps(item_dict, indent=4)
+                    try:
+                        item_list = json.loads(item_json)
+                    except JSONDecodeError as e:
+                        logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
+                        continue
 
-                # dict에 접근
-                for trace_dict in trace_list:
-                    service_code = trace_dict.get("service.code")
-                    exception_stacktrace_short = trace_dict.get("exception.stacktrace.short")
-                    # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
-                    result = self.is_exists_in_error_history(service_code, exception_stacktrace_short)
-                    if result is True:
-                        self.increase_error_history_cnt(service_code, exception_stacktrace_short)
-                        duplicate_cnt += 1
+                    # 만약 item_list가 리스트가 아니면 리스트로 강제 변환
+                    if isinstance(item_list, dict):
+                        item_list = [item_list]
+                    elif not isinstance(item_list, list):
+                        logging.error(f"* {entry['type']}_list가 리스트도 아니고 딕셔너리도 아닙니다. 건너뜁니다.")
+                        continue
+
+                    # dict에 접근
+                    for item_dict in item_list:
+                        service_code = item_dict.get("service.code")
+                        log_exception_stacktrace_short = item_dict.get(f"{entry['type']}.log.exception.stacktrace.short")
+                        trace_exception_stacktrace_short = item_dict.get(f"{entry['type']}.trace.exception.stacktrace.short")
+
+                        # log와 trace 모두 동일한 stacktrace 검증
+                        result = self.is_exists_in_error_history(service_code, log_exception_stacktrace_short,
+                                                                 trace_exception_stacktrace_short)
+                        if result is True:
+                            self.increase_error_history_cnt(service_code, log_exception_stacktrace_short,
+                                                            trace_exception_stacktrace_short)
+                            duplicate_cnt += 1
 
         if duplicate_cnt > 0:
             logging.info("* 중복 오류가 있습니다. 오류 보고서를 생성할 수 없습니다")
@@ -154,15 +233,16 @@ class CreateReport:
             logging.info("* 중복 오류가 없습니다. 오류 보고서를 생성합니다.")
             return False
 
-    def increase_error_history_cnt(self, service_code, exception_stacktrace_short):
+    def increase_error_history_cnt(self, service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short):
         with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
                 UPDATE error_history
                 SET cnt = cnt + 1
                 WHERE service_code = %s
-                AND exception_stacktrace_short = %s
+                AND log_exception_stacktrace_short = %s
+                AND trace_exception_stacktrace_short = %s
             ''',
-            (service_code, exception_stacktrace_short))
+            (service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short))
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
     def is_success_create_and_save_error_report(self, key, log, trace):
@@ -184,9 +264,11 @@ class CreateReport:
     def save_error_history(self, error_report):
         with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
-                INSERT INTO error_history (service_code, exception_stacktrace_short)
-                VALUES (%s, %s)
-            ''', (error_report["service_code"], error_report["exception_stacktrace_short"]))
+                INSERT INTO error_history (service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short)
+                VALUES (%s, %s, %s)
+            ''', (error_report["service_code"],
+                  error_report["log_exception_stacktrace_short"],
+                  error_report["trace_exception_stacktrace_short"]))
 
     def save_error_report(self, error_report):
         with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
