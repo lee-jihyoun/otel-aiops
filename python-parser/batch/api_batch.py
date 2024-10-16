@@ -57,7 +57,7 @@ def process_creating_report(r, report, key):
         return
     else:
         # DB error_history에 중복이 있는지 체크
-        is_duplicate = report.is_duplicate_error(trace)
+        is_duplicate = report.is_duplicate_error(log, trace)
         # DB error_report에 이미 발송된 적이 있는 traceId 인지 체크
         is_exists = report.is_exists_key_from_error_report(key)
         if is_duplicate is False:

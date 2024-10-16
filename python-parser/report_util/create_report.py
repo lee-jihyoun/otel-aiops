@@ -93,7 +93,7 @@ class CreateReport:
                 (SELECT seq FROM error_history AS eh
                 WHERE eh.create_time > now() - '1 day'::interval
                 AND eh.service_code = '{service_code}'
-                AND eh.log_exception_stacktrace_short = '{log_exception_stacktrace_short}')
+                AND eh.log_exception_stacktrace_short = '{log_exception_stacktrace_short}'
                 AND eh.trace_exception_stacktrace_short = '{trace_exception_stacktrace_short}')
             """
             cur.execute(read_query)
@@ -196,12 +196,10 @@ class CreateReport:
                     logging.info(f"* {entry['type']}가 없습니다.")
                     return False
                 else:
-                    item_dict = eval(item)
-                    # dict -> JSON 문자열 변환
-                    item_json = json.dumps(item_dict, indent=4)
                     try:
-                        item_list = json.loads(item_json)
+                        item_list = json.loads(item)
                     except JSONDecodeError as e:
+                        # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
                         logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
                         continue
 
@@ -309,7 +307,8 @@ class CreateReport:
                 error_create_time = content["오류내용"]["발생 시간"]
                 error_content = content["오류내용"]["오류 내용"]
                 error_location = content["분석결과"]["오류 발생 위치"]
-                exception_stacktrace_short = content["분석결과"]["exception.stacktrace.short"]
+                log_exception_stacktrace_short = content["분석결과"]["log.exception.stacktrace.short"]
+                trace_exception_stacktrace_short = content["분석결과"]["trace.exception.stacktrace.short"]
                 error_cause = content["분석결과"]["오류 근본 원인"]
                 service_impact = content["분석결과"]["서비스 영향도"]
                 error_solution = content["후속조치"]["조치방안"]
@@ -319,7 +318,8 @@ class CreateReport:
                 error_report["error_create_time"] = error_create_time
                 error_report["error_content"] = error_content
                 error_report["error_location"] = error_location
-                error_report["exception_stacktrace_short"] = exception_stacktrace_short
+                error_report["log_exception_stacktrace_short"] = log_exception_stacktrace_short
+                error_report["trace_exception_stacktrace_short"] = trace_exception_stacktrace_short
                 error_report["error_cause"] = error_cause
                 error_report["service_impact"] = service_impact
                 error_report["error_solution"] = error_solution
