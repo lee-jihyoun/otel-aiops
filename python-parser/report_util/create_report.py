@@ -196,12 +196,10 @@ class CreateReport:
                     logging.info(f"* {entry['type']}가 없습니다.")
                     return False
                 else:
-                    item_dict = json.loads(item)
-                    # dict -> JSON 문자열 변환
-                    item_json = json.dumps(item_dict, indent=4)
                     try:
-                        item_list = json.loads(item_json)
+                        item_list = json.loads(item)
                     except JSONDecodeError as e:
+                        # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
                         logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
                         continue
 
