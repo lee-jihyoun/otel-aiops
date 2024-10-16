@@ -74,4 +74,10 @@ public class ErrorTestController {
         return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
+    @GetMapping("/error/test09")
+    public void errorControllerTest09() {
+        errorTestService.errorTestService09();
+    }
+
 }
