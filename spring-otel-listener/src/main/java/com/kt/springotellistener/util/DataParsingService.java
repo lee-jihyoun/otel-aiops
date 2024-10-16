@@ -168,6 +168,23 @@ public class DataParsingService {
                             if (logRecord.containsKey("traceId") && logRecord.get("traceId") != null) {
                                 parsedLog.put("traceId", logRecord.get("traceId"));
                             }
+                            if (logRecord.containsKey("attributes")) {
+                                List<Map<String, Object>> attributes = (List<Map<String, Object>>) logRecord.get("attributes");
+                                for (Map<String, Object> attribute : attributes) {
+                                    if (attribute.containsKey("exception.message")) {
+                                        parsedLog.put("log.exception.message", attribute.get("exception.message"));
+                                    }
+                                    if (attribute.containsKey("exception.stacktrace")) {
+                                        String stacktrace = (String) attribute.get("exception.stacktrace");
+                                        String shortStackTrace = String.join(" ", Arrays.asList(stacktrace.split("\n")).subList(0, 2));
+                                        parsedLog.put("log.exception.message", stacktrace);
+                                        parsedLog.put("log.exception.stacktrace.short", shortStackTrace);
+                                    }
+                                    if (attribute.containsKey("exception.type")) {
+                                        parsedLog.put("log.exception.message", attribute.get("exception.type"));
+                                    }
+                                }
+                            }
                         }
                     }
                 }

@@ -12,5 +12,5 @@ spring:
           max-idle: 8
           min-idle: 0
       timeout: 60000
-      database: 3
+      database: 2
 
