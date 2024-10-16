@@ -58,12 +58,12 @@ DSquare 서비스는 SpringBoot, Vue.js 환경에서 구동되며 linux 서버(o
 ## 오류내용
 - **오류 이름**: 오류 내용_span의 name입니다.
 - **발생 시간**: 오류 내용_log의 observedTimeUnixNano입니다.
-- **오류 내용**: 오류 내용_log의 logRecords_body_stringValue입니다.
+- **오류 내용**: 오류 내용_log의 logRecords_body_stringValue와 오류 내용_log의 log.exception.message와 오류 내용_span의 trace.exception.message를 참고해서 작성해주세요.
 
 ## 분석결과
 - **log.exception.stacktrace.short**: log.exception.stacktrace.short는 오류 내용_log의 log.exception.stacktrace.short 내용을 그대로 작성해주세요.
 - **trace.exception.stacktrace.short**: trace.exception.stacktrace.short는 오류 내용_span의 trace.exception.stacktrace.short 내용을 그대로 작성해주세요.
-- **오류 발생 위치**: 오류 발생 위치는 오류 내용_span의 exception.stacktrace 내용을 바탕으로 생성해 주세요. exception.stacktrace 내용의 일부도 포함해서 작성해주세요.
+- **오류 발생 위치**: 오류 발생 위치는 오류 내용_log의 log.exception.stacktrace 오류 내용_span의 trace.exception.stacktrace 내용을 바탕으로 생성해 주세요. exception.stacktrace 내용의 일부도 포함해서 작성해주세요.
 - **오류 근본 원인**: 오류 근본 원인은 trace_id를 참고하여 어떤 서비스로부터 전파되었는지 생성해 주세요. 상세하게 존댓말로 작성해주세요. 오류 내용이나 trace id를 설명할 때 ""를 사용하지 마세요.
 - **서비스 영향도**: 학습된 문서의 아키텍처를 바탕으로 오류로 인해 영향이 발생하는 내용을 알려주세요.
 
