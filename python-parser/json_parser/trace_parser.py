@@ -85,9 +85,10 @@ class TraceParsing:
                                             "name": span.get("name"),
                                             "http.status_code": None,
                                             "rpc.grpc.status_code": None,
-                                            "exception.message": None,
-                                            "exception.stacktrace": None,
-                                            "exception.stacktrace.short": None,
+                                            "trace.exception.message": None,
+                                            "trace.exception.stacktrace": None,
+                                            "trace.exception.stacktrace.short": None,
+                                            "trace.exception.type": None,
                                             "http.url": None,
                                             "rpc.method": None,
                                             "startTimeUnixNano": span.get("startTimeUnixNano"),
@@ -110,11 +111,13 @@ class TraceParsing:
                                     for event in span.get("events", []):
                                         for attribute in event.get("attributes", []):
                                             if attribute["key"] == "exception.message":
-                                                parsed_info["exception.message"] = attribute["value"]["stringValue"]
+                                                parsed_info["trace.exception.message"] = attribute["value"]["stringValue"]
                                             if attribute["key"] == "exception.stacktrace":
-                                                parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
+                                                parsed_info["trace.exception.stacktrace"] = attribute["value"]["stringValue"]
                                                 # 두 번째 \n 전까지만 가져오기, 중간에 \n 존재 시 삭제
-                                                parsed_info["exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2])
+                                                parsed_info["trace.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2])
+                                            if attribute["key"] == "exception.type":
+                                                parsed_info["trace.exception.type"] = attribute["value"]["stringValue"]
 
                                     # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
                                     parsing_trace_data_list.append(parsed_info)
