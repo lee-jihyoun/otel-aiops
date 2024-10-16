@@ -169,20 +169,26 @@ public class DataParsingService {
                                 parsedLog.put("traceId", logRecord.get("traceId"));
                             }
                             if (logRecord.containsKey("attributes")) {
+
                                 List<Map<String, Object>> attributes = (List<Map<String, Object>>) logRecord.get("attributes");
                                 for (Map<String, Object> attribute : attributes) {
-                                    if (attribute.containsKey("exception.message")) {
-                                        parsedLog.put("log.exception.message", attribute.get("exception.message"));
+                                    String key = (String) attribute.get("key");
+                                    Map<String, Object> value = (Map<String, Object>) attribute.get("value");
+                                    switch (key) {
+                                        case "exception.message":
+                                            parsedLog.put("log.exception.message", value.get("stringValue"));
+                                            break;
+                                        case "exception.stacktrace":
+                                            String stacktrace = (String) value.get("stringValue");
+                                            String shortStackTrace = String.join(" ", Arrays.asList(stacktrace.split("\n")).subList(0, 2));
+                                            parsedLog.put("log.exception.stacktrace", stacktrace);
+                                            parsedLog.put("log.exception.stacktrace.short", shortStackTrace);
+                                            break;
+                                        case "exception.type":
+                                            parsedLog.put("log.exception.type", value.get("stringValue"));
+                                            break;
                                     }
-                                    if (attribute.containsKey("exception.stacktrace")) {
-                                        String stacktrace = (String) attribute.get("exception.stacktrace");
-                                        String shortStackTrace = String.join(" ", Arrays.asList(stacktrace.split("\n")).subList(0, 2));
-                                        parsedLog.put("log.exception.message", stacktrace);
-                                        parsedLog.put("log.exception.stacktrace.short", shortStackTrace);
-                                    }
-                                    if (attribute.containsKey("exception.type")) {
-                                        parsedLog.put("log.exception.message", attribute.get("exception.type"));
-                                    }
+
                                 }
                             }
                         }
@@ -245,9 +251,9 @@ public class DataParsingService {
                         parsedInfo.put("endTimeUnixNano", span.get("endTimeUnixNano"));
                         parsedInfo.put("http.status_code", null);
                         parsedInfo.put("rpc.grpc.status_code", null);
-                        parsedInfo.put("exception.message", null);
-                        parsedInfo.put("exception.stacktrace", null);
-                        parsedInfo.put("exception.stacktrace.short", null);
+                        parsedInfo.put("trace.exception.message", null);
+                        parsedInfo.put("trace.exception.stacktrace", null);
+                        parsedInfo.put("trace.exception.stacktrace.short", null);
                         parsedInfo.put("http.url", null);
                         parsedInfo.put("rpc.method", null);
 
@@ -283,15 +289,15 @@ public class DataParsingService {
                                 if (eventAttributes != null && !eventAttributes.isEmpty()) {
                                     for (Map<String, Object> attribute : eventAttributes) {
                                         if ("exception.message".equals(attribute.get("key"))) {
-                                            parsedInfo.put("exception.message", ((Map) attribute.get("value")).get("stringValue"));
+                                            parsedInfo.put("trace.exception.message", ((Map) attribute.get("value")).get("stringValue"));
                                         }
                                         if ("exception.stacktrace".equals(attribute.get("key"))) {
                                             String stacktrace = (String) ((Map) attribute.get("value")).get("stringValue");
-                                            parsedInfo.put("exception.stacktrace", stacktrace);
+                                            parsedInfo.put("trace.exception.stacktrace", stacktrace);
 
                                             // 두 번째 줄까지만 파싱하여 저장
                                             String shortStackTrace = String.join(" ", Arrays.asList(stacktrace.split("\n")).subList(0, 2));
-                                            parsedInfo.put("exception.stacktrace.short", shortStackTrace);
+                                            parsedInfo.put("trace.exception.stacktrace.short", shortStackTrace);
                                         }
                                     }
                                 }
