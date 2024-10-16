@@ -8,6 +8,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
@@ -154,7 +158,7 @@ public class DataParsingService {
                     if (logRecords != null) {
                         for (Map<String, Object> logRecord : logRecords) {
                             if (logRecord.containsKey("observedTimeUnixNano")) {
-                                parsedLog.put("observedTimeUnixNano", logRecord.get("observedTimeUnixNano"));
+                                parsedLog.put("observedTimeUnixNano", convertNanoToDatetime(logRecord.get("observedTimeUnixNano").toString()));
                             }
                             if (logRecord.containsKey("severityText")) {
                                 parsedLog.put("logRecords_severityText", logRecord.get("severityText"));
@@ -247,8 +251,8 @@ public class DataParsingService {
                         parsedInfo.put("traceId", span.get("traceId"));
                         parsedInfo.put("spanId", span.get("spanId"));
                         parsedInfo.put("name", span.get("name"));
-                        parsedInfo.put("startTimeUnixNano", span.get("startTimeUnixNano"));
-                        parsedInfo.put("endTimeUnixNano", span.get("endTimeUnixNano"));
+                        parsedInfo.put("startTimeUnixNano", convertNanoToDatetime(span.get("startTimeUnixNano").toString()));
+                        parsedInfo.put("endTimeUnixNano", convertNanoToDatetime(span.get("endTimeUnixNano").toString()));
                         parsedInfo.put("http.status_code", null);
                         parsedInfo.put("rpc.grpc.status_code", null);
                         parsedInfo.put("trace.exception.message", null);
@@ -313,6 +317,14 @@ public class DataParsingService {
         }
 
         return parsedDataList;
+    }
+
+    public String convertNanoToDatetime(String strNanoTime) {
+        long nanoTime = Long.parseLong(strNanoTime);
+        long seconds = nanoTime / 1_000_000_000L;
+        ZonedDateTime utcTime = Instant.ofEpochSecond(seconds).atZone(ZoneId.of("UTC"));
+        ZonedDateTime kstTime = utcTime.withZoneSameInstant(ZoneId.of("Asia/Seoul"));
+        return kstTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
 
