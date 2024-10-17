@@ -61,6 +61,14 @@
 
 
 # keycloak에 opentelemetry agent 추가 - linux
+    ※ 설치 경로, username은 임의로 적음
+    =====================================================================
+        cd /home/username/keycloak-13.0.0/bin
+        vi standalone.conf
+        
+        cd /home/username/keycloak-13.0.0/bin
+        ./standalone.sh
+    =====================================================================
 
     ※ 리눅스의 경우에는 standalone.sh 파일보다 standalone.conf 파일 수정을 권장함
     ※ standalone.sh 파일을 수정해도 안된다는 말은 아님
@@ -193,7 +201,16 @@
 
 		=====================================================================
 
-	13. 수집 확인
+    13. keycloak 관리자 계정 생성
+        =====================================================================
+        cd /keycloak-13.0.0/bin
+        ./add-user-keycloak.sh -u admin
+            Press ctrl-d (Unix) or ctrl-z (Windows) to exit
+            Password:
+            Added 'admin' to '/home/sungchul/keycloak-13.0.0/standalone/configuration/keycloak-add-user.json', restart server to load user
+        =====================================================================
+
+	14. 수집 확인
 
 [ Jenkins 테스트 ]
 # Jenkins 다운로드
