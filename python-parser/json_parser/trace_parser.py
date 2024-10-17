@@ -66,11 +66,11 @@ class TraceParsing:
                             if "resource" in resource and "attributes" in resource["resource"]:
                                 for attribute in resource["resource"]["attributes"]:
                                     if attribute["key"] == "service.name":
-                                        service_name = attribute["value"]["stringValue"]
+                                        service_name = attribute["value"]["stringValue"].replace('"', '')
                                     if attribute["key"] == "service.code":
-                                        service_code = attribute["value"]["stringValue"]
+                                        service_code = attribute["value"]["stringValue"].replace('"', '')
                                     if attribute["key"] == "os.type":
-                                        os_type = attribute["value"]["stringValue"]
+                                        os_type = attribute["value"]["stringValue"].replace('"', '')
                             # trace_parser에서 for scope_span in resource.get("scopeSpans", []):
                             for scopeSpan in resource.get("scopeSpans", []):
                                 for span in scopeSpan.get("spans", []):
@@ -101,9 +101,9 @@ class TraceParsing:
                                             if attribute["key"] == "rpc.grpc.status_code":
                                                 parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
                                             if attribute["key"] == "http.url":
-                                                parsed_info["http.url"] = attribute["value"]["stringValue"]
+                                                parsed_info["http.url"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "rpc.method":
-                                                parsed_info["rpc.method"] = attribute["value"]["stringValue"]
+                                                parsed_info["rpc.method"] = attribute["value"]["stringValue"].replace('"', '')
                                         except KeyError as e:
                                             logging.ERROR(f"Key is not found: {e}")
                                             continue
@@ -111,13 +111,13 @@ class TraceParsing:
                                     for event in span.get("events", []):
                                         for attribute in event.get("attributes", []):
                                             if attribute["key"] == "exception.message":
-                                                parsed_info["trace.exception.message"] = attribute["value"]["stringValue"]
+                                                parsed_info["trace.exception.message"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "exception.stacktrace":
-                                                parsed_info["trace.exception.stacktrace"] = attribute["value"]["stringValue"]
+                                                parsed_info["trace.exception.stacktrace"] = attribute["value"]["stringValue"].replace('"', '')
                                                 # 두 번째 \n 전까지만 가져오기, 중간에 \n 존재 시 삭제
-                                                parsed_info["trace.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2])
+                                                parsed_info["trace.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2]).replace('"', '')
                                             if attribute["key"] == "exception.type":
-                                                parsed_info["trace.exception.type"] = attribute["value"]["stringValue"]
+                                                parsed_info["trace.exception.type"] = attribute["value"]["stringValue"].replace('"', '')
 
                                     # span이 여러개인 경우 list에 파싱 결과를 append하여 전달
                                     parsing_trace_data_list.append(parsed_info)
@@ -138,7 +138,7 @@ class TraceParsing:
                         original_last_position = current_index + 1
 
                     # # logging.info("============ trace 파싱 end ===========\n")
-                    # # logging.info(parsing_trace_data_list)
+                    logging.info(parsing_trace_data_list)
 
                 return parsing_trace_data_list
 

@@ -80,36 +80,36 @@ class LogParsing:
                                     if "resource" in resource_log and "attributes" in resource_log["resource"]:
                                         for attribute in resource_log["resource"]["attributes"]:
                                             if attribute["key"] == "container.id":
-                                                parsed_info["container.id"] = attribute["value"]["stringValue"]
+                                                parsed_info["container.id"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "os.description":
-                                                parsed_info["os.description"] = attribute["value"]["stringValue"]
+                                                parsed_info["os.description"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "process.command_line":
-                                                parsed_info["process.command_line"] = attribute["value"]["stringValue"]
+                                                parsed_info["process.command_line"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "service.name":
-                                                parsed_info["service.name"] = attribute["value"]["stringValue"]
+                                                parsed_info["service.name"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "service.code":
-                                                parsed_info["service.code"] = attribute["value"]["stringValue"]
+                                                parsed_info["service.code"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "telemetry.sdk.language":
-                                                parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"]
+                                                parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"].replace('"', '')
 
                                     if "observedTimeUnixNano" in log_record:
                                         parsed_info["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
                                     if "severityText" in log_record:
-                                        parsed_info["logRecords_severityText"] = log_record["severityText"]
+                                        parsed_info["logRecords_severityText"] = log_record["severityText"].replace('"', '')
                                     if "body" in log_record and "stringValue" in log_record["body"]:
-                                        parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"]
+                                        parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"].replace('"', '')
                                     if "attributes" in log_record:
                                         for attribute in log_record["attributes"]:
                                             if attribute["key"] == "exception.message":
-                                                parsed_info["log.exception.message"] = attribute["value"]["stringValue"]
+                                                parsed_info["log.exception.message"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "exception.stacktrace":
-                                                parsed_info["log.exception.stacktrace"] = attribute["value"]["stringValue"]
-                                                parsed_info["log.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2])
+                                                parsed_info["log.exception.stacktrace"] = attribute["value"]["stringValue"].replace('"', '')
+                                                parsed_info["log.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2]).replace('"', '')
                                             if attribute["key"] == "exception.type":
-                                                parsed_info["log.exception.type"] = attribute["value"]["stringValue"]
+                                                parsed_info["log.exception.type"] = attribute["value"]["stringValue"].replace('"', '')
                                     if "traceId" in log_record:
                                         parsed_info["traceId"] = log_record["traceId"]
-                                        # # logging.info(parsed_info)
+                                        logging.info(parsed_info)
 
 
                                     # traceid가 비어 있을 경우에는 log_record에 저장하지 않음
