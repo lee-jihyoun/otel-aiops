@@ -19,7 +19,7 @@ class CreateReport:
     def __init__(self):
         global template
         # 템플릿 파일을 읽어 초기화 시 한 번만 저장
-        with open("./prompt_template_dsquare.txt", 'r', encoding='UTF8') as f:
+        with open("./prompt_template_v4.txt", 'r', encoding='UTF8') as f:
             template = f.read()
 
         # DB 연결 및 API 키 불러오기
@@ -231,6 +231,20 @@ class CreateReport:
     def make_db_data(self, clean_response):
         retry = 0
         max_retry = 5
+        if isinstance(clean_response, str):
+            clean_response = json.loads(clean_response)
+        print("type:", type(clean_response))
+        content = clean_response['data']['content']
+        if "기본정보" in content:
+            print(type(content["기본정보"]))  # <class 'dict'> 인지 확인
+            if isinstance(content["기본정보"], dict) and "서비스코드" in content["기본정보"]:
+                service_code = content["기본정보"]["서비스코드"]
+            else:
+                print("서비스코드가 존재하지 않거나 기본정보가 딕셔너리가 아닙니다.")
+        else:
+            print("기본정보 키가 content에 존재하지 않습니다.")
+            print(clean_response)
+            # TODO: retry는 여기서 하면 안되고 프리지아 쏘는 부분에서 해야됨.
         while retry < max_retry:
             try:
                 content = clean_response['data']['content']
@@ -306,8 +320,9 @@ class CreateReport:
         # 잘못된 JSON 문자열 디버깅
         try:
             freesia_result = json.loads(cleaned_str)
+            return freesia_result
         except json.JSONDecodeError as e:
             print("* JSON 디코딩 에러:", e)
             print("* 문제 있는 문자열 주변:", cleaned_str[max(0, e.pos-60):e.pos+60])
             print("============== api result DB insert 실패 ==============")
-        return freesia_result
+
