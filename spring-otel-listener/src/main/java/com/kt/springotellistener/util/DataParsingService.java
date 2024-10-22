@@ -157,6 +157,9 @@ public class DataParsingService {
 
                     if (logRecords != null) {
                         for (Map<String, Object> logRecord : logRecords) {
+                            if (scopeLog.containsKey("scope")) {
+                                parsedLog.put("scope", scopeLog.get("scope"));
+                            }
                             if (logRecord.containsKey("observedTimeUnixNano")) {
                                 parsedLog.put("observedTimeUnixNano", convertNanoToDatetime(logRecord.get("observedTimeUnixNano").toString()));
                             }
@@ -261,6 +264,11 @@ public class DataParsingService {
                         parsedInfo.put("http.url", null);
                         parsedInfo.put("rpc.method", null);
 
+                        parsedInfo.put("http.response.status_code", null);
+                        parsedInfo.put("server.address", null);
+                        parsedInfo.put("server.port", null);
+                        parsedInfo.put("http.route", null);
+
                         // span -> attributes에서 필요한 값을 추출
                         List<Map<String, Object>> spanAttributes = (List<Map<String, Object>>) span.get("attributes");
                         if (spanAttributes != null && !spanAttributes.isEmpty()) {
@@ -278,6 +286,20 @@ public class DataParsingService {
                                     if ("rpc.method".equals(attribute.get("key"))) {
                                         parsedInfo.put("rpc.method", ((Map) attribute.get("value")).get("stringValue"));
                                     }
+
+                                    if ("http.response.status_code".equals(attribute.get("key"))) {
+                                        parsedInfo.put("http.response.status_code", ((Map) attribute.get("value")).get("intValue"));
+                                    }
+                                    if ("server.address".equals(attribute.get("key"))) {
+                                        parsedInfo.put("server.address", ((Map) attribute.get("value")).get("stringValue"));
+                                    }
+                                    if ("server.port".equals(attribute.get("key"))) {
+                                        parsedInfo.put("server.port", ((Map) attribute.get("value")).get("intValue"));
+                                    }
+                                    if ("http.route".equals(attribute.get("key"))) {
+                                        parsedInfo.put("http.route", ((Map) attribute.get("value")).get("stringValue"));
+                                    }
+
                                 } catch (Exception e) {
                                     System.err.println("Error parsing attribute: " + e.getMessage());
                                     continue;
