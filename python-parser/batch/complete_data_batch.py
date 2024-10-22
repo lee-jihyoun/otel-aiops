@@ -52,14 +52,15 @@ def is_retry_over_2(r, key):
         print("(결과) no. retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
 
 
-def add_complete_hash(r, key, log, trace):
+def add_complete_hash(r, key, log, trace, prompt_ver):
     complete_key = "complete_hash:" + key
     # hset 명령어는 문자열만 허용하므로 list 타입을 문자열로 변환
     log = json.dumps(log)
     trace = json.dumps(trace)
     r.hset(complete_key, mapping={
         "parsing_data_log": log,
-        "parsing_data_trace": trace
+        "parsing_data_trace": trace,
+        "prompt_version": prompt_ver
     })
     # complete_hash expire 설정(15분)
     r.expire(complete_key, 900)
@@ -68,7 +69,7 @@ def add_complete_hash(r, key, log, trace):
     # 결과 확인
     complete_hash = r.hgetall(complete_key)
     complete_hash_dict = {}
-    fields_sort = ["parsing_data_log", "parsing_data_trace"]
+    fields_sort = ["parsing_data_log", "parsing_data_trace", "prompt_version"]
     for field in fields_sort:
         value = complete_hash.get(field)
         if value:
@@ -90,29 +91,15 @@ def main():
             filtered_log = get_parsing_data(r, "filtered_log_list", key)
             filtered_trace = get_parsing_data(r, "filtered_trace_list", key)
 
-            # filtered_log, filtered_trace 둘다 존재
+            # filtered_log, filtered_trace 둘다 존재(prompt_v1)
             if len(filtered_log) > 0 and len(filtered_trace) > 0:
                 # print("\n(조건) filtered_log_list, filtered_trace_lst에 모두 key가 있는가?")
                 # print("(결과) yes\n")
                 result = is_retry_over_2(r, key)
                 if result:
-                    add_complete_hash(r, key, filtered_log, filtered_trace)
+                    add_complete_hash(r, key, filtered_log, filtered_trace, 1)
 
-            elif len(filtered_log) == 0 and len(filtered_trace) > 0:
-                # print("(조건) filtered_log_list에는 키가 없고, filtered_trace_list에는 키가 있는가?")
-                # print("(결과) yes\n")
-                original_log = get_parsing_data(r, "original_log_list", key)
-                if len(original_log) > 0:
-                    # print("(조건) original_log_hash에 키가 있는가?")
-                    # print("(결과) yes\n")
-                    result = is_retry_over_2(r, key)
-                    if result:
-                        add_complete_hash(r, key, original_log, filtered_trace)
-                else:
-                    # print("(조건) original_log_hash에 키가 있는가?")
-                    # print("(결과) no\n")
-                    continue
-
+            # filtered_log, original_trace 존재(prompt_v2)
             elif len(filtered_log) > 0 and len(filtered_trace) == 0:
                 # print("(조건) filtered_log_list에는 키가 있고, filtered_trace_list에는 키가 없는가?")
                 # print("(결과) yes")
@@ -122,11 +109,28 @@ def main():
                     # print("(결과) yes\n")
                     result = is_retry_over_2(r, key)
                     if result:
-                        add_complete_hash(r, key, filtered_log, original_trace)
+                        add_complete_hash(r, key, filtered_log, original_trace, 2)
                 else:
                     # print("(조건) original_trace_hash에 키가 있는가?")
                     # print("(결과) no\n")
                     continue
+
+            # original_log, filtered_trace 존재(prompt_v3)
+            elif len(filtered_log) == 0 and len(filtered_trace) > 0:
+                # print("(조건) filtered_log_list에는 키가 없고, filtered_trace_list에는 키가 있는가?")
+                # print("(결과) yes\n")
+                original_log = get_parsing_data(r, "original_log_list", key)
+                if len(original_log) > 0:
+                    # print("(조건) original_log_hash에 키가 있는가?")
+                    # print("(결과) yes\n")
+                    result = is_retry_over_2(r, key)
+                    if result:
+                        add_complete_hash(r, key, original_log, filtered_trace, 3)
+                else:
+                    # print("(조건) original_log_hash에 키가 있는가?")
+                    # print("(결과) no\n")
+                    continue
+
             else:
                 # print("(조건) filtered_log_list에는 키가 있고, filtered_trace_list에는 키가 없는가?")
                 # print("(결과) no. 해당 키가 original_log, original_trace 결과만 존재하므로 insert하지 않습니다.\n")

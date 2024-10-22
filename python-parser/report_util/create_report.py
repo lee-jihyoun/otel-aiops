@@ -12,20 +12,19 @@ headers = {
     "X-API-KEY": "",
     "content-type": "application/json"
 }
-template = ""
 
 
 class CreateReport:
     def __init__(self):
-        global template
-        # 템플릿 파일을 읽어 초기화 시 한 번만 저장
-        with open("./prompt_template_dsquare.txt", 'r', encoding='UTF8') as f:
-            template = f.read()
-
         # DB 연결 및 API 키 불러오기
         with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             self.api_key = self.select_api_key(cur)
             headers["X-API-KEY"] = self.api_key
+
+    def apply_prompt_version(self, prompt_ver):
+        with open(f"./prompt_template_v{prompt_ver}.txt", 'r', encoding='UTF8') as f:
+            template = f.read()
+            return template
 
     # DB 연결 설정
     def get_postgres_db_connection(self):
@@ -57,9 +56,10 @@ class CreateReport:
         return response
 
     # 보낼 JSON 데이터의 message 생성
-    def create_message(self, log, trace):
-        # 템플릿을 그대로 사용
-        global template
+    def create_message(self, log, trace, prompt_ver):
+        # prompt 버전에 맞게 템플릿 사용
+        template = self.apply_prompt_version(prompt_ver)
+
         # list -> str로 변환
         log = json.dumps(log)
         trace = json.dumps(trace)
@@ -70,19 +70,32 @@ class CreateReport:
         return json.dumps(data)
 
     # 오류 리포트 생성
-    def create_error_report(self, log, trace):
-        json_data = self.create_message(log, trace)
-        response = self.call_freesia_api(json_data)
-        # str -> dict로 변환
-        try:
-            response_check = response.json()
-            response_code = response_check.get("code")
-            if response_code == "9999":
-                logging.info("* freeesia 응답 코드가 9999입니다. ")
-            else:
-                return response.text
-        except TypeError as e:
-            logging.error(f"* freesia API가 비정상 응답입니다. TypeError: {e}")
+    def create_error_report(self, log, trace, prompt_ver):
+        retry = 0
+        max_retry = 5
+
+        while retry < max_retry:
+            json_data = self.create_message(log, trace, prompt_ver)
+            response = self.call_freesia_api(json_data)
+
+            # str -> dict로 변환
+            try:
+                response_check = response.json()
+                response_code = response_check.get("code")
+                content = response_check["data"]["content"]
+                if response_code == "9999":
+                    logging.info("* freeesia 응답 코드가 9999입니다. ")
+                elif content == "죄송합니다, 문의하신 내용에 대한 답변을 찾을 수 없습니다.":
+                    logging.error(f"* freesia는 정상이지만 답변이 제대로 생성되지 않았습니다.")
+                    retry += 1
+                    logging.info(f"* {retry}번째 다시 시도합니다.")
+                else:
+                    return response.text
+            except TypeError as e:
+                logging.error(f"* freesia API가 비정상 응답입니다. TypeError: {e}")
+                return None
+
+        logging.info("* freesia 데이터 생성에 실패했습니다.")
 
     # DB에서 error_history 읽어오기
     def is_exists_in_error_history(self, service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short):
@@ -115,73 +128,6 @@ class CreateReport:
     # DB에서의 error_history와 완료 목록을 비교(중복 체크)
     def is_duplicate_error(self, log_data, trace_data):
         logging.info("* 중복된 오류가 있었는지 확인합니다.")
-        # duplicate_cnt = 0
-        #
-        # for log in log_data:
-        #     # str -> list로 변환
-        #     if log is None:
-        #         logging.info("* log가 없습니다.")
-        #         return False
-        #     else:
-        #         log_dict = eval(log)
-        #         # dict -> JSON 문자열 변환
-        #         log_json = json.dumps(log_dict, indent=4)
-        #         try:
-        #             trace_list = json.loads(log_json)
-        #         except JSONDecodeError as e:
-        #             # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
-        #             logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
-        #             continue
-        #
-        #         # 만약 log_list가 리스트가 아니면 리스트로 강제 변환
-        #         if isinstance(log_list, dict):
-        #             log_list = [log_list]
-        #         elif not isinstance(log_list, list):
-        #             logging.error("* log_list가 리스트도 아니고 딕셔너리도 아닙니다. 건너뜁니다.")
-        #             continue
-        #
-        #         # dict에 접근
-        #         for log_dict in log_list:
-        #             service_code = log_dict.get("service.code")
-        #             trace_exception_stacktrace_short = log_dict.get("trace.exception.stacktrace.short")
-        #             # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
-        #             result = self.is_exists_in_error_history(service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short)
-        #             if result is True:
-        #                 self.increase_error_history_cnt(service_code, trace_exception_stacktrace_short)
-        #                 duplicate_cnt += 1
-        #
-        # for trace in trace_data:
-        #     # str -> list로 변환
-        #     if trace is None:
-        #         logging.info("* trace가 없습니다.")
-        #         return False
-        #     else:
-        #         trace_dict = eval(trace)
-        #         # dict -> JSON 문자열 변환
-        #         trace_json = json.dumps(trace_dict, indent=4)
-        #         try:
-        #             trace_list = json.loads(trace_json)
-        #         except JSONDecodeError as e:
-        #             # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
-        #             logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
-        #             continue
-        #
-        #         # 만약 trace_list가 리스트가 아니면 리스트로 강제 변환
-        #         if isinstance(trace_list, dict):
-        #             trace_list = [trace_list]
-        #         elif not isinstance(trace_list, list):
-        #             logging.error("* trace_list가 리스트도 아니고 딕셔너리도 아닙니다. 건너뜁니다.")
-        #             continue
-        #
-        #         # dict에 접근
-        #         for trace_dict in trace_list:
-        #             service_code = trace_dict.get("service.code")
-        #             trace_exception_stacktrace_short = trace_dict.get("trace.exception.stacktrace.short")
-        #             # TODO: prompt 수정하기 -> service code와 일치하는 exception.stacktrace 요청하기.
-        #             result = self.is_exists_in_error_history(service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short)
-        #             if result is True:
-        #                 self.increase_error_history_cnt(service_code, trace_exception_stacktrace_short)
-        #                 duplicate_cnt += 1
 
         combined_data = [
             {'type': 'log', 'data': log_data},
@@ -243,19 +189,23 @@ class CreateReport:
             (service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short))
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
-    def is_success_create_and_save_error_report(self, key, log, trace):
-        response = self.create_error_report(log, trace)
-        clean_result = self.make_clean_markdown_json(response)
-        db_data = self.make_db_data(clean_result)
-        if db_data is not None:
-            db_data["trace_id"] = key
-            self.save_error_report(db_data)
-            self.save_error_history(db_data)
-            logging.info(f"* freesia 오류보고서:\n {db_data}")
-            logging.info("* DB insert 완료")
-            return True
-        else:
-            logging.info("* DB insert 실패")
+    def is_success_create_and_save_error_report(self, key, log, trace, prompt_ver):
+        try:
+            response = self.create_error_report(log, trace, prompt_ver)
+            clean_result = self.make_clean_markdown_json(response)
+            db_data = self.make_db_data(clean_result)
+            if db_data is not None:
+                db_data["trace_id"] = key
+                self.save_error_report(db_data)
+                self.save_error_history(db_data)
+                logging.info(f"* freesia 오류보고서:\n {db_data}")
+                logging.info("* DB insert 완료")
+                return True
+            else:
+                logging.info("* DB insert 실패")
+                return False
+        except TypeError as e:
+            logging.info("* freesia 응답이 제대로 생성되지 않았습니다.")
             return False
 
     # error_history 테이블에 데이터 추가
@@ -296,42 +246,34 @@ class CreateReport:
 
     # DB insert 하기 위한 데이터로 변환
     def make_db_data(self, clean_response):
-        retry = 0
-        max_retry = 5
-        while retry < max_retry:
-            try:
-                content = clean_response['data']['content']
-                error_report = {}
-                service_code = content["기본정보"]["서비스코드"]
-                error_name = content["오류내용"]["오류 이름"]
-                error_create_time = content["오류내용"]["발생 시간"]
-                error_content = content["오류내용"]["오류 내용"]
-                error_location = content["분석결과"]["오류 발생 위치"]
-                log_exception_stacktrace_short = content["분석결과"]["log.exception.stacktrace.short"]
-                trace_exception_stacktrace_short = content["분석결과"]["trace.exception.stacktrace.short"]
-                error_cause = content["분석결과"]["오류 근본 원인"]
-                service_impact = content["분석결과"]["서비스 영향도"]
-                error_solution = content["후속조치"]["조치방안"]
+        try:
+            content = clean_response['data']['content']
+            error_report = {}
+            service_code = content["기본정보"]["서비스코드"]
+            error_name = content["오류내용"]["오류 이름"]
+            error_create_time = content["오류내용"]["발생 시간"]
+            error_content = content["오류내용"]["오류 내용"]
+            error_location = content["분석결과"]["오류 발생 위치"]
+            log_exception_stacktrace_short = content["분석결과"]["log.exception.stacktrace.short"]
+            trace_exception_stacktrace_short = content["분석결과"]["trace.exception.stacktrace.short"]
+            error_cause = content["분석결과"]["오류 근본 원인"]
+            service_impact = content["분석결과"]["서비스 영향도"]
+            error_solution = content["후속조치"]["조치방안"]
 
-                error_report["service_code"] = service_code
-                error_report["error_name"] = error_name
-                error_report["error_create_time"] = error_create_time
-                error_report["error_content"] = error_content
-                error_report["error_location"] = error_location
-                error_report["log_exception_stacktrace_short"] = log_exception_stacktrace_short
-                error_report["trace_exception_stacktrace_short"] = trace_exception_stacktrace_short
-                error_report["error_cause"] = error_cause
-                error_report["service_impact"] = service_impact
-                error_report["error_solution"] = error_solution
-                return error_report
+            error_report["service_code"] = service_code
+            error_report["error_name"] = error_name
+            error_report["error_create_time"] = error_create_time
+            error_report["error_content"] = error_content
+            error_report["error_location"] = error_location
+            error_report["log_exception_stacktrace_short"] = log_exception_stacktrace_short
+            error_report["trace_exception_stacktrace_short"] = trace_exception_stacktrace_short
+            error_report["error_cause"] = error_cause
+            error_report["service_impact"] = service_impact
+            error_report["error_solution"] = error_solution
+            return error_report
 
-            except KeyError as e:
-                logging.error(f"* freesia 응답에 key가 없어 오류가 발생했습니다.: {e}")
-                retry += 1
-                logging.info(f"* {retry}번째 다시 시도합니다.")
-
-        logging.info("* freesia 데이터 생성에 실패했습니다.")
-        return None
+        except KeyError as e:
+            logging.error(f"* freesia 응답에 key가 없어 오류가 발생했습니다.: {e}")
 
     # log data에 포함된 {} 기호 전처리
     def remove_json_value(self, value):
@@ -373,8 +315,9 @@ class CreateReport:
         # 잘못된 JSON 문자열 디버깅
         try:
             freesia_result = json.loads(cleaned_str)
+            return freesia_result
         except json.JSONDecodeError as e:
             print("* JSON 디코딩 에러:", e)
             print("* 문제 있는 문자열 주변:", cleaned_str[max(0, e.pos-60):e.pos+60])
             print("============== api result DB insert 실패 ==============")
-        return freesia_result
+

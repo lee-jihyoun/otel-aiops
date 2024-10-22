@@ -25,6 +25,7 @@ def get_complete_parsing_data(r, key):
         hash_key = "complete_hash:" + key
         parsing_log = r.hget(hash_key, "parsing_data_log")
         parsing_trace = r.hget(hash_key, "parsing_data_trace")
+        prompt_version = int(r.hget(hash_key, "prompt_version"))
         if parsing_log is None or parsing_trace is None:
             logging.warning(f"Key {key}에 대한 파싱 데이터가 없습니다.")
             return None, None
@@ -32,7 +33,7 @@ def get_complete_parsing_data(r, key):
             # list로 변환
             parsing_log = json.loads(parsing_log)
             parsing_trace = json.loads(parsing_trace)
-            return parsing_log, parsing_trace
+            return parsing_log, parsing_trace, prompt_version
 
 
 def delete_key(r, key):
@@ -51,7 +52,7 @@ def delete_key(r, key):
 
 def process_creating_report(r, report, key):
     # complete_hash에서 key에 해당하는 파싱 데이터 꺼내기
-    log, trace = get_complete_parsing_data(r, key)
+    log, trace, prompt_ver = get_complete_parsing_data(r, key)
     if log is None or trace is None:
         logging.warning(f"Key {key}에 대한 파싱 데이터가 없습니다.")
         return
@@ -63,7 +64,7 @@ def process_creating_report(r, report, key):
         if is_duplicate is False:
             if is_exists is False:
                 # 오류리포트 생성 및 저장
-                is_success = report.is_success_create_and_save_error_report(key, log, trace)
+                is_success = report.is_success_create_and_save_error_report(key, log, trace, prompt_ver)
                 if is_success is True:
                     # DB insert 성공 시 모든 hash와 list에서 키 삭제
                     logging.info(f"* DB insert에 성공하여 모든 hash와 list에서 {key}를 삭제합니다.")
