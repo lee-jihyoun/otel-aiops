@@ -12,24 +12,24 @@ import java.util.List;
 
 @AllArgsConstructor
 @Service
-public class ErrorTestService {
+public class SuccessTestService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     ErrorReportRepository errorReportRepository;
 
 
-    public void errorTestService01() {
+    public void successTestService01() {
         String[] strings = {"1", "2", "3"};
         try {
             for (int i = 0; i <= strings.length; i++) {
                 System.out.println(strings[i]);
             }
         } catch (Exception e) {
-            logger.info("###########/error/test01");
+            logger.info("error " , e);  //2안
         }
     }
 
-    public void errorTestService02() {
+    public void successTestService02() {
         List<ErrorReport> errorReports = errorReportRepository.findAll();
 
         try {
@@ -37,12 +37,11 @@ public class ErrorTestService {
                 System.out.println(errorReports.get(i));
             }
         } catch (Exception e) {
-            logger.error("###########/error/test02");
+            logger.error("error " , e);  //2안
         }
     }
 
-    public void errorTestService03() {
-
+    public void successTestService03() {
         try {
             String nullString = null;
             System.out.println(nullString.length());
@@ -50,25 +49,25 @@ public class ErrorTestService {
         }
     }
 
-    public void errorTestService04() {
+    public void successTestService04() {
 //        String nullString = null;
 //        System.out.println(nullString.length());
-        logger.error("###########/error/test04");
+        logger.error("successTestService04 get data exception");
     }
 
-    public void errorTestService05() {
+    public void successTestService05() {
         Object obj = new String("test");
         Integer num = (Integer) obj;
     }
 
-    public void errorTestService06() {
+    public void successTestService06() {
     }
 
-    public void errorTestService07() {
-        logger.error("###########/error/test07");
+    public void successTestService07() {
+        logger.error("successTestService07 get data parsing exception ");
     }
 
-    public void errorTestService08() {
-        logger.info("###########/error/test08");
+    public void successTestService08() {
+        logger.info("successTestService08 call rest api exception ");
     }
 }
