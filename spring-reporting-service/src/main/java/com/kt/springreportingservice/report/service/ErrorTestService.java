@@ -42,12 +42,10 @@ public class ErrorTestService {
     }
 
     public void errorTestService03() {
-        List<ErrorReport> errorReports = errorReportRepository.findAll();
+
         try {
-            for (ErrorReport errorReport : errorReports) {
-                errorReport.setErrorReportSendYn("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
-                errorReportRepository.save(errorReport);
-            }
+            String nullString = null;
+            System.out.println(nullString.length());
         } catch (Exception e) {
         }
     }
