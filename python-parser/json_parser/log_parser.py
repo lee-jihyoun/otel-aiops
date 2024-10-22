@@ -68,6 +68,7 @@ class LogParsing:
                                         "service.name": None,
                                         "service.code": None,
                                         "telemetry.sdk.language": None,
+                                        "scope": None,
                                         "logRecords_severityText": None,
                                         "logRecords_body_stringValue": None,
                                         "log.exception.message": None,
@@ -91,7 +92,8 @@ class LogParsing:
                                                 parsed_info["service.code"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "telemetry.sdk.language":
                                                 parsed_info["telemetry.sdk.language"] = attribute["value"]["stringValue"].replace('"', '')
-
+                                    if "scope" in scope_log:
+                                        parsed_info["scope"] = scope_log["scope"]["name"]
                                     if "observedTimeUnixNano" in log_record:
                                         parsed_info["observedTimeUnixNano"] = log_record["observedTimeUnixNano"]
                                     if "severityText" in log_record:
