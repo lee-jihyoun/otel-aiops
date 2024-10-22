@@ -26,6 +26,9 @@ def get_complete_parsing_data(r, key):
         parsing_log = r.hget(hash_key, "parsing_data_log")
         parsing_trace = r.hget(hash_key, "parsing_data_trace")
         prompt_version = int(r.hget(hash_key, "prompt_version"))
+        if prompt_version is None:
+            logging.warning(f"{key}의 prompt_version이 None입니다. 디폴트로 prompt_v1을 사용합니다.")
+            prompt_version = 1
         if parsing_log is None or parsing_trace is None:
             logging.warning(f"Key {key}에 대한 파싱 데이터가 없습니다.")
             return None, None
@@ -43,7 +46,7 @@ def delete_key(r, key):
             for store in all_store:
                 del_key = store + ":" + key
                 r.delete(del_key)
-                logging.info(f"메일 발송을 성공하여 모든 hash와 list에서 {key}를 삭제했습니다.")
+                logging.info(f"메일 발송을 성공하여 {store}에서 {key}를 삭제했습니다.")
             # key_store 삭제
             r.srem("key_store", key)
         except KeyError as e:
