@@ -59,7 +59,7 @@ Spring-reporting-service는 SpringBoot 환경에서 구동되며 linux 서버(os
 ## 오류내용
 - **오류 이름**: 오류 내용_span의 name입니다.
 - **발생 시간**: 오류 내용_log의 observedTimeUnixNano입니다.
-- **오류 내용**: 오류 내용_log의 logRecords_body_stringValue와 오류 내용_log의 log.exception.message를 참고해서 작성해주세요.
+- **오류 내용**: 오류 내용_log의 logRecords_body_stringValue를 참고해서 작성해주세요. 만약 오류 내용_log의 log.exception.message가 있다면 함께 참고해서 작성해주세요.
 
 ## 분석결과
 - **log.exception.stacktrace.short**: log.exception.stacktrace.short는 오류 내용_log의 log.exception.stacktrace.short 내용을 그대로 작성해주세요.

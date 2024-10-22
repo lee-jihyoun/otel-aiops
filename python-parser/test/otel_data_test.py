@@ -4,13 +4,13 @@ from util.datetime_util import change_timenano_format
 import os
 
 # 경로 설정
-# log_file_name = "filtered_logs.json"
-# span_file_name = "filtered_span.json"
+log_file_name = "filtered_logs.json"
+span_file_name = "filtered_span.json"
 
-log_file_name = "original_logs.json"
-span_file_name = "original_span.json"
+# log_file_name = "original_logs.json"
+# span_file_name = "original_span.json"
 
-folder_name = "241007_data_test"
+folder_name = "241008_data_test_all"
 
 log_file_path = "../../data" + "/" + folder_name + "/" + log_file_name
 span_file_path = "../../data" + "/" + folder_name + "/" + span_file_name
@@ -84,8 +84,8 @@ def parsing_log():
                                 parsed_info["traceId"] = log_record["traceId"]
                                 # logging.info(parsed_info)
 
-                            # traceid가 비어 있을 경우에는 log_record에 저장하지 않음
-                            if "traceId" in log_record and log_record["traceId"]:
+                            # # traceid가 비어 있을 경우에는 log_record에 저장하지 않음
+                            # if "traceId" in log_record and log_record["traceId"]:
                                 parsing_log_data_list.append(parsed_info)
 
             except json.JSONDecodeError as e:
@@ -131,7 +131,7 @@ def parsing_trace():
                                 parsed_info = {
                                     "service.name": service_name,
                                     "service.code": service_code,
-                                    "os.type": os_type,
+                                    # "os.type": os_type,
                                     "traceId": span.get("traceId"),
                                     "spanId": span.get("spanId"),
                                     "flags": span.get("flags"),
@@ -147,7 +147,7 @@ def parsing_trace():
                                     "endTimeUnixNano": span.get("endTimeUnixNano")
                                 }
 
-                                # if span["key"] == "flags":
+                                # if attribute["key"] == "flags" and span.get("flags") is None:
                                 #     parsed_info["flags"] = span.get("flags")
                                 if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
                                     parsed_info["http.status_code"] = attribute["value"]["intValue"]
@@ -163,11 +163,13 @@ def parsing_trace():
                                 for attribute in event.get("attributes", []):
                                     if attribute["key"] == "exception.message":
                                         parsed_info["exception.message"] = attribute["value"]["stringValue"]
-                                    if attribute["key"] == "exception.stacktrace":
+                                    if attribute["key"] == "exception.stacktrace" and attribute["value"]["stringValue"]:
                                         parsed_info["exception.stacktrace"] = attribute["value"]["stringValue"]
                                         # 두 번째 \n 전까지만 가져오기, 중간에 \n 존재 시 삭제
                                         parsed_info["exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2])
 
+                            # # if attribute["key"] == "exception.stacktrace":
+                            # if span.get("traceId") == "1aa2a0b3024ccf66f2ebd52539486071":
                             filtered_spans.append(parsed_info)
 
             except json.JSONDecodeError as e:
@@ -211,20 +213,25 @@ def sample_test():
 
 
 def data_test(trace_id_list_log, trace_id_list_trace):
-    # # filtered 비교
-    print("\n * log의 길이:", len(trace_id_list_log))
-    print("\n * trace의 길이:", len(trace_id_list_trace))
+    # set 비교
+    print("\n * log의 trace id 수(set):", len(set(trace_id_list_log)))
+    print("\n * trace의 trace id 수(set):", len(set(trace_id_list_trace)))
+
+
+# # filtered 비교
+    print("\n * log의 trace id 수:", len(trace_id_list_log))
+    print("\n * trace의 trace id 수:", len(trace_id_list_trace))
 
     # 교집합
     intersection = list(set(trace_id_list_log) & set(trace_id_list_trace))
-    print("\n * 교집합의 길이:", len(intersection))
+    print("\n * 교집합인 trace id 수:", len(intersection))
 
     # 차집합
     log_complement = list(set(trace_id_list_log).difference(trace_id_list_trace))
     trace_complement = list(set(trace_id_list_trace).difference(trace_id_list_log))
 
     print("\n * log에는 있는데 trace에는 없는 id(차집합):", len(log_complement))
-    print("\n * trace에는 있는데 loge에는 없는 id(차집합):", len(trace_complement))
+    print("\n * trace에는 있는데 log에는 없는 id(차집합):", len(trace_complement))
 
 
 parsing_log()
@@ -242,8 +249,8 @@ data_test(trace_id_list_log, trace_id_list_trace)
 
 서버에서 테스트 방법
 1. 기존에 쌓였던 데이터 삭제
-    cd /opt/otel-aiops/spring-otel-listener
-    rm -rf filtered_logs.json filtered_span.json filtered_logs.json_backup  filtered_span.json_backup  original_logs.json_backup original_metrics.json_backup original_span.json_backup nohub.out
+    cd /opt/spring-otel-listener-run
+    rm -rf filtered_logs.json filtered_span.json filtered_logs.json_backup  filtered_span.json_backup  original_logs.json original_metrics.json original_span.json nohub.out
 
 2. otel listner 중지 
     ps -ef|grep spring 
@@ -263,7 +270,17 @@ data_test(trace_id_list_log, trace_id_list_trace)
     docker builder prune -f
 
 6. docker 빌드
+    cd /opt/opentelemetry-demo
     docker compose up --build --force-recreate --remove-orphans --detach
+    
+7. 타이머 5분 맞추고 데이터 수집, 끝나면 docker stop
+
+8. 데이터 로컬로 가져오기
+	오리지널 스팬 : http://100.83.227.59:13030/download-log/original_span.json
+	오리지널 로그 : http://100.83.227.59:13030/download-log/original_logs.json
+	필터 스팬 : http://100.83.227.59:13030/download-log/filtered_span.json
+	필터 로그 : http://100.83.227.59:13030/download-log/filtered_logs.json
+
 
 
 
@@ -279,7 +296,7 @@ data_test(trace_id_list_log, trace_id_list_trace)
           log_record:
             - 'severity_number < 10' # 10보다 작은건 거르겠다. 수집 안하겠다. INFO 레벨부터 수집
             
-    (1~4,   5~8,   9~12, 14~16, 17~20, 21~24)
+    (1~4,   5~8,   9~12, 13~16, 17~20, 21~24)
     (TRACE, DEBUG, INFO, WARN, ERROR, FATAL)
 
 '''
