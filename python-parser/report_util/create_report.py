@@ -19,7 +19,7 @@ class CreateReport:
     def __init__(self):
         global template
         # 템플릿 파일을 읽어 초기화 시 한 번만 저장
-        with open("./prompt_template_v4.txt", 'r', encoding='UTF8') as f:
+        with open("./prompt_template_v3.txt", 'r', encoding='UTF8') as f:
             template = f.read()
 
         # DB 연결 및 API 키 불러오기
@@ -71,18 +71,31 @@ class CreateReport:
 
     # 오류 리포트 생성
     def create_error_report(self, log, trace):
-        json_data = self.create_message(log, trace)
-        response = self.call_freesia_api(json_data)
-        # str -> dict로 변환
-        try:
-            response_check = response.json()
-            response_code = response_check.get("code")
-            if response_code == "9999":
-                logging.info("* freeesia 응답 코드가 9999입니다. ")
-            else:
-                return response.text
-        except TypeError as e:
-            logging.error(f"* freesia API가 비정상 응답입니다. TypeError: {e}")
+        retry = 0
+        max_retry = 5
+
+        while retry < max_retry:
+            json_data = self.create_message(log, trace)
+            response = self.call_freesia_api(json_data)
+
+            # str -> dict로 변환
+            try:
+                response_check = response.json()
+                response_code = response_check.get("code")
+                content = response_check["data"]["content"]
+                if response_code == "9999":
+                    logging.info("* freeesia 응답 코드가 9999입니다. ")
+                elif content == "죄송합니다, 문의하신 내용에 대한 답변을 찾을 수 없습니다.":
+                    logging.error(f"* freesia는 정상이지만 답변이 제대로 생성되지 않았습니다.")
+                    retry += 1
+                    logging.info(f"* {retry}번째 다시 시도합니다.")
+                else:
+                    return response.text
+            except TypeError as e:
+                logging.error(f"* freesia API가 비정상 응답입니다. TypeError: {e}")
+                return None
+
+        logging.info("* freesia 데이터 생성에 실패했습니다.")
 
     # DB에서 error_history 읽어오기
     def is_exists_in_error_history(self, service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short):
@@ -177,18 +190,22 @@ class CreateReport:
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
     def is_success_create_and_save_error_report(self, key, log, trace):
-        response = self.create_error_report(log, trace)
-        clean_result = self.make_clean_markdown_json(response)
-        db_data = self.make_db_data(clean_result)
-        if db_data is not None:
-            db_data["trace_id"] = key
-            self.save_error_report(db_data)
-            self.save_error_history(db_data)
-            logging.info(f"* freesia 오류보고서:\n {db_data}")
-            logging.info("* DB insert 완료")
-            return True
-        else:
-            logging.info("* DB insert 실패")
+        try:
+            response = self.create_error_report(log, trace)
+            clean_result = self.make_clean_markdown_json(response)
+            db_data = self.make_db_data(clean_result)
+            if db_data is not None:
+                db_data["trace_id"] = key
+                self.save_error_report(db_data)
+                self.save_error_history(db_data)
+                logging.info(f"* freesia 오류보고서:\n {db_data}")
+                logging.info("* DB insert 완료")
+                return True
+            else:
+                logging.info("* DB insert 실패")
+                return False
+        except TypeError as e:
+            logging.info("* freesia 응답이 제대로 생성되지 않았습니다.")
             return False
 
     # error_history 테이블에 데이터 추가
@@ -229,56 +246,34 @@ class CreateReport:
 
     # DB insert 하기 위한 데이터로 변환
     def make_db_data(self, clean_response):
-        retry = 0
-        max_retry = 5
-        if isinstance(clean_response, str):
-            clean_response = json.loads(clean_response)
-        print("type:", type(clean_response))
-        content = clean_response['data']['content']
-        if "기본정보" in content:
-            print(type(content["기본정보"]))  # <class 'dict'> 인지 확인
-            if isinstance(content["기본정보"], dict) and "서비스코드" in content["기본정보"]:
-                service_code = content["기본정보"]["서비스코드"]
-            else:
-                print("서비스코드가 존재하지 않거나 기본정보가 딕셔너리가 아닙니다.")
-        else:
-            print("기본정보 키가 content에 존재하지 않습니다.")
-            print(clean_response)
-            # TODO: retry는 여기서 하면 안되고 프리지아 쏘는 부분에서 해야됨.
-        while retry < max_retry:
-            try:
-                content = clean_response['data']['content']
-                error_report = {}
-                service_code = content["기본정보"]["서비스코드"]
-                error_name = content["오류내용"]["오류 이름"]
-                error_create_time = content["오류내용"]["발생 시간"]
-                error_content = content["오류내용"]["오류 내용"]
-                error_location = content["분석결과"]["오류 발생 위치"]
-                log_exception_stacktrace_short = content["분석결과"]["log.exception.stacktrace.short"]
-                trace_exception_stacktrace_short = content["분석결과"]["trace.exception.stacktrace.short"]
-                error_cause = content["분석결과"]["오류 근본 원인"]
-                service_impact = content["분석결과"]["서비스 영향도"]
-                error_solution = content["후속조치"]["조치방안"]
+        try:
+            content = clean_response['data']['content']
+            error_report = {}
+            service_code = content["기본정보"]["서비스코드"]
+            error_name = content["오류내용"]["오류 이름"]
+            error_create_time = content["오류내용"]["발생 시간"]
+            error_content = content["오류내용"]["오류 내용"]
+            error_location = content["분석결과"]["오류 발생 위치"]
+            log_exception_stacktrace_short = content["분석결과"]["log.exception.stacktrace.short"]
+            trace_exception_stacktrace_short = content["분석결과"]["trace.exception.stacktrace.short"]
+            error_cause = content["분석결과"]["오류 근본 원인"]
+            service_impact = content["분석결과"]["서비스 영향도"]
+            error_solution = content["후속조치"]["조치방안"]
 
-                error_report["service_code"] = service_code
-                error_report["error_name"] = error_name
-                error_report["error_create_time"] = error_create_time
-                error_report["error_content"] = error_content
-                error_report["error_location"] = error_location
-                error_report["log_exception_stacktrace_short"] = log_exception_stacktrace_short
-                error_report["trace_exception_stacktrace_short"] = trace_exception_stacktrace_short
-                error_report["error_cause"] = error_cause
-                error_report["service_impact"] = service_impact
-                error_report["error_solution"] = error_solution
-                return error_report
+            error_report["service_code"] = service_code
+            error_report["error_name"] = error_name
+            error_report["error_create_time"] = error_create_time
+            error_report["error_content"] = error_content
+            error_report["error_location"] = error_location
+            error_report["log_exception_stacktrace_short"] = log_exception_stacktrace_short
+            error_report["trace_exception_stacktrace_short"] = trace_exception_stacktrace_short
+            error_report["error_cause"] = error_cause
+            error_report["service_impact"] = service_impact
+            error_report["error_solution"] = error_solution
+            return error_report
 
-            except KeyError as e:
-                logging.error(f"* freesia 응답에 key가 없어 오류가 발생했습니다.: {e}")
-                retry += 1
-                logging.info(f"* {retry}번째 다시 시도합니다.")
-
-        logging.info("* freesia 데이터 생성에 실패했습니다.")
-        return None
+        except KeyError as e:
+            logging.error(f"* freesia 응답에 key가 없어 오류가 발생했습니다.: {e}")
 
     # log data에 포함된 {} 기호 전처리
     def remove_json_value(self, value):
