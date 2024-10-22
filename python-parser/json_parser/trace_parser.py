@@ -84,26 +84,42 @@ class TraceParsing:
                                             "spanId": span.get("spanId"),
                                             "name": span.get("name"),
                                             "http.status_code": None,
+                                            "http.response.status_code": None,
+                                            "server.address": None,
+                                            "server.port": None,
                                             "rpc.grpc.status_code": None,
                                             "trace.exception.message": None,
                                             "trace.exception.stacktrace": None,
                                             "trace.exception.stacktrace.short": None,
                                             "trace.exception.type": None,
                                             "http.url": None,
+                                            "http.route": None,
                                             "rpc.method": None,
                                             "startTimeUnixNano": span.get("startTimeUnixNano"),
                                             "endTimeUnixNano": span.get("endTimeUnixNano")
                                         }
 
                                         try:
-                                            if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
+                                            if attribute["key"] == "http.status_code" and "intValue" in attribute[
+                                                "value"]:
                                                 parsed_info["http.status_code"] = attribute["value"]["intValue"]
+                                            if attribute["key"] == "http.response.status_code" and "intValue" in \
+                                                    attribute["value"]:
+                                                parsed_info["http.response.status_code"] = attribute["value"][
+                                                    "intValue"]
                                             if attribute["key"] == "rpc.grpc.status_code":
-                                                parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"]
+                                                parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"].replace('"', '')
+                                            if attribute["key"] == "server.address":
+                                                parsed_info["server.address"] = attribute["value"]["stringValue"]
+                                            if attribute["key"] == "server.port":
+                                                parsed_info["server.port"] = attribute["value"]["intValue"]
                                             if attribute["key"] == "http.url":
+                                                parsed_info["http.url"] = attribute["value"]["stringValue"].replace('"', '')
+                                            if attribute["key"] == "http.route":
                                                 parsed_info["http.url"] = attribute["value"]["stringValue"].replace('"', '')
                                             if attribute["key"] == "rpc.method":
                                                 parsed_info["rpc.method"] = attribute["value"]["stringValue"].replace('"', '')
+
                                         except KeyError as e:
                                             logging.ERROR(f"Key is not found: {e}")
                                             continue
