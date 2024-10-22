@@ -64,13 +64,21 @@ def add_complete_hash(r, key, log, trace, prompt_ver):
     })
     # complete_hash expire 설정(15분)
     r.expire(complete_key, 900)
-    # complete_key_store(list 타입)에도 넣어줌
 
-    # TODO(set): 중복 insert 안되도록 수정 / set 타입으로 변경해야 함.
-    if r.lpos("complete_key_store", key) is None:
-        r.rpush("complete_key_store", key)
+    # complete_key_store(set 타입)에 넣어줌
+    result = r.sadd("complete_key_store", key)
+
+    if result == 1:
+        print(f"{key}가 complete_key_store에 추가되었습니다.")
     else:
-        print(f"{key}는 complete_key_store에 이미 존재하는 key입니다.")
+        print(f"{key}는 이미 complete_key_store에 존재하는 key입니다.")
+
+    # # complete_key_store(list 타입)에도 넣어줌
+
+    # if r.lpos("complete_key_store", key) is None:
+    #     r.rpush("complete_key_store", key)
+    # else:
+    #     print(f"{key}는 complete_key_store에 이미 존재하는 key입니다.")
 
     # 결과 확인
     complete_hash = r.hgetall(complete_key)
