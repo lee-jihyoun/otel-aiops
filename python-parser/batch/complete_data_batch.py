@@ -46,10 +46,10 @@ def is_retry_over_2(r, key):
     r.hincrby(retry_count_store, "retry", 1)
     retry = int(r.hget(retry_count_store, "retry"))
     if retry >= 2:
-        print("(결과) yes. retry는", retry)
+        print(f"(결과) yes. {key}의 retry는", retry)
         return True
     else:
-        print("(결과) no. retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
+        print(f"(결과) no. {key}의 retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
 
 
 def add_complete_hash(r, key, log, trace, prompt_ver):
@@ -65,7 +65,13 @@ def add_complete_hash(r, key, log, trace, prompt_ver):
     # complete_hash expire 설정(15분)
     r.expire(complete_key, 900)
     # complete_key_store(list 타입)에도 넣어줌
-    r.rpush("complete_key_store", key)
+
+    # TODO(set): 중복 insert 안되도록 수정 / set 타입으로 변경해야 함.
+    if r.lpos("complete_key_store", key) is None:
+        r.rpush("complete_key_store", key)
+    else:
+        print(f"{key}는 complete_key_store에 이미 존재하는 key입니다.")
+
     # 결과 확인
     complete_hash = r.hgetall(complete_key)
     complete_hash_dict = {}
@@ -74,7 +80,7 @@ def add_complete_hash(r, key, log, trace, prompt_ver):
         value = complete_hash.get(field)
         if value:
             complete_hash_dict[field] = value
-    # print("\n(성공) >>>>>>>>>> complete_hash에 추가 <<<<<<<<<<\n", key, ":", complete_hash_dict)
+    print("\n(성공) >>>>>>>>>> complete_hash에 추가 <<<<<<<<<<\n", key, ":", complete_hash_dict)
 
 
 def main():
@@ -137,6 +143,6 @@ def main():
                 continue
 
         # time.sleep(180) # 3분
-        time.sleep(30) # 30초
+        time.sleep(30) # 30초 TODO: 실 환경에서는 3분으로 바꾸기
 
 # main()

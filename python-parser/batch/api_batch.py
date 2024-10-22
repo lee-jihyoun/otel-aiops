@@ -29,9 +29,14 @@ def get_complete_parsing_data(r, key):
         if prompt_version is None:
             logging.warning(f"{key}의 prompt_version이 None입니다. 디폴트로 prompt_v1을 사용합니다.")
             prompt_version = 1
+            # list로 변환
+            parsing_log = json.loads(parsing_log)
+            parsing_trace = json.loads(parsing_trace)
+            return parsing_log, parsing_trace, prompt_version
+
         if parsing_log is None or parsing_trace is None:
             logging.warning(f"Key {key}에 대한 파싱 데이터가 없습니다.")
-            return None, None
+            return None, None, None
         else:
             # list로 변환
             parsing_log = json.loads(parsing_log)
@@ -74,6 +79,7 @@ def process_creating_report(r, report, key):
                     delete_key(r, key)
                 elif is_success is False:
                     # 메일 발송 실패하면 fail_key_store에 rpush
+                    # TODO(set)
                     r.rpush("fail_key_store", key)
                     logging.info(f"* fail_key_store에 추가된 키 {key}")
             else:
@@ -89,6 +95,7 @@ def main():
 
         # complete_key_store에서 key 꺼내기
         logging.info(f"* 현재 complete_key_store의 길이: {r.llen('complete_key_store')}")
+        # TODO(set) : complete_key list -> set으로 변경
         complete_key = r.lpop("complete_key_store")
         if complete_key is not None:
             logging.info(f"* --------------- 현재 complete_key는 {complete_key} ---------------")
@@ -97,6 +104,8 @@ def main():
             logging.warning("* complete_key_store에 key가 없습니다.")
 
         # fail_key_store에서 key 꺼내기
+        # TODO: 실패해서 fail key로 들어갈 때 prompt version이 NoneType임..
+        # TODO(set) : fail_key를 list -> set으로 변경
         fail_key = r.lpop("fail_key_store")
         if fail_key is not None:
             logging.info(f"* --------------- 현재 fail_key는 {fail_key} ---------------")
