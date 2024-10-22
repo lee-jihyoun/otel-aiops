@@ -12,20 +12,19 @@ headers = {
     "X-API-KEY": "",
     "content-type": "application/json"
 }
-template = ""
 
 
 class CreateReport:
     def __init__(self):
-        global template
-        # 템플릿 파일을 읽어 초기화 시 한 번만 저장
-        with open("./prompt_template_v3.txt", 'r', encoding='UTF8') as f:
-            template = f.read()
-
         # DB 연결 및 API 키 불러오기
         with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             self.api_key = self.select_api_key(cur)
             headers["X-API-KEY"] = self.api_key
+
+    def apply_prompt_version(self, prompt_ver):
+        with open(f"./prompt_template_v{prompt_ver}.txt", 'r', encoding='UTF8') as f:
+            template = f.read()
+            return template
 
     # DB 연결 설정
     def get_postgres_db_connection(self):
@@ -57,9 +56,10 @@ class CreateReport:
         return response
 
     # 보낼 JSON 데이터의 message 생성
-    def create_message(self, log, trace):
-        # 템플릿을 그대로 사용
-        global template
+    def create_message(self, log, trace, prompt_ver):
+        # prompt 버전에 맞게 템플릿 사용
+        template = self.apply_prompt_version(prompt_ver)
+
         # list -> str로 변환
         log = json.dumps(log)
         trace = json.dumps(trace)
@@ -70,12 +70,12 @@ class CreateReport:
         return json.dumps(data)
 
     # 오류 리포트 생성
-    def create_error_report(self, log, trace):
+    def create_error_report(self, log, trace, prompt_ver):
         retry = 0
         max_retry = 5
 
         while retry < max_retry:
-            json_data = self.create_message(log, trace)
+            json_data = self.create_message(log, trace, prompt_ver)
             response = self.call_freesia_api(json_data)
 
             # str -> dict로 변환
@@ -189,9 +189,9 @@ class CreateReport:
             (service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short))
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
-    def is_success_create_and_save_error_report(self, key, log, trace):
+    def is_success_create_and_save_error_report(self, key, log, trace, prompt_ver):
         try:
-            response = self.create_error_report(log, trace)
+            response = self.create_error_report(log, trace, prompt_ver)
             clean_result = self.make_clean_markdown_json(response)
             db_data = self.make_db_data(clean_result)
             if db_data is not None:
