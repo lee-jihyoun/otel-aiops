@@ -26,16 +26,18 @@ def get_complete_parsing_data(r, key):
         parsing_log = r.hget(hash_key, "parsing_data_log")
         parsing_trace = r.hget(hash_key, "parsing_data_trace")
         prompt_version = r.hget(hash_key, "prompt_version")
+
         if prompt_version is None:
             logging.warning(f"{key}의 prompt_version이 None입니다. 디폴트로 prompt_v1을 사용합니다.")
             prompt_version = 1
+
         else:
             prompt_version = int(prompt_version)
             # list로 변환
             parsing_log = json.loads(parsing_log)
             parsing_trace = json.loads(parsing_trace)
 
-            return parsing_log, parsing_trace, prompt_version
+        return parsing_log, parsing_trace, prompt_version
 
 def delete_key(r, key):
     if key is not None:
@@ -75,9 +77,6 @@ def process_creating_report(r, report, key):
                     r.sadd("fail_key_store", key)
                     logging.info(f"* fail_key_store에 추가된 키 {key}")
 
-                    # # 메일 발송 실패하면 fail_key_store에 rpush
-                    # r.rpush("fail_key_store", key)
-                    # logging.info(f"* fail_key_store에 추가된 키 {key}")
             else:
                 logging.warning("* 이미 메일이 발송된 traceId 입니다.")
 
@@ -100,16 +99,6 @@ def main():
         else:
             logging.warning("* complete_key_store에 key가 없습니다.")
 
-        # # complete_key_store에서 key 꺼내기
-        # logging.info(f"* 현재 complete_key_store의 길이: {r.llen('complete_key_store')}")
-
-        # complete_key = r.lpop("complete_key_store")
-        # if complete_key is not None:
-        #     logging.info(f"* --------------- 현재 complete_key는 {complete_key} ---------------")
-        #     process_creating_report(r, report, complete_key)
-        # else:
-        #     logging.warning("* complete_key_store에 key가 없습니다.")
-
         # fail_key_store에서 key 꺼내기
         fail_key = r.spop("fail_key_store")
         if fail_key is not None:
@@ -118,11 +107,5 @@ def main():
         else:
             logging.warning("* fail_key_store에 key가 없습니다.")
 
-        # fail_key = r.lpop("fail_key_store")
-        # if fail_key is not None:
-        #     logging.info(f"* --------------- 현재 fail_key는 {fail_key} ---------------")
-        #     process_creating_report(r, report, fail_key)
-        # else:
-        #     logging.warning("* fail_key_store에 key가 없습니다.")
 
         time.sleep(15) # 15초

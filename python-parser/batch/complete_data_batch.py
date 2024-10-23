@@ -73,13 +73,6 @@ def add_complete_hash(r, key, log, trace, prompt_ver):
     else:
         print(f"{key}는 이미 complete_key_store에 존재하는 key입니다.")
 
-    # # complete_key_store(list 타입)에도 넣어줌
-
-    # if r.lpos("complete_key_store", key) is None:
-    #     r.rpush("complete_key_store", key)
-    # else:
-    #     print(f"{key}는 complete_key_store에 이미 존재하는 key입니다.")
-
     # 결과 확인
     complete_hash = r.hgetall(complete_key)
     complete_hash_dict = {}
@@ -96,9 +89,6 @@ def main():
     while True:
         # print("************* complete_data_batch start *************")
         key_store_set = r.smembers("key_store")
-        # # print(type(set_values))
-        # key_store_list = r.lrange("key_store", 0, -1)
-        # # print("key_store_list:", key_store_list)
         # key_store 리스트에서 key 꺼내기
         for key in key_store_set:
             # print("\n-------------- 현재 key(", key, ")가 포함된 hash 정보 --------------")
