@@ -41,7 +41,8 @@ def get_complete_parsing_data(r, key):
 
 def delete_key(r, key):
     if key is not None:
-        all_store = ["complete_hash", "complete_key_store", "filtered_log_list", "filtered_trace_list", "original_log_list", "original_trace_list", "fail_key_store"]
+        all_store = ["filtered_log_list", "filtered_trace_list", "original_log_list", "original_trace_list",
+                     "complete_hash", "complete_key_store", "fail_key_store", "retry_count_store"]
         try:
             for store in all_store:
                 del_key = store + ":" + key
