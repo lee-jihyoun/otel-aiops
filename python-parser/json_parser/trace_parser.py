@@ -100,13 +100,10 @@ class TraceParsing:
                                         }
 
                                         try:
-                                            if attribute["key"] == "http.status_code" and "intValue" in attribute[
-                                                "value"]:
+                                            if attribute["key"] == "http.status_code" and "intValue" in attribute["value"]:
                                                 parsed_info["http.status_code"] = attribute["value"]["intValue"]
-                                            if attribute["key"] == "http.response.status_code" and "intValue" in \
-                                                    attribute["value"]:
-                                                parsed_info["http.response.status_code"] = attribute["value"][
-                                                    "intValue"]
+                                            if attribute["key"] == "http.response.status_code" and "intValue" in attribute["value"]:
+                                                parsed_info["http.response.status_code"] = attribute["value"]["intValue"]
                                             if attribute["key"] == "rpc.grpc.status_code":
                                                 parsed_info["rpc.grpc.status_code"] = attribute["value"]["intValue"].replace('"', '')
                                             if attribute["key"] == "server.address":
