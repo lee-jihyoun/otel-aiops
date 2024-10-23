@@ -38,18 +38,20 @@ def create_retry_count_store(r, retry_count_store):
 def is_retry_over_2(r, key):
     # print("(조건) retry가 2 이상인가?")
     retry_count_store = "retry_count_store:" + key
-    # retry_count_store에 해당 키가 없으면 새로 생성
+    # retry_count_store에 해당 키가 없으면 새로 생성 (retry_count_store는 데이터 중복 생성 방지용이며 삭제하지 않음)
     if not r.exists(retry_count_store):
         create_retry_count_store(r, retry_count_store)
 
     # retry_count_store에 저장된 key의 retry 필드 값을 1 증가(retry 초기값은 0)
     r.hincrby(retry_count_store, "retry", 1)
     retry = int(r.hget(retry_count_store, "retry"))
-    if retry >= 2:
-        print(f"(결과) yes. {key}의 retry는", retry)
+    if retry == 2:
+        print(f"(결과) {key}의 retry는", retry)
         return True
+    elif retry > 2:
+        print(f"(결과) {key}의 retry는 2이상입니다.")
     else:
-        print(f"(결과) no. {key}의 retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
+        print(f"(결과) {key}의 retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
 
 
 def add_complete_hash(r, key, log, trace, prompt_ver):
