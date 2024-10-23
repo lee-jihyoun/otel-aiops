@@ -74,12 +74,7 @@ public class SuccessTestService {
     public void getErrorReport(){
         logger.info("get error report");
         List<ErrorReport>  errorReports= errorReportRepository.findAll();
-        try {
-            errorReports.get(0).setErrorReportSendYn("YYYYYYYYYYYYYYYYYYYYYYYY");
-            errorReportRepository.save(errorReports.get(0));
-        }catch (Exception e) {
-            logger.error("data save error " , e);
-        }
-
+        errorReports.get(0).setErrorReportSendYn("YYYYYYYYYYYYYYYYYYYYYYYY");
+        errorReportRepository.save(errorReports.get(0));
     }
 }
