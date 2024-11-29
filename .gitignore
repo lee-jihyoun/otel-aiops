@@ -98,3 +98,8 @@ venv.bak/
 /data/testfolder/parsing.py
 /python-parser/test.py
 /data/241008_springbootlistener_test/테스트케이스.txt
+
+
+**/filtered_logs.json
+**/filtered_span.json
+**/metrics.json
