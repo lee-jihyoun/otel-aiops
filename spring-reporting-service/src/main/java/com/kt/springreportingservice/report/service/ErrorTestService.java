@@ -3,6 +3,7 @@ package com.kt.springreportingservice.report.service;
 
 import com.kt.springreportingservice.report.domain.ErrorReport;
 import com.kt.springreportingservice.report.repository.ErrorReportRepository;
+import com.kt.springreportingservice.report.repository.ErrorTestRepository;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ public class ErrorTestService {
 
     ErrorReportRepository errorReportRepository;
 
+    ErrorTestRepository errorTestRepository;
 
     public void errorTestService01() {
         String[] strings = {"1", "2", "3"};
@@ -70,5 +72,8 @@ public class ErrorTestService {
 
     public void errorTestService08() {
         logger.info("###########/error/test08");
+    }
+    public void errorTestService09(){
+        errorTestRepository.findAll();
     }
 }
