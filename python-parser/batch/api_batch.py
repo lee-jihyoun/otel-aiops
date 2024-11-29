@@ -25,28 +25,25 @@ def get_complete_parsing_data(r, key):
         hash_key = "complete_hash:" + key
         parsing_log = r.hget(hash_key, "parsing_data_log")
         parsing_trace = r.hget(hash_key, "parsing_data_trace")
-        prompt_version = int(r.hget(hash_key, "prompt_version"))
+        prompt_version = r.hget(hash_key, "prompt_version")
+
         if prompt_version is None:
             logging.warning(f"{key}의 prompt_version이 None입니다. 디폴트로 prompt_v1을 사용합니다.")
             prompt_version = 1
-            # list로 변환
-            parsing_log = json.loads(parsing_log)
-            parsing_trace = json.loads(parsing_trace)
-            return parsing_log, parsing_trace, prompt_version
 
-        if parsing_log is None or parsing_trace is None:
-            logging.warning(f"Key {key}에 대한 파싱 데이터가 없습니다.")
-            return None, None, None
         else:
+            prompt_version = int(prompt_version)
             # list로 변환
             parsing_log = json.loads(parsing_log)
             parsing_trace = json.loads(parsing_trace)
-            return parsing_log, parsing_trace, prompt_version
 
+        return parsing_log, parsing_trace, prompt_version
 
 def delete_key(r, key):
     if key is not None:
-        all_store = ["complete_hash", "complete_key_store", "filtered_log_list", "filtered_trace_list", "original_log_list", "original_trace_list", "fail_key_store"]
+        # retry_count_store은 중복 방지 용도이므로 삭제하지 않음
+        all_store = ["filtered_log_list", "filtered_trace_list", "original_log_list", "original_trace_list",
+                     "complete_hash", "complete_key_store", "fail_key_store"]
         try:
             for store in all_store:
                 del_key = store + ":" + key
@@ -78,10 +75,10 @@ def process_creating_report(r, report, key):
                     logging.info(f"* DB insert에 성공하여 모든 hash와 list에서 {key}를 삭제합니다.")
                     delete_key(r, key)
                 elif is_success is False:
-                    # 메일 발송 실패하면 fail_key_store에 rpush
-                    # TODO(set)
-                    r.rpush("fail_key_store", key)
+                    # 메일 발송 실패하면 fail_key_store에 추가 (중복 방지 위해 set 사용)
+                    r.sadd("fail_key_store", key)
                     logging.info(f"* fail_key_store에 추가된 키 {key}")
+
             else:
                 logging.warning("* 이미 메일이 발송된 traceId 입니다.")
 
@@ -94,9 +91,10 @@ def main():
         logging.info(f"************* api_batch start *************")
 
         # complete_key_store에서 key 꺼내기
-        logging.info(f"* 현재 complete_key_store의 길이: {r.llen('complete_key_store')}")
-        # TODO(set) : complete_key list -> set으로 변경
-        complete_key = r.lpop("complete_key_store")
+        logging.info(f"* 현재 complete_key_store의 길이: {r.scard('complete_key_store')}")
+        # set 타입에서 key 하나 꺼내기 (spop)
+        complete_key = r.spop("complete_key_store")
+
         if complete_key is not None:
             logging.info(f"* --------------- 현재 complete_key는 {complete_key} ---------------")
             process_creating_report(r, report, complete_key)
@@ -104,13 +102,12 @@ def main():
             logging.warning("* complete_key_store에 key가 없습니다.")
 
         # fail_key_store에서 key 꺼내기
-        # TODO: 실패해서 fail key로 들어갈 때 prompt version이 NoneType임..
-        # TODO(set) : fail_key를 list -> set으로 변경
-        fail_key = r.lpop("fail_key_store")
+        fail_key = r.spop("fail_key_store")
         if fail_key is not None:
             logging.info(f"* --------------- 현재 fail_key는 {fail_key} ---------------")
             process_creating_report(r, report, fail_key)
         else:
             logging.warning("* fail_key_store에 key가 없습니다.")
+
 
         time.sleep(15) # 15초

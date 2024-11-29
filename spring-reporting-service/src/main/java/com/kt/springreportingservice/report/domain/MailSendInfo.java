@@ -35,5 +35,6 @@ public class MailSendInfo {
     @Column(name = "create_time")
     private LocalDateTime createTime;
 
-    // Getters and Setters
+    @Column(name = "service_code_sub")
+    private String serviceCodeSub;
 }

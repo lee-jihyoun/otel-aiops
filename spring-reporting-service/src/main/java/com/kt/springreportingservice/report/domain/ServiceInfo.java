@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -36,12 +37,13 @@ public class ServiceInfo {
     private LocalDateTime createTime;
 
     @OneToMany(mappedBy = "serviceInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ErrorReport> errorReports;
+    private List<ErrorReport> errorReports = new ArrayList<>();
 
     @OneToMany(mappedBy = "serviceInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserInfo> userInfos;
+    private List<UserInfo> userInfos = new ArrayList<>();
 
+    @OneToMany(mappedBy = "serviceInfo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ServiceInfoSub> serviceInfoSubs = new ArrayList<>();
 
-    // Getters and Setters
 }
 

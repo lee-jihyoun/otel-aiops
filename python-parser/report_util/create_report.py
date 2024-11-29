@@ -2,6 +2,7 @@ import configparser
 import json
 import logging
 import re
+import ast
 from json import JSONDecodeError
 import psycopg2  # pip install psycopg2-binary
 import requests
@@ -22,7 +23,7 @@ class CreateReport:
             headers["X-API-KEY"] = self.api_key
 
     def apply_prompt_version(self, prompt_ver):
-        with open(f"./prompt_template_v{prompt_ver}.txt", 'r', encoding='UTF8') as f:
+        with open(f"./prompt/prompt_template_v{prompt_ver}.txt", 'r', encoding='UTF8') as f:
             template = f.read()
             return template
 
@@ -53,6 +54,8 @@ class CreateReport:
     # 프리지아 API 호출
     def call_freesia_api(self, json_data):
         response = requests.post(url, data=json_data, headers=headers)
+        print("freesia_response:")
+        print(response.text)
         return response
 
     # 보낼 JSON 데이터의 message 생성
@@ -64,10 +67,12 @@ class CreateReport:
         log = json.dumps(log)
         trace = json.dumps(trace)
 
-        data = template[:].replace("{{error_log}}", log)
-        data = data.replace("{{error_span}}", trace)
+        data = template[:].replace("error_log", log)
+        data = data.replace("error_span", trace)
         data = {"message": data}
-        return json.dumps(data)
+        req = json.dumps(data, ensure_ascii=False, indent=4)
+        # print(req)
+        return req
 
     # 오류 리포트 생성
     def create_error_report(self, log, trace, prompt_ver):
@@ -109,6 +114,7 @@ class CreateReport:
                 AND eh.log_exception_stacktrace_short = '{log_exception_stacktrace_short}'
                 AND eh.trace_exception_stacktrace_short = '{trace_exception_stacktrace_short}')
             """
+            # print(read_query)
             cur.execute(read_query)
             result = cur.fetchall()
 
@@ -128,12 +134,10 @@ class CreateReport:
     # DB에서의 error_history와 완료 목록을 비교(중복 체크)
     def is_duplicate_error(self, log_data, trace_data):
         logging.info("* 중복된 오류가 있었는지 확인합니다.")
-
         combined_data = [
             {'type': 'log', 'data': log_data},
             {'type': 'trace', 'data': trace_data}
         ]
-
         duplicate_cnt = 0
 
         for entry in combined_data:
@@ -143,7 +147,8 @@ class CreateReport:
                     return False
                 else:
                     try:
-                        item_list = json.loads(item)
+                        item_list = ast.literal_eval(item)
+
                     except JSONDecodeError as e:
                         # ex) 데이터 타입이 {'key': 'value'} 면 오류가 발생함. -> json 표준으로 변환 필요: {"key": "value"}
                         logging.error(f"* 중복 오류인지 확인하던 중 오류 발생. JSONDecodeError: {e}")
@@ -206,6 +211,14 @@ class CreateReport:
                 return False
         except TypeError as e:
             logging.info("* freesia 응답이 제대로 생성되지 않았습니다.")
+            '''
+            freesia에서 이런식으로 응답이 오면 예외로 빠짐.
+            {"code":"0000","message":"SUCCESS","data":{"runId":"run-9c8d0660-1358-494f-9518-378b4189aaf0-0",
+            "content":"죄송하지만, 제공된 정보가 없어서 오류 보고서를 작성할 수 없습니다. 오류 로그(error_log)와 오류 스팬(error_span)을 제공해 주시면 해당 정보를 기반으로 오류 보고서를 작성해 드리겠습니다.","chatMemoryId":"9c0306de-e109-44f7-9db0-0043f4a6d1f8",
+            "promptTokens":1775,"completionTokens":47,"totalTokens":1822,"turnId":"14331149-fb9a-4728-9b9b-c2e82544c5e5",
+            "reference":[{"fileId":664,"fileName":"dspace_rag.pdf","page":2,"score":0.5755939149251456,
+            "content":"-**특징 **:-PortalCI를 통해 생성된 CI 프로젝트를 관리.-API를 통해 PortalCI와 연동.-Keycloak으로 인증 관리 ####**JenkinsCD**-**역할**:CD(ContinuousDeployment)프로세스 담당. -빌드된 소스 코드를 배포.-**특징 **:-PortalCD에서 API를 통해 생성 및 관리됨.-Keycloak으로 인증 관리 ####**GitLab**-**역할**:소스코드저장소및형상관리.-**특징 **:-PortalCI와 연동하여 프로젝트 생성 및 관리.-Keycloak으로 인증 관리 ####**Jira**-**역할**:이슈및프로젝트관리도구.-**특징 **:-PortalCI에서 생성된 프로젝트에 포함되어 API로 연동.-사용자 요청에 따라 프로젝트 관리 가능.-Keycloak으로 인증 관리 ####**Confluence**-"},{"fileId":664,"fileName":"dspace_rag.pdf","page":5,"score":0.6116485911084105,"content":"[Dev-Space 기능 설명]#포탈프로젝트생성포탈에서프로젝트생성시JIRA,Gitlab,JenkinsCI,JenkinsCD를 각각 생성할 수 있음 JIRA,Gitlab,JenkinsCI의 CRUD는 portalCI에서 담당하고 JenkinsCD의 CRUD는 portalCD에서 담당함-생성 시 데이터 흐름 1. 사용자가 포탈 프로젝트 정보, 생성하려는 Jira,JenkinsCI,JenkinsCD,Gitlab 정보 입력 후생 성 버튼 클릭 2. 포탈 데이터베이스에 포탈 프로젝트 정보 저장 3. 각각 Jira,JenkinsCI,JenkinsCD,Gitlab들을 API를 사용하여 프로젝트 생성 Jira,JenkinsCI,JenkinsCD,Gitlab는 필수 생성이 아님 4.Jira,JenkinsCI,JenkinsCD,Gitlab이 생성 완료되면 포탈 데이터베이스에 생성된 Jira,JenkinsCI,JenkinsCD,Gitlab의 key 또는 ID 값을 저장 5.Jira,JenkinsCI,JenkinsCD,Gitlab 생성 실패 시 실패한 툴에 대한 데이터를 제외한 나머지 툴 데이터를 포탈 데이터베이스에 저장#포탈프로젝트조회포탈에서프로젝트조회시해당프로젝트ID에매핑되어있는JIRA,Gitlab,JenkinsCI,JenkinsCD의 key 또는 ID 값으로 같이 조회 가능 JIRA,Gitlab,JenkinsCI의 조회는 portalCI에서 담당하고 JenkinsCD의 조회는 portalCD에서 담당함 -조회시 데이터 흐름 1. 사용자가 포탈에서 프로젝트 조회 2. 포탈 데이터베이스에서 해당 프로젝트에 연관되어 있는 Jira,JenkinsCI,JenkinsCD,Gitlab 데이터 검색 3. 검색된 Jira,JenkinsCI,JenkinsCD,Gitlab들의 key 또는 ID로 각각의 툴에 API를 호출하여 상세 내용 조회 4. 조회된 내용을 포탈에서 확인"}],"speaker":"dspace_poc_rag","ragDocumentId":75}}
+            '''
             return False
 
     # error_history 테이블에 데이터 추가
@@ -223,6 +236,7 @@ class CreateReport:
             cur.execute('''
                 INSERT INTO error_report (
                     service_code,
+                    service_code_sub,
                     error_name,
                     error_content,
                     error_create_time,
@@ -231,9 +245,10 @@ class CreateReport:
                     error_solution,
                     trace_id,
                     service_impact)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (
                     error_report["service_code"],
+                    error_report["service_code_sub"],
                     error_report["error_name"],
                     error_report["error_content"],
                     error_report["error_create_time"],
@@ -249,18 +264,20 @@ class CreateReport:
         try:
             content = clean_response['data']['content']
             error_report = {}
-            service_code = content["기본정보"]["서비스코드"]
-            error_name = content["오류내용"]["오류 이름"]
-            error_create_time = content["오류내용"]["발생 시간"]
-            error_content = content["오류내용"]["오류 내용"]
-            error_location = content["분석결과"]["오류 발생 위치"]
+            service_code = content["기본정보"]["상위서비스코드"]
+            service_code_sub = content["기본정보"]["하위서비스코드"]
+            error_name = content["오류내용"]["오류이름"]
+            error_create_time = content["오류내용"]["발생시간"]
+            error_content = content["오류내용"]["오류내용"]
+            error_location = content["분석결과"]["오류발생위치"]
             log_exception_stacktrace_short = content["분석결과"]["log.exception.stacktrace.short"]
             trace_exception_stacktrace_short = content["분석결과"]["trace.exception.stacktrace.short"]
-            error_cause = content["분석결과"]["오류 근본 원인"]
-            service_impact = content["분석결과"]["서비스 영향도"]
+            error_cause = content["분석결과"]["오류근본원인"]
+            service_impact = content["분석결과"]["서비스영향도"]
             error_solution = content["후속조치"]["조치방안"]
 
             error_report["service_code"] = service_code
+            error_report["service_code_sub"] = service_code_sub
             error_report["error_name"] = error_name
             error_report["error_create_time"] = error_create_time
             error_report["error_content"] = error_content

@@ -18,7 +18,8 @@ def get_redis_db_connection():
 def get_parsing_data(r, key_info, key):
     key_ = key_info + ":" + key
     # # list 형식일 때
-    parsing_data_list = r.lrange(key_, 0, -1)
+    # parsing_data_list = r.lrange(key_, 0, -1)
+    parsing_data_list = [json.loads(item) for item in r.lrange(key_, 0, -1)]
     # print("*", key_, "의 파싱 데이터:", parsing_data_list, "\n")
     return parsing_data_list
 
@@ -38,18 +39,20 @@ def create_retry_count_store(r, retry_count_store):
 def is_retry_over_2(r, key):
     # print("(조건) retry가 2 이상인가?")
     retry_count_store = "retry_count_store:" + key
-    # retry_count_store에 해당 키가 없으면 새로 생성
+    # retry_count_store에 해당 키가 없으면 새로 생성 (retry_count_store는 데이터 중복 생성 방지용이며 삭제하지 않음)
     if not r.exists(retry_count_store):
         create_retry_count_store(r, retry_count_store)
 
     # retry_count_store에 저장된 key의 retry 필드 값을 1 증가(retry 초기값은 0)
     r.hincrby(retry_count_store, "retry", 1)
     retry = int(r.hget(retry_count_store, "retry"))
-    if retry >= 2:
-        print(f"(결과) yes. {key}의 retry는", retry)
+    if retry == 2:
+        print(f"(결과) {key}의 retry는", retry)
         return True
+    elif retry > 2:
+        print(f"(결과) {key}의 retry는 2 이상입니다.")
     else:
-        print(f"(결과) no. {key}의 retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
+        print(f"(결과) {key}의 retry는", retry, "입니다. 한번 더 처리가 필요합니다.\n")
 
 
 def add_complete_hash(r, key, log, trace, prompt_ver):
@@ -64,13 +67,14 @@ def add_complete_hash(r, key, log, trace, prompt_ver):
     })
     # complete_hash expire 설정(15분)
     r.expire(complete_key, 900)
-    # complete_key_store(list 타입)에도 넣어줌
 
-    # TODO(set): 중복 insert 안되도록 수정 / set 타입으로 변경해야 함.
-    if r.lpos("complete_key_store", key) is None:
-        r.rpush("complete_key_store", key)
+    # complete_key_store(set 타입)에 넣어줌
+    result = r.sadd("complete_key_store", key)
+
+    if result == 1:
+        print(f"{key}가 complete_key_store에 추가되었습니다.")
     else:
-        print(f"{key}는 complete_key_store에 이미 존재하는 key입니다.")
+        print(f"{key}는 이미 complete_key_store에 존재하는 key입니다.")
 
     # 결과 확인
     complete_hash = r.hgetall(complete_key)
@@ -80,7 +84,8 @@ def add_complete_hash(r, key, log, trace, prompt_ver):
         value = complete_hash.get(field)
         if value:
             complete_hash_dict[field] = value
-    print("\n(성공) >>>>>>>>>> complete_hash에 추가 <<<<<<<<<<\n", key, ":", complete_hash_dict)
+    # print("\n(성공) >>>>>>>>>> complete_hash에 추가 <<<<<<<<<<\n", key, ":", complete_hash_dict)
+    print("\n(성공) >>>>>>>>>> complete_hash에 추가 <<<<<<<<<<\n", key)
 
 
 def main():
@@ -88,9 +93,6 @@ def main():
     while True:
         # print("************* complete_data_batch start *************")
         key_store_set = r.smembers("key_store")
-        # # print(type(set_values))
-        # key_store_list = r.lrange("key_store", 0, -1)
-        # # print("key_store_list:", key_store_list)
         # key_store 리스트에서 key 꺼내기
         for key in key_store_set:
             # print("\n-------------- 현재 key(", key, ")가 포함된 hash 정보 --------------")

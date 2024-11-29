@@ -1,9 +1,6 @@
 package com.kt.springreportingservice.report.scheduler;
 
-import com.kt.springreportingservice.report.domain.ErrorReport;
-import com.kt.springreportingservice.report.domain.MailSendInfo;
-import com.kt.springreportingservice.report.domain.ServiceInfo;
-import com.kt.springreportingservice.report.domain.UserInfo;
+import com.kt.springreportingservice.report.domain.*;
 import com.kt.springreportingservice.report.repository.ErrorReportRepository;
 import com.kt.springreportingservice.report.repository.MailSendInfoRepository;
 import com.kt.springreportingservice.report.repository.UserInfoRepository;
@@ -19,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @AllArgsConstructor
@@ -54,7 +52,12 @@ public class ErrorReportScheduler {
             for (ErrorReport errorReport : errorReports) {
                 try {
                     ServiceInfo serviceInfo = errorReport.getServiceInfo(); // ServiceInfo 객체를 가져옴
+                    ServiceInfoSub serviceInfoSub = errorReport.getServiceInfoSub(); //ServiceInfoSub 객체를 가져옴
                     String serviceCode = serviceInfo.getServiceCode(); // ServiceInfo에서 serviceCode 가져옴
+                    String serviceCodeSub = Optional.ofNullable(serviceInfoSub)
+                            .map(ServiceInfoSub::getServiceCodeSub)
+                            .orElse(null);
+
                     // user_info 테이블에서 service_code로 사용자 목록 조회
                     List<UserInfo> users = userInfoRepository.findByServiceInfo(serviceInfo);
                     for (UserInfo user : users) {
@@ -64,6 +67,7 @@ public class ErrorReportScheduler {
                         mailSendInfo.setReceiverEmail(user.getEmail());
                         mailSendInfo.setErrorReport(errorReport); // ErrorReport 객체를 직접 설정
                         mailSendInfo.setServiceCode(serviceCode); // serviceCode 설정
+                        mailSendInfo.setServiceCodeSub(serviceCodeSub); // serviceCode 설정
                         mailSendInfo.setIsMailSent("Y");
                         mailSendInfoRepository.save(mailSendInfo);
                     }

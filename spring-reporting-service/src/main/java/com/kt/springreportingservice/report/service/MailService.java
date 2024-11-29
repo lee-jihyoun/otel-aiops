@@ -1,9 +1,13 @@
 package com.kt.springreportingservice.report.service;
 
 import com.kt.springreportingservice.report.domain.ApiAuthToken;
+import com.kt.springreportingservice.report.domain.MailSendInfo;
+import com.kt.springreportingservice.report.dto.MailSendInfosDto;
 import com.kt.springreportingservice.report.repository.ApiAuthTokenRepository;
+import com.kt.springreportingservice.report.repository.MailSendInfoRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.internet.MimeMessage;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +16,10 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 
 // 해당 클래스는 lombok으로 사용하면 안됨
@@ -30,11 +36,15 @@ public class MailService {
     @Autowired
     private ApiAuthTokenRepository apiAuthTokenRepository;
 
+    @Autowired
+    ModelMapper modelMapper;
 
 
     private String gmailUserName;
     private String gmailAppToken;
     private JavaMailSender mailSender;
+    @Autowired
+    private MailSendInfoRepository mailSendInfoRepository;
 
     @PostConstruct
     public void init() {
@@ -140,6 +150,18 @@ public class MailService {
 //        mailForm.put("mailContent" , mailContent);
 //        return mailForm;
 //    }
+
+    public List<MailSendInfosDto> getAll(){
+        List<MailSendInfo> mailSendInfos = mailSendInfoRepository.findAll();
+        return mailSendInfos.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public MailSendInfosDto convertToDTO(MailSendInfo mailSendInfo){
+        MailSendInfosDto mailSendInfosDto = modelMapper.map(mailSendInfo, MailSendInfosDto.class);
+        return mailSendInfosDto;
+    }
 
 }
 

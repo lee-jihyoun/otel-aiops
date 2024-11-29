@@ -70,4 +70,11 @@ public class SuccessTestService {
     public void successTestService08() {
         logger.info("successTestService08 call rest api exception ");
     }
+
+    public void getErrorReport(){
+        logger.info("get error report");
+        List<ErrorReport>  errorReports= errorReportRepository.findAll();
+        errorReports.get(0).setErrorReportSendYn("YYYYYYYYYYYYYYYYYYYYYYYY");
+        errorReportRepository.save(errorReports.get(0));
+    }
 }

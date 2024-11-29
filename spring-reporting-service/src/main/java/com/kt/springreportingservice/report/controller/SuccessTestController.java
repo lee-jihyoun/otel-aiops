@@ -70,4 +70,10 @@ public class SuccessTestController {
         return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/getErrorReport")
+    public void getErrorReport() {
+        logger.info("getErrorReport controller in");
+        successTestService.getErrorReport();
+    }
+
 }

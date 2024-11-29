@@ -18,9 +18,13 @@ public class ErrorReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_code", referencedColumnName = "service_code")
     private ServiceInfo serviceInfo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_code_sub", referencedColumnName = "service_code_sub", insertable = false, updatable = false)
+    private ServiceInfoSub serviceInfoSub;
 
     @Column(name = "trace_id", length = 150)
     private String traceId;

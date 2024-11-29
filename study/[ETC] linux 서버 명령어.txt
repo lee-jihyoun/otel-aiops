@@ -66,15 +66,27 @@
     ## 브랜치 머지 (main 브랜치를 main_war에 머지)
         git merge main
 
+
+    # 빌드는 로컬에서 수행 후 서버에 파일 보내기(filezilla 사용)
+        main에서 코드 수정 후 커밋
+        main_war 브랜치로 체크아웃 후 main 머지
+        오른쪽 gradle에서 build 클릭 > bootWar 클릭해서 war 파일 만들고
+        서버 tomcat 디렉토리에 넣기
+        /opt/apache-tomcat-10.1.30/webapps/ROOT.war
+
+
     ## 빌드 권한 설정
         chmod 755 -R /opt/otel-aiops/spring-reporting-service
 
+'''
+[안씀]
     ## 빌드
         cd /opt/otel-aiops/spring-reporting-service
         ./gradlew assemble
 
     ## 복사
         cp /opt/otel-aiops/spring-reporting-service/build/libs/spring-reporting-service-0.0.1-SNAPSHOT.jar /opt/apache-tomcat-10.1.30/webapps/ROOT.war
+'''
 
     ## 권한 변경
         chown tomcat:tomcat /opt/apache-tomcat-10.1.30/webapps/ROOT.war

@@ -32,12 +32,23 @@ public class ErrorReportService {
         Map<String, Object> errorReportMap = new HashMap<>();
         String errorCause = formatContent(errorReport.getErrorCause());
         String errorSolution = formatContent(errorReport.getErrorSolution());
+        //서비스 정보
         errorReportMap.put("service_name_en", errorReport.getServiceInfo().getServiceNameEng());
         errorReportMap.put("service_name_kr", errorReport.getServiceInfo().getServiceNameKr());
         errorReportMap.put("service_code", errorReport.getServiceInfo().getServiceCode());
         errorReportMap.put("service_desc", errorReport.getServiceInfo().getServiceDesc());
+
+        //하위 서비스 정보
+        Optional.ofNullable(errorReport.getServiceInfoSub()).ifPresent(serviceInfoSub -> {
+            errorReportMap.put("service_name_en_sub", serviceInfoSub.getServiceNameEngSub());
+            errorReportMap.put("service_name_kr_sub", serviceInfoSub.getServiceNameKrSub());
+            errorReportMap.put("service_code_sub", serviceInfoSub.getServiceCodeSub());
+            errorReportMap.put("service_desc_sub", serviceInfoSub.getServiceDescSub());
+        });
+
+        //오류 정보
         errorReportMap.put("error_name", errorReport.getErrorName());
-        errorReportMap.put("created_time", errorReport.getCreateTime());
+        errorReportMap.put("error_created_time", errorReport.getErrorCreateTime());
         errorReportMap.put("error_content", errorReport.getErrorContent());
         errorReportMap.put("error_location", errorReport.getErrorLocation());
         errorReportMap.put("service_impact", errorReport.getServiceImpact());

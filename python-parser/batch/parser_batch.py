@@ -5,7 +5,7 @@ import json_parser.trace_parser as trace_parser
 
 
 # 경로 설정(local에서 테스트 시)
-input_path = '../data/20241022_success_case/'
+input_path = '../data/241128_jenkinscd_server/'
 
 # 경로 설정(서버에서 테스트 시)
 # input_path = '/opt/spring-otel-listener-run/'

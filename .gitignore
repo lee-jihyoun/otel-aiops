@@ -89,3 +89,12 @@ venv.bak/
 /python-parser/.idea/**
 /python-parser/python-parser.log
 /distributed-system/board-system/start_agent_springboot_mac.sh
+/python-parser/test/.idea/.gitignore
+/python-parser/json_parser/datetime_util.py
+/python-parser/test/datetime_util.py
+/data/20241023_poc_case/
+/python-parser/test/.idea/**
+/data/241007_app_test/
+/data/testfolder/parsing.py
+/python-parser/test.py
+/data/241008_springbootlistener_test/테스트케이스.txt
