@@ -1,2 +1,16 @@
 server:
   port: 13030
+spring:
+  data :
+    redis:
+      host: 100.83.227.59
+      port: 16379
+      password: 'redis1234!'
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+      timeout: 60000
+      database: 1
+
