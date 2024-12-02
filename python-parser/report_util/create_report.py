@@ -225,9 +225,10 @@ class CreateReport:
     def save_error_history(self, error_report):
         with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
             cur.execute('''
-                INSERT INTO error_history (service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short)
-                VALUES (%s, %s, %s)
+                INSERT INTO error_history (service_code, service_code_sub, log_exception_stacktrace_short, trace_exception_stacktrace_short)
+                VALUES (%s, %s, %s, %s)
             ''', (error_report["service_code"],
+                  error_report["service_code_sub"],
                   error_report["log_exception_stacktrace_short"],
                   error_report["trace_exception_stacktrace_short"]))
 

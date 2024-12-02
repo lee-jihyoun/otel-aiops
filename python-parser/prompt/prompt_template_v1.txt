@@ -106,10 +106,11 @@
 # Portal CI ↔ JIRA, GitLab, Jenkins CI
 - Portal CI에서 프로젝트 생성 시 각 서비스 프로젝트(API로) 자동 생성.
 - CRUD 관리 가능.
+- 빌드 트리거는 별도로 처리. 포탈CI에서는 빌드 트리거를 실행할 수 없고 Jenkins 빌드 로그 및 폴더와 Job 확인 가능
 
 # Portal CD ↔ Jenkins CD
 - Portal CD에서 API로 Jenkins CD 프로젝트 생성 및 관리.
-- 빌드 및 배포 트리거는 별도로 처리.
+- 배포 트리거는 별도로 처리. 포탈CD에서는 배포 트리거를 실행할 수 없고 Jenkins 배포 로그 및 폴더와 Job 확인 가능
 
 # Portal ↔ Sparrow, Codeeyes
 - API로 보안 점검 및 라이선스 점검 데이터 통합.
@@ -185,7 +186,10 @@
 }
 
 [서비스 흐름]
-Keycloak <--> Portal CI ---> Jenksin CI
+Keycloak <--> Portal CI ---> Jenkins CI
+사용자가 keycloak 인증받아서 포탈에서 Jenkins CRUD
+
+Keycloak <--> Portal CD ---> Jenkins CD
 사용자가 keycloak 인증받아서 포탈에서 Jenkins CRUD
 
 Keycloak <--> Portal CI ---> Jira ---> Jira DB (Postgresql)
@@ -193,6 +197,15 @@ Keycloak <--> Portal CI ---> Jira ---> Jira DB (Postgresql)
 
 Keycloak <--> Jira ---> Jira DB (Postgresql)
 사용자가 직접 JIRA에서 JIRA CRUD
+
+Keycloak <--> Jenkins CI
+사용자가 직접 Jenkins CI에서 빌드
+
+Keycloak <--> Jenkins CD
+사용자가 직접 Jenkins CD에서 배포
+
+Keycloak <--> Jenkins CI --> Jenkins CD
+사용자가 직접 Jenkins CI에서 빌드 후 트리거로 Jenkins CD 배포
 
 [서비스별 IP]
 jenkins CI - 10.217.66.97
@@ -311,9 +324,23 @@ error_log, error_span
 - **오류내용**: 오류 내용_log의 logRecords_body_stringValue와 오류 내용_log의 log.exception.message와 오류 내용_span의 trace.exception.message를 참고해서 작성해주세요.
 
 ## 분석결과
-- **log.exception.stacktrace.short**: log.exception.stacktrace.short는 오류 내용_log의 log.exception.stacktrace.short 내용을 그대로 작성해주세요.
-- **trace.exception.stacktrace.short**: trace.exception.stacktrace.short는 오류 내용_span의 trace.exception.stacktrace.short 내용을 그대로 작성해주세요.
-- **서비스영향도**: 학습된 문서의 아키텍처와 서비스설명을 바탕으로 오류로 인해 영향이 발생하는 서비스와 내용을 알려주세요.
+- **log.exception.stacktrace.short**: 오류 내용_log의 log.exception.stacktrace.short를 사용해주세요. 만약 None일 경우 logRecords_body_stringValue를 사용해주세요.
+- **trace.exception.stacktrace.short**: 오류 내용_span의 trace.exception.stacktrace.short를 사용해주세요. 만약 None일 경우 오류 내용_span의 url.full를 사용해주세요.
+- **서비스영향도**: <dspace_poc_rag> 매뉴얼을 바탕으로 오류로 인해 영향이 발생하는 서비스와 내용을 1000자 정도로 자세히 작성해 주세요.
+다음 네 가지 내용을 포함하며, 각 항목별로 최소 200자 이상 작성해 주세요:
+
+1. 직접적인 서비스 영향도
+오류가 직접 영향을 미친 서비스 이름을 작성하고, 사용자가 겪을 수 있는 문제를 구체적으로 기술합니다. 예: CRUD 작업 실패, 데이터 처리 중단 등.
+
+2. 연동 서비스 영향도
+오류가 해당 서비스와 통합된 다른 서비스에 미친 연쇄적인 영향을 구체적으로 기술합니다. 각 연동된 서비스 이름과 상세 내용을 포함합니다.
+
+3. 간접적인 서비스 영향도
+오류로 인해 장애가 다른 서비스 또는 플랫폼에 미칠 수 있는 간접적인 영향을 기술합니다. 예: 사용자 경험 저하, 인증 흐름 중단 등.
+
+4. 예상 사용자 경험 영향
+최종 사용자가 겪을 수 있는 부정적인 영향을 별도로 정리합니다. 서비스 불안정성, 작업 중단, 데이터 신뢰도 하락 등의 주요 사항을 작성합니다.
+
 - **오류발생위치**: 오류 발생 위치는 오류 내용_log의 log.exception.stacktrace 오류 내용_span의 trace.exception.stacktrace 내용을 바탕으로 생성해 주세요. exception.stacktrace 내용의 일부도 포함해서 작성해주세요.
 - **오류근본원인**: 오류 내용_log와 오류 내용_span을 사용하여 작성해주세요. 오류 근본 원인은 trace_id를 사용하여 어떤 서비스로부터 전파되었는지 생성해 주세요. 상세하게 존댓말로 작성해주세요. 오류 내용이나 trace id를 설명할 때 ""를 사용하지 마세요.
 
@@ -338,7 +365,26 @@ error_log, error_span
 ## 분석결과
 **log.exception.stacktrace.short**: Error: PaymentService Fail Feature Flag Enabled at module.exports.charge (/usr/src/app/charge.js:21:11)
 **trace.exception.stacktrace.short**: Error: PaymentService Fail Feature Flag Enabled at module.exports.charge (/usr/src/app/charge.js:21:11)
-**서비스영향도**: Keycloak 서비스의 인증 및 권한 관리 기능에 영향을 미치며, 이는 전체 Dev-space 플랫폼의 사용자 인증 및 권한 관리에 부정적인 영향을 줄 수 있습니다.
+**서비스영향도**
+: Keycloak 서비스의 인증 및 권한 관리 기능에 영향을 미치며, 이는 전체 Dev-space 플랫폼의 사용자 인증 및 권한 관리에 부정적인 영향을 줄 수 있습니다.
+- 1. 직접 서비스 영향도
+Jira:
+데이터베이스 연결 오류로 인해 CRUD 작업(이슈 생성, 업데이트, 삭제)이 실패.
+Jira에서 관리되는 프로젝트 및 이슈에 접근이 불가능.
+- 2. 연동 서비스 영향도
+Portal CI:
+Jira와의 프로젝트 연동 실패로, Portal CI에서 생성된 프로젝트 정보가 Jira DB에 반영되지 않음.
+Jira API 연동:
+Portal CI를 통한 자동 프로젝트 생성 기능이 중단됨.
+- 3. 간접 서비스 영향도
+Keycloak 인증:
+Jira API 호출 시 Keycloak 인증이 필요하지만, Jira DB 연결 불안정으로 인해 인증 흐름 중단.
+Confluence:
+Jira에서 생성된 데이터가 Confluence에 연동되지 않아 문서화 작업이 실패할 가능성.
+- 4. 사용자 경험 영향
+전체 Dev-space 플랫폼의 사용자 경험이 저하되며, 프로젝트 및 이슈 관리에 대한 신뢰도 하락.
+
+
 **오류 발생 위치**: 오류는 Keycloak의 JpaRealmProvider의 getClientScopeById 메서드에서 발생하였습니다. org.keycloak.connections.jpa.PersistenceExceptionConverter.convert 메서드에서 JDBC 연결 예외가 발생했습니다.
 **오류 근본 원인**: 이 오류는 Keycloak 서비스에서 발생한 JDBC 연결 예외로 인해 발생했습니다. 이는 데이터베이스 연결 문제로 인해 SQL 문을 준비하는 데 실패했기 때문입니다. traceId 0e0f4d145b380efbcc530ca55b77265c를 통해 Keycloak 서비스에서 전파된 것을 확인할 수 있습니다.
 
