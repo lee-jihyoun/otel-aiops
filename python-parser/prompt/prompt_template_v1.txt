@@ -187,10 +187,14 @@
 
 [서비스 흐름]
 Keycloak <--> Portal CI ---> Jenkins CI
-사용자가 keycloak 인증받아서 포탈에서 Jenkins CRUD
+사용자가 keycloak 인증받아서 포탈에서 Jenkins Job CRUD 가능
+빌드는 API로 연동된 Jenkins CI 웹에서 독립적으로 동작
+포털이 내려가도 실행 중인 Jenkins Job에 영향 없음
 
 Keycloak <--> Portal CD ---> Jenkins CD
-사용자가 keycloak 인증받아서 포탈에서 Jenkins CRUD
+사용자가 keycloak 인증받아서 포탈에서 Jenkins Job CRUD 가능
+배포는 API로 연동된 Jenkins CD 웹에서 독립적으로 동작
+포털이 내려가도 실행 중인 Jenkins Job에 영향 없음
 
 Keycloak <--> Portal CI ---> Jira ---> Jira DB (Postgresql)
 사용자가 keycloak 인증받아서 포탈에서 JIRA CRUD하면 JIRA DB에 insert
@@ -324,10 +328,8 @@ error_log, error_span
 - **오류내용**: 오류 내용_log의 logRecords_body_stringValue와 오류 내용_log의 log.exception.message와 오류 내용_span의 trace.exception.message를 참고해서 작성해주세요.
 
 ## 분석결과
-- **log.exception.stacktrace.short**: 오류 내용_log의 log.exception.stacktrace.short를 사용해주세요. 만약 None일 경우 logRecords_body_stringValue를 사용해주세요.
-- **trace.exception.stacktrace.short**: 오류 내용_span의 trace.exception.stacktrace.short를 사용해주세요. 만약 None일 경우 오류 내용_span의 url.full를 사용해주세요.
 - **서비스영향도**: <dspace_poc_rag> 매뉴얼을 바탕으로 오류로 인해 영향이 발생하는 서비스와 내용을 1000자 정도로 자세히 작성해 주세요.
-다음 네 가지 내용을 포함하며, 각 항목별로 최소 200자 이상 작성해 주세요:
+다음 네 가지 내용을 포함하여 한 줄로 작성해 주세요.
 
 1. 직접적인 서비스 영향도
 오류가 직접 영향을 미친 서비스 이름을 작성하고, 사용자가 겪을 수 있는 문제를 구체적으로 기술합니다. 예: CRUD 작업 실패, 데이터 처리 중단 등.
