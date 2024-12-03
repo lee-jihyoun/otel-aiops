@@ -7,46 +7,47 @@
 - 사용자 요청을 Portal CI, Portal CD 및 관련 서비스로 라우팅하는 역할
 *특징
 - Gateway 역할 수행
-- 사용자는 PortalUI를 통해 각서비스(CI/CD,GitLab,Jira등)의 데이터에 접근 가능합니다.
-- 사용자는 각 서비스Jira, Gitlab, JenkinsCI, JenkinsCD UI에 접근이 가능합니다.
+- 사용자는 PortalUI를 통해 각 서비스(Jenkins CI, Jenkins CD, GitLab, Jira 등)의 데이터에 접근 가능
+- 사용자는 각 서비스(Jira, Gitlab, JenkinsCI, JenkinsCD) UI에 접근 가능
 
 # Portal CI
 *서비스코드: PO2002
 *역할
 - 프로젝트 관리 기능 제공
-- Portal CI에서 생성된 프로젝트는 JIRA, GitLab, Jenkins CI 등 관련 프로젝트가 함께 생성됨.
+- Portal CI에서 생성된 프로젝트는 JIRA, GitLab, Jenkins CI 등 관련 프로젝트가 함께 생성됨
 *특징
-- API를 통해 JIRA, GitLab, Jenkins CI 등의 서비스와 연동.
-- CRUD 작업은 지원하지만, Jenkins CI의 빌드 트리거와 같은 작업은 직접 수행하지 않음.
+- API를 통해 JIRA, GitLab, Jenkins CI 등의 서비스와 연동
+- Jenkins CI의 빌드 트리거와 같은 작업은 직접 수행하지 않음
+- Jenkins 빌드 로그 및 폴더와 Job 확인만 가능
 - Keycloak으로 인증 및 권한 관리
 
 # Portal CD
 *서비스코드: PO2003
 *역할
-- CI 프로젝트에서 필요한 CD 관련 작업을 담당.
-- API를 통해 JenkinsCD의 CRUD작업을 관리
+- CI 프로젝트에서 필요한 CD 관련 작업을 담당
 *특징
-- Jenkins CD의 빌드 및 배포 트리거는 직접 수행하지 않음.
-- Keycloak으로 인증관리
+- Jenkins CD의 빌드 및 배포 트리거는 직접 수행하지 않음
+- Jenkins 배포 로그 및 폴더와 Job 확인만 가능
+- Keycloak으로 인증 관리
 
 # Jenkins CI
 *서비스코드: JK2004
 *역할
-- CI(Continuous Integration) 프로세스 담당.
-- 소스 코드를 빌드하고 테스트하며 통합.
+- CI(Continuous Integration) 프로세스 담당
+- 소스 코드를 빌드하고 테스트하며 통합
 *특징
-- Portal CI를 통해 생성된 CI 프로젝트를 관리.
-- API를 통해 Portal CI와 연동.
+- Portal CI를 통해 생성된 CI 프로젝트를 관리
+- API를 통해 Portal CI와 연동
 - Keycloak으로 인증관리
 
 # Jenkins CD
 *서비스코드: JE2005
 *역할
-- CD(Continuous Deployment) 프로세스 담당.
-- 빌드된 소스 코드를 배포.
+- CD(Continuous Deployment) 프로세스 담당
+- 빌드된 소스 코드를 배포
 *특징
-- Portal CD에서 API를 통해 생성 및 관리됨.
-- 소스코드배포기능을제공
+- Portal CD에서 API를 통해 생성 및 관리됨
+- 소스코드 배포 기능을 제공
 - Keycloak으로 인증관리
 
 # GitLab
@@ -54,24 +55,24 @@
 *역할
 - 소스 코드 저장소 및 형상 관리.
 *특징
-- Portal CI와 연동하여 프로젝트 생성 및 관리.
+- Portal CI와 연동하여 프로젝트 생성 및 관리
 - Keycloak으로 인증관리
 
 # Jira
 *서비스코드: JI2007
 *역할
-- 이슈 및 프로젝트 관리 도구.
+- 이슈 및 프로젝트 관리 도구
 *특징
-- Portal CI에서 생성된 프로젝트에 포함되어 API로 연동.
-- 사용자 요청에 따라 프로젝트 관리 가능.
+- Portal CI에서 생성된 프로젝트에 포함되어 API로 연동
+- 사용자 요청에 따라 프로젝트 관리 가능
 - Keycloak으로 인증관리
 
 # Confluence
 *서비스코드: CO2008
 *역할
-- 협업 도구로 문서화 및 정보 공유.
+- 협업 도구로 문서화 및 정보 공유
 *특징
-- Jenkins CD와 연동하여 배포 관련 문서화 가능.
+- Jenkins CD와 연동하여 배포 관련 문서화 가능
 - Keycloak으로 인증관리
 
 # Keycloak
@@ -79,125 +80,62 @@
 *역할
 - 인증 및 권한 관리
 *특징
-- 각 서비스(GitLab, JenkinsCI, JenkinsCD, Confluence, Jira)의 인증을 통합 관리.
-- Keycloak으로 인증관리
+- 각 서비스(GitLab, JenkinsCI, JenkinsCD, Confluence, Jira)의 인증을 통합 관리
 
 # Sparrow
 *서비스코드: SP2010
 *역할
-- 소스코드 보안 취약점 점검 툴.
+- 소스코드 보안 취약점 점검 툴
 *특징
-- Portal에서는 API로 전달받은 데이터를 이용해 보안 점검 결과를 제공.
-- 별도 서비스를 통해 직접 접근 가능.
+- Portal에서는 API로 전달받은 데이터를 이용해 보안 점검 결과를 제공
+- 별도 서비스를 통해 직접 접근 가능
 
 # CodeEyes
 *서비스코드: CO2011
 *역할
-- 오픈소스 라이선스 점검 툴.
+- 오픈소스 라이선스 점검 툴
 *특징
-- API로 데이터를 전달받아 점검 결과를 제공.
-- 별도 서비스를 통해 직접 접근 가능.
+- API로 데이터를 전달받아 점검 결과를 제공
+- 별도 서비스를 통해 직접 접근 가능
+
 
 [Dev-Space 서비스 간 연동]
 # Nginx → Portal UI
-- 사용자 요청을 Portal CI/CD로 라우팅.
-- Nginx를 통해 Confluence, Jenkins, GitLab, Jira에도 직접 접근 가능.
+- 사용자 요청을 Portal CI/CD로 라우팅
+- Nginx를 통해 Confluence, Jenkins, GitLab, Jira에도 직접 접근 가능
 
 # Portal CI ↔ JIRA, GitLab, Jenkins CI
-- Portal CI에서 프로젝트 생성 시 각 서비스 프로젝트(API로) 자동 생성.
-- CRUD 관리 가능.
-- 빌드 트리거는 별도로 처리. 포탈CI에서는 빌드 트리거를 실행할 수 없고 Jenkins 빌드 로그 및 폴더와 Job 확인 가능
+- Portal CI에서 프로젝트 생성 시 각 서비스의 API를 통해 자동 생성됨
+- CRUD 관리 가능
+- 빌드 트리거는 Jenkins CI 에서 별도로 처리
+- Portal CI에서는 빌드 트리거를 실행할 수 없고 Jenkins 빌드 로그 및 폴더와 Job 확인만 가능
 
 # Portal CD ↔ Jenkins CD
-- Portal CD에서 API로 Jenkins CD 프로젝트 생성 및 관리.
-- 배포 트리거는 별도로 처리. 포탈CD에서는 배포 트리거를 실행할 수 없고 Jenkins 배포 로그 및 폴더와 Job 확인 가능
+- Portal CD에서 API로 Jenkins CD 프로젝트 생성 및 관리
+- 배포 트리거는 Jenkins CD 에서 별도로 처리
+- Portal CD에서는 배포 트리거를 실행할 수 없고 Jenkins 배포 로그 및 폴더와 Job 확인만 가능
 
 # Portal ↔ Sparrow, Codeeyes
-- API로 보안 점검 및 라이선스 점검 데이터 통합.
-- 직접 접근은 Portal 외 별도 서비스로 가능.
+- API로 보안 점검 및 라이선스 점검 데이터 통합
+- 직접 접근은 Portal 외 별도 서비스로 가능
 
 # keycloak ↔ 모든 서비스
-- Keycloak을 통해 모든 서비스의 인증 및 권한을 통합 관리.
+- Keycloak을 통해 모든 서비스의 인증 및 권한을 통합 관리
 
-[Dev-Space 아키텍처 ]
-{
-  /"connections/": [
-    {
-      /"from/": /"User/",
-      /"to/": /"Nginx (Portal UI)/"
-    },
-    {
-      /"from/": /"Nginx (Portal UI)/",
-      /"to/": /"Portal CI/"
-    },
-    {
-      /"from/": /"Portal CI/",
-      /"to/": [
-        /"Portal DB (Postgres)/",
-        /"Jenkins CI/",
-        /"Keycloak/",
-        /"GitLab/",
-        /"Jira/",
-        /"Sparrow/",
-        /"Codeeyes/"
-      ]
-    },
-    {
-      /"from/": /"User/",
-      /"to/": /"Nginx (Portal UI)/"
-    },
-    {
-      /"from/": /"Nginx (Portal UI)/",
-      /"to/": /"Portal CD/"
-    },
-    {
-      /"from/": /"Portal CD/",
-      /"to/": [
-        /"Portal DB (Postgres)/",
-        /"Jenkins CD/",
-        /"Keycloak/"
-      ]
-    },
-    {
-      /"from/": /"Keycloak/",
-      /"to/": [
-        /"Portal CI/",
-        /"Portal CD/",
-        /"Confluence/",
-        /"Jenkins CD/",
-        /"GitLab/",
-        /"Jenkins CI/",
-        /"Jira/"
-      ]
-    },
-    {
-      /"from/": /"Confluence/",
-      /"to/": /"Confluence DB (Postgres)/"
-    },
-    {
-      /"from/": /"Jira/",
-      /"to/": /"Jira DB (Postgres)/"
-    },
-    {
-      /"from/": /"Keycloak/",
-      /"to/": /"Keycloak DB (Postgres)/"
-    }
-  ]
-}
 
 [서비스 흐름]
 Keycloak <--> Portal CI ---> Jenkins CI
-사용자가 keycloak 인증받아서 포탈에서 Jenkins Job CRUD 가능
+사용자가 keycloak 인증받아서 Portal에서 Jenkins Job CRUD 가능
 빌드는 API로 연동된 Jenkins CI 웹에서 독립적으로 동작
-포털이 내려가도 실행 중인 Jenkins Job에 영향 없음
+Portal이 내려가도 실행 중인 Jenkins Job에 영향 없음
 
 Keycloak <--> Portal CD ---> Jenkins CD
-사용자가 keycloak 인증받아서 포탈에서 Jenkins Job CRUD 가능
+사용자가 keycloak 인증받아서 Portal에서 Jenkins Job CRUD 가능
 배포는 API로 연동된 Jenkins CD 웹에서 독립적으로 동작
-포털이 내려가도 실행 중인 Jenkins Job에 영향 없음
+Portal이 내려가도 실행 중인 Jenkins Job에 영향 없음
 
 Keycloak <--> Portal CI ---> Jira ---> Jira DB (Postgresql)
-사용자가 keycloak 인증받아서 포탈에서 JIRA CRUD하면 JIRA DB에 insert
+사용자가 keycloak 인증받아서 Portal에서 JIRA CRUD하면 JIRA DB에 insert
 
 Keycloak <--> Jira ---> Jira DB (Postgresql)
 사용자가 직접 JIRA에서 JIRA CRUD
@@ -210,6 +148,107 @@ Keycloak <--> Jenkins CD
 
 Keycloak <--> Jenkins CI --> Jenkins CD
 사용자가 직접 Jenkins CI에서 빌드 후 트리거로 Jenkins CD 배포
+
+
+[Dev-Space 아키텍처 ]
+{
+  /"connections/": [
+    {
+      /"인증/": [
+        {
+          /"from/": /"Portal CI/",
+          /"to/": /"Keycloak/"
+        },
+        {
+          /"from/": /"Portal CD/",
+          /"to/": /"Keycloak/"
+        },
+        {
+          /"from/": /"Confluence/",
+          /"to/": /"Keycloak/"
+        },
+        {
+          /"from/": /"Jenkins CD/",
+          /"to/": /"Keycloak/"
+        },
+        {
+          /"from/": /"GitLab/",
+          /"to/": /"Keycloak/"
+        },
+        {
+          /"from/": /"Jenkins CI/",
+          /"to/": /"Keycloak/"
+        },
+        {
+          /"from/": /"Jira/",
+          /"to/": /"Keycloak/"
+        },
+        {
+          /"from/": /"Keycloak/",
+          /"to/": [
+            /"Portal CI/",
+            /"Portal CD/",
+            /"Confluence/",
+            /"Jenkins CD/",
+            /"GitLab/",
+            /"Jenkins CI/",
+            /"Jira/"
+          ]
+        },
+        {
+          /"from/": /"Keycloak/",
+          /"to/": /"Keycloak DB (Postgres)/"
+        }
+      ]
+    },
+    {
+      /"API/": [
+        {
+          /"from/": /"User/",
+          /"to/": /"Nginx (Portal UI)/"
+        },
+        {
+          /"from/": /"Nginx (Portal UI)/",
+          /"to/": /"Portal CI/"
+        },
+        {
+          /"from/": /"Portal CI/",
+          /"to/": [
+            /"Portal DB (Postgres)/",
+            /"Jenkins CI/",
+            /"GitLab/",
+            /"Jira/",
+            /"Sparrow/",
+            /"Codeeyes/"
+          ]
+        },
+        {
+          /"from/": /"User/",
+          /"to/": /"Nginx (Portal UI)/"
+        },
+        {
+          /"from/": /"Nginx (Portal UI)/",
+          /"to/": /"Portal CD/"
+        },
+        {
+          /"from/": /"Portal CD/",
+          /"to/": [
+            /"Portal DB (Postgres)/",
+            /"Jenkins CD/"
+          ]
+        },
+        {
+          /"from/": /"Confluence/",
+          /"to/": /"Confluence DB (Postgres)/"
+        },
+        {
+          /"from/": /"Jira/",
+          /"to/": /"Jira DB (Postgres)/"
+        }
+      ]
+    }
+  ]
+}
 
 [서비스별 IP]
 jenkins CI - 10.217.66.97
@@ -328,6 +367,8 @@ error_log, error_span
 - **오류내용**: 오류 내용_log의 logRecords_body_stringValue와 오류 내용_log의 log.exception.message와 오류 내용_span의 trace.exception.message를 참고해서 작성해주세요.
 
 ## 분석결과
+- **log.exception.stacktrace.short**: log.exception.stacktrace.short는 오류 내용_log의 log.exception.stacktrace.short 내용을 그대로 작성해주세요.
+- **trace.exception.stacktrace.short**: trace.exception.stacktrace.short는 오류 내용_span의 trace.exception.stacktrace.short 내용을 그대로 작성해주세요.
 - **서비스영향도**: <dspace_poc_rag> 매뉴얼을 바탕으로 오류로 인해 영향이 발생하는 서비스와 내용을 1000자 정도로 자세히 작성해 주세요.
 다음 네 가지 내용을 포함하여 한 줄로 작성해 주세요.
 

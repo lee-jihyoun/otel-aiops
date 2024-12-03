@@ -161,18 +161,33 @@ class CreateReport:
                         logging.error(f"* {entry['type']}_list가 리스트도 아니고 딕셔너리도 아닙니다. 건너뜁니다.")
                         continue
 
-                    # dict에 접근
+                    # # dict에 접근
+                    # for item_dict in item_list:
+                    #     service_code = item_dict.get("service.code")
+                    #     log_exception_stacktrace_short = item_dict.get(f"{entry['type']}.log.exception.stacktrace.short")
+                    #     trace_exception_stacktrace_short = item_dict.get(f"{entry['type']}.trace.exception.stacktrace.short")
+                    #
+                    #     # log와 trace 모두 동일한 stacktrace 검증
+                    #     result = self.is_exists_in_error_history(service_code, log_exception_stacktrace_short,
+                    #                                              trace_exception_stacktrace_short)
+                    #     print(result)
+                    #     if result is True:
+                    #         self.increase_error_history_cnt(service_code, log_exception_stacktrace_short,
+                    #                                         trace_exception_stacktrace_short)
+                    #         duplicate_cnt += 1
+
                     for item_dict in item_list:
                         service_code = item_dict.get("service.code")
-                        log_exception_stacktrace_short = item_dict.get(f"{entry['type']}.log.exception.stacktrace.short")
-                        trace_exception_stacktrace_short = item_dict.get(f"{entry['type']}.trace.exception.stacktrace.short")
+                        logRecords_body_stringValue = item_dict.get("logRecords_body_stringValue")
+                        url_full = item_dict.get("url.full")
 
                         # log와 trace 모두 동일한 stacktrace 검증
-                        result = self.is_exists_in_error_history(service_code, log_exception_stacktrace_short,
-                                                                 trace_exception_stacktrace_short)
+                        result = self.is_exists_in_error_history(service_code, logRecords_body_stringValue,
+                                                                 url_full)
+                        print(result)
                         if result is True:
-                            self.increase_error_history_cnt(service_code, log_exception_stacktrace_short,
-                                                            trace_exception_stacktrace_short)
+                            self.increase_error_history_cnt(service_code, logRecords_body_stringValue,
+                                                            url_full)
                             duplicate_cnt += 1
 
         if duplicate_cnt > 0:
@@ -184,14 +199,26 @@ class CreateReport:
 
     def increase_error_history_cnt(self, service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short):
         with self.get_postgres_db_connection() as conn, conn.cursor() as cur:
-            cur.execute('''
+            # cur.execute('''
+            #     UPDATE error_history
+            #     SET cnt = cnt + 1
+            #     WHERE service_code = %s
+            #     AND log_exception_stacktrace_short = %s
+            #     AND trace_exception_stacktrace_short = %s
+            # ''',
+            # (service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short))
+            #
+            #
+
+            update_query = f"""
                 UPDATE error_history
                 SET cnt = cnt + 1
-                WHERE service_code = %s
-                AND log_exception_stacktrace_short = %s
-                AND trace_exception_stacktrace_short = %s
-            ''',
-            (service_code, log_exception_stacktrace_short, trace_exception_stacktrace_short))
+                WHERE service_code = '{service_code}'
+                AND log_exception_stacktrace_short = '{log_exception_stacktrace_short}'
+                AND trace_exception_stacktrace_short = '{trace_exception_stacktrace_short}'
+            """
+            print(update_query)
+            cur.execute(update_query)
 
     # 오류 리포트 생성 및 데이터베이스에 데이터 insert
     def is_success_create_and_save_error_report(self, key, log, trace, prompt_ver):
