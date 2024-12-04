@@ -106,27 +106,27 @@ class LogParsing:
                                             parsed_info["logRecords_severityText"] = log_record["severityText"].replace('"', '')
                                         if "body" in log_record and "stringValue" in log_record["body"]:
                                             # parsed_info["logRecords_body_stringValue"] = log_record["body"]["stringValue"].replace('"', '')
-                                            string_value = log_record["body"]["stringValue"].replace('"', '')
+                                            string_value = log_record["body"]["stringValue"].replace('"', '').replace("'", '')
                                             if len(string_value) > 5000:
                                                 string_value = string_value[0:5000]
-                                            parsed_info["logRecords_body_stringValue"] = ' '.join(line.strip() for line in string_value.split('\n')[:5]).replace('"', '')
+                                            parsed_info["logRecords_body_stringValue"] = ' '.join(line.strip() for line in string_value.split('\n')[:5]).replace('"', '').replace("'", '')
 
                                         if "attributes" in log_record:
                                             for attribute in log_record["attributes"]:
                                                 if attribute["key"] == "exception.message":
-                                                    parsed_info["log.exception.message"] = attribute["value"]["stringValue"].replace('"', '')
+                                                    parsed_info["log.exception.message"] = attribute["value"]["stringValue"].replace('"', '').replace("'", '')
                                                 if attribute["key"] == "exception.stacktrace":
-                                                    parsed_info["log.exception.stacktrace"] = attribute["value"]["stringValue"].replace('"', '')
-                                                    parsed_info["log.exception.stacktrace"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:5]).replace('"', '')
-                                                    parsed_info["log.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2]).replace('"', '')
+                                                    # parsed_info["log.exception.stacktrace"] = attribute["value"]["stringValue"].replace('"', '')
+                                                    parsed_info["log.exception.stacktrace"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:5]).replace('"', '').replace("'", '')
+                                                    parsed_info["log.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2]).replace('"', '').replace("'", '')
 
                                                 if attribute["key"] == "exception.type":
                                                     parsed_info["log.exception.type"] = attribute["value"]["stringValue"].replace('"', '')
 
                                         # attributes 키가 없는 경우
                                         else:
-                                            parsed_info["log.exception.stacktrace"] = parsed_info["logRecords_body_stringValue"].replace("'", '"')
-                                            parsed_info["log.exception.stacktrace.short"] = parsed_info["logRecords_body_stringValue"].replace("'", '"')
+                                            parsed_info["log.exception.stacktrace"] = parsed_info["logRecords_body_stringValue"]
+                                            parsed_info["log.exception.stacktrace.short"] = parsed_info["logRecords_body_stringValue"]
 
                                         if "traceId" in log_record:
                                             parsed_info["traceId"] = log_record["traceId"]
