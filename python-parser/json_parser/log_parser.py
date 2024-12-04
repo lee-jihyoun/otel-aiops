@@ -116,17 +116,17 @@ class LogParsing:
                                                 if attribute["key"] == "exception.message":
                                                     parsed_info["log.exception.message"] = attribute["value"]["stringValue"].replace('"', '')
                                                 if attribute["key"] == "exception.stacktrace":
-                                                    # parsed_info["log.exception.stacktrace"] = attribute["value"]["stringValue"].replace('"', '')
-                                                    # parsed_info["log.exception.stacktrace"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:5]).replace('"', '')
-                                                    # parsed_info["log.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2]).replace('"', '')
-                                                    parsed_info["log.exception.stacktrace"] = 'string_value'
-                                                    parsed_info["log.exception.stacktrace.short"] = 'string_value'
+                                                    parsed_info["log.exception.stacktrace"] = attribute["value"]["stringValue"].replace('"', '')
+                                                    parsed_info["log.exception.stacktrace"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:5]).replace('"', '')
+                                                    parsed_info["log.exception.stacktrace.short"] = ' '.join(line.strip() for line in attribute["value"]["stringValue"].split('\n')[:2]).replace('"', '')
 
                                                 if attribute["key"] == "exception.type":
                                                     parsed_info["log.exception.type"] = attribute["value"]["stringValue"].replace('"', '')
+
+                                        # attributes 키가 없는 경우
                                         else:
-                                            parsed_info["log.exception.stacktrace"] = parsed_info["logRecords_body_stringValue"]
-                                            parsed_info["log.exception.stacktrace.short"] = parsed_info["logRecords_body_stringValue"]
+                                            parsed_info["log.exception.stacktrace"] = parsed_info["logRecords_body_stringValue"].replace("'", '"')
+                                            parsed_info["log.exception.stacktrace.short"] = parsed_info["logRecords_body_stringValue"].replace("'", '"')
 
                                         if "traceId" in log_record:
                                             parsed_info["traceId"] = log_record["traceId"]

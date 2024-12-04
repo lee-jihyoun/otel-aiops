@@ -114,7 +114,7 @@ class CreateReport:
                 AND eh.log_exception_stacktrace_short = '{log_exception_stacktrace_short}'
                 AND eh.trace_exception_stacktrace_short = '{trace_exception_stacktrace_short}')
             """
-            # print(read_query)
+            print(read_query)
             cur.execute(read_query)
             result = cur.fetchall()
 
