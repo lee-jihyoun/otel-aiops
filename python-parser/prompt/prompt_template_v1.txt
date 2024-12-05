@@ -149,6 +149,8 @@ Keycloak <--> Jenkins CD
 Keycloak <--> Jenkins CI --> Jenkins CD
 사용자가 직접 Jenkins CI에서 빌드 후 트리거로 Jenkins CD 배포
 
+[특정 오류 설명]
+attempt to unlock read lock 이라는 오류 내용이 나왔을 때 원인은 디스크 공간 부족
 
 [Dev-Space 아키텍처 ]
 {
@@ -422,8 +424,6 @@ Portal CI를 통한 자동 프로젝트 생성 기능이 중단됨.
 - 3. 간접 서비스 영향도
 Keycloak 인증:
 Jira API 호출 시 Keycloak 인증이 필요하지만, Jira DB 연결 불안정으로 인해 인증 흐름 중단.
-Confluence:
-Jira에서 생성된 데이터가 Confluence에 연동되지 않아 문서화 작업이 실패할 가능성.
 - 4. 사용자 경험 영향
 전체 Dev-space 플랫폼의 사용자 경험이 저하되며, 프로젝트 및 이슈 관리에 대한 신뢰도 하락.
 
