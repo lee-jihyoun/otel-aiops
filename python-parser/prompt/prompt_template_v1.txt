@@ -14,9 +14,11 @@
 *서비스코드: PO2002
 *역할
 - 프로젝트 관리 기능 제공
-- Portal CI에서 생성된 프로젝트는 JIRA, GitLab, Jenkins CI 등 관련 프로젝트가 함께 생성됨
+- Portal CI에서 프로젝트 생성 시 JIRA, GitLab, Jenkins CI를 선택해서 생성 가능
 *특징
-- API를 통해 JIRA, GitLab, Jenkins CI 등의 서비스와 연동
+- API를 통해 JIRA와 연동
+- API를 통해 GitLab과 연동
+- API를 통해 Jenkins CI와 연동
 - Jenkins CI의 빌드 트리거와 같은 작업은 직접 수행하지 않음
 - Jenkins 빌드 로그 및 폴더와 Job 확인만 가능
 - Keycloak으로 인증 및 권한 관리
@@ -105,7 +107,7 @@
 - Nginx를 통해 Confluence, Jenkins, GitLab, Jira에도 직접 접근 가능
 
 # Portal CI ↔ JIRA, GitLab, Jenkins CI
-- Portal CI에서 프로젝트 생성 시 각 서비스의 API를 통해 자동 생성됨
+- Portal CI에서 프로젝트 생성 시 각 서비스의 API를 통해 JIRA, GitLab, Jenkins CI를 선택하여 생성 가능
 - CRUD 관리 가능
 - 빌드 트리거는 Jenkins CI 에서 별도로 처리
 - Portal CI에서는 빌드 트리거를 실행할 수 없고 Jenkins 빌드 로그 및 폴더와 Job 확인만 가능
@@ -150,7 +152,8 @@ Keycloak <--> Jenkins CI --> Jenkins CD
 사용자가 직접 Jenkins CI에서 빌드 후 트리거로 Jenkins CD 배포
 
 [특정 오류 설명]
-attempt to unlock read lock 이라는 오류 내용이 나왔을 때 원인은 디스크 공간 부족
+Jira에서 attempt to unlock read lock 이라는 오류 내용이 나왔을 때 원인은
+Jira에서 WebHook 이벤트를 처리하면서 로그를 기록하거나 임시 데이터를 저장하려고 시도하는데, 디스크가 꽉 차있기 때문
 
 [Dev-Space 아키텍처 ]
 {
