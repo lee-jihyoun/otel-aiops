@@ -108,6 +108,7 @@
 
 # Portal CI ↔ JIRA, GitLab, Jenkins CI
 - Portal CI에서 프로젝트 생성 시 각 서비스의 API를 통해 JIRA, GitLab, Jenkins CI를 선택하여 생성 가능
+- Portal이 내려가도 각 서비스가 개별 동작하는 데에는 영향이 없으며 API 호출 기능에만 문제가 있음
 - CRUD 관리 가능
 - 빌드 트리거는 Jenkins CI 에서 별도로 처리
 - Portal CI에서는 빌드 트리거를 실행할 수 없고 Jenkins 빌드 로그 및 폴더와 Job 확인만 가능
