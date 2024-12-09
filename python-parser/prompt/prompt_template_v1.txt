@@ -102,59 +102,53 @@
 
 
 [Dev-Space 서비스 간 연동]
-# Nginx → Portal UI
+# Nginx --> Portal UI
 - 사용자 요청을 Portal CI/CD로 라우팅
 - Nginx를 통해 Confluence, Jenkins, GitLab, Jira에도 직접 접근 가능
 
-# Portal CI ↔ JIRA, GitLab, Jenkins CI
+# Portal CI <--> JIRA, GitLab, Jenkins CI
 - Portal CI에서 프로젝트 생성 시 각 서비스의 API를 통해 JIRA, GitLab, Jenkins CI를 선택하여 생성 가능
 - Portal이 내려가도 각 서비스가 개별 동작하는 데에는 영향이 없으며 API 호출 기능에만 문제가 있음
 - CRUD 관리 가능
 - 빌드 트리거는 Jenkins CI 에서 별도로 처리
 - Portal CI에서는 빌드 트리거를 실행할 수 없고 Jenkins 빌드 로그 및 폴더와 Job 확인만 가능
 
-# Portal CD ↔ Jenkins CD
+# Portal CD <--> Jenkins CD
 - Portal CD에서 API로 Jenkins CD 프로젝트 생성 및 관리
 - 배포 트리거는 Jenkins CD 에서 별도로 처리
 - Portal CD에서는 배포 트리거를 실행할 수 없고 Jenkins 배포 로그 및 폴더와 Job 확인만 가능
 
-# Portal ↔ Sparrow, Codeeyes
+# Portal <--> Sparrow, Codeeyes
 - API로 보안 점검 및 라이선스 점검 데이터 통합
 - 직접 접근은 Portal 외 별도 서비스로 가능
 
-# keycloak ↔ 모든 서비스
+# keycloak <--> 모든 서비스
 - Keycloak을 통해 모든 서비스의 인증 및 권한을 통합 관리
 
+# Keycloak <--> Portal CI ---> Jenkins CI
+- 사용자가 keycloak 인증받아서 Portal에서 Jenkins Job CRUD 가능
+- 빌드는 API로 연동된 Jenkins CI 웹에서 독립적으로 동작
+- Portal이 내려가도 실행 중인 Jenkins Job에 영향 없음
 
-[서비스 흐름]
-Keycloak <--> Portal CI ---> Jenkins CI
-사용자가 keycloak 인증받아서 Portal에서 Jenkins Job CRUD 가능
-빌드는 API로 연동된 Jenkins CI 웹에서 독립적으로 동작
-Portal이 내려가도 실행 중인 Jenkins Job에 영향 없음
+# Keycloak <--> Portal CD ---> Jenkins CD
+- 사용자가 keycloak 인증받아서 Portal에서 Jenkins Job CRUD 가능
+- 배포는 API로 연동된 Jenkins CD 웹에서 독립적으로 동작
+- Portal이 내려가도 실행 중인 Jenkins Job에 영향 없음
 
-Keycloak <--> Portal CD ---> Jenkins CD
-사용자가 keycloak 인증받아서 Portal에서 Jenkins Job CRUD 가능
-배포는 API로 연동된 Jenkins CD 웹에서 독립적으로 동작
-Portal이 내려가도 실행 중인 Jenkins Job에 영향 없음
+# Keycloak <--> Portal CI ---> Jira ---> Jira DB (Postgresql)
+- 사용자가 keycloak 인증받아서 Portal에서 JIRA CRUD하면 JIRA DB에 insert
 
-Keycloak <--> Portal CI ---> Jira ---> Jira DB (Postgresql)
-사용자가 keycloak 인증받아서 Portal에서 JIRA CRUD하면 JIRA DB에 insert
+# Keycloak <--> Jira ---> Jira DB (Postgresql)
+- 사용자가 직접 JIRA에서 JIRA CRUD
 
-Keycloak <--> Jira ---> Jira DB (Postgresql)
-사용자가 직접 JIRA에서 JIRA CRUD
+# Keycloak <--> Jenkins CI
+- 사용자가 직접 Jenkins CI에서 빌드
 
-Keycloak <--> Jenkins CI
-사용자가 직접 Jenkins CI에서 빌드
+# Keycloak <--> Jenkins CD
+- 사용자가 직접 Jenkins CD에서 배포
 
-Keycloak <--> Jenkins CD
-사용자가 직접 Jenkins CD에서 배포
-
-Keycloak <--> Jenkins CI --> Jenkins CD
-사용자가 직접 Jenkins CI에서 빌드 후 트리거로 Jenkins CD 배포
-
-[특정 오류 설명]
-Jira에서 attempt to unlock read lock 이라는 오류 내용이 나왔을 때 원인은
-Jira에서 WebHook 이벤트를 처리하면서 로그를 기록하거나 임시 데이터를 저장하려고 시도하는데, 디스크가 꽉 차있기 때문
+# Keycloak <--> Jenkins CI --> Jenkins CD
+- 사용자가 직접 Jenkins CI에서 빌드 후 트리거로 Jenkins CD 배포
 
 [Dev-Space 아키텍처 ]
 {
@@ -255,6 +249,10 @@ Jira에서 WebHook 이벤트를 처리하면서 로그를 기록하거나 임시
     }
   ]
 }
+
+[특정 오류 설명]
+Jira에서 attempt to unlock read lock 이라는 오류 내용이 나왔을 때 원인은
+Jira에서 WebHook 이벤트를 처리하면서 로그를 기록하거나 임시 데이터를 저장하려고 시도하는데, 디스크가 꽉 차있기 때문
 
 [서비스별 IP]
 jenkins CI - 10.217.66.97
