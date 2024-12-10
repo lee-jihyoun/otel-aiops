@@ -40,24 +40,24 @@
 
 <!-- 기본정보 -->
 <h2>기본정보</h2>
-<b>상위 서비스명</b>
+<b>단위 서비스명</b>
 <pre th:text="${service_name_kr} + ' (' + ${service_name_en} + ')'"></pre>
 
-<b>상위 서비스코드</b>
+<b>단위 서비스코드</b>
 <pre th:text="${service_code}"></pre>
 
-<b>상위 서비스 개요</b>
+<b>단위 서비스 개요</b>
 <pre th:text="${service_desc}"></pre>
 
 <div th:if="${service_name_kr_sub}">
     <hr>
-    <b>하위 서비스명</b>
+    <b>서비스명</b>
     <pre th:text="${service_name_kr_sub} + ' (' + ${service_name_en_sub} + ')'"></pre>
 
-    <b>하위 서비스코드</b>
+    <b>서비스 식별코드</b>
     <pre th:text="${service_code_sub}"></pre>
 
-    <b>하위 서비스 개요</b>
+    <b>서비스 개요</b>
     <pre th:text="${service_desc_sub}"></pre>
 </div>
 
